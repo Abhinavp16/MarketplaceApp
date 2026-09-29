@@ -532,17 +532,17 @@ class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
         physics: const BouncingScrollPhysics(),
         child: Row(
           children: [
-            _buildVoucherCard('Irrigation Kits', '20%', [
+            _buildVoucherCard('Power Tools', '20%', [
               const Color(0xFF134E4A),
               const Color(0xFF3B82F6),
             ], HugeIcons.strokeRoundedDroplet),
-            _buildVoucherCard('Premium Seeds', '15%', [
+            _buildVoucherCard('Safety Gear', '15%', [
               const Color(0xFF065F46),
               const Color(0xFF10B981),
             ], HugeIcons.strokeRoundedLeaf01),
-            _buildVoucherCard('Tractor Parts', '10%', [
-              const Color(0xFF5B21B6),
-              const Color(0xFF8B5CF6),
+            _buildVoucherCard('Fasteners', '10%', [
+              const Color(0xFF115E59),
+              const Color(0xFF14B8A6),
             ], HugeIcons.strokeRoundedSettings01),
           ],
         ),
@@ -562,7 +562,7 @@ class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
           final List<List<Color>> colorSets = [
             [const Color(0xFF134E4A), const Color(0xFF3B82F6)],
             [const Color(0xFF065F46), const Color(0xFF10B981)],
-            [const Color(0xFF5B21B6), const Color(0xFF8B5CF6)],
+            [const Color(0xFF115E59), const Color(0xFF14B8A6)],
             [const Color(0xFFB91C1C), const Color(0xFFEF4444)],
           ];
           final colors = colorSets[index % colorSets.length];

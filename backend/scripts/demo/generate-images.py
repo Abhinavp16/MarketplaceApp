@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 """
-Generates the placeholder PNGs shipped in assets/demo-images/ from the demo
-fixtures (colored tile + product name). Requires Pillow. The generated files
-are committed, so this only needs to be re-run when fixtures change:
+Generates the *synthetic* images shipped in assets/demo-images/:
+
+  * brands/*.png        - minimal wordmark logos for the three fictional brands
+  * logo.png            - "TradeHub Demo" wordmark
+  * payments/*.png      - a fake payment receipt
+  * ../demo-private/*   - fake wholesaler application proofs
+
+Product, category and banner images are real CC0 / public-domain photographs,
+processed once with Pillow and committed as JPEG (see assets/demo-images/CREDITS.md).
+They are NOT produced by this script.
+
+Requires Pillow. The generated files are committed, so this only needs to be
+re-run when the brand fixtures change:
 
     python3 scripts/demo/generate-images.py
 """
@@ -13,63 +23,121 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 FIX = os.path.join(ROOT, 'scripts', 'demo', 'fixtures')
 OUT = os.path.join(ROOT, 'assets', 'demo-images')
+SITE_FONTS = os.path.abspath(os.path.join(ROOT, '..', 'site', 'public', 'fonts', 'cabinet-grotesk'))
 
-FONT_CANDIDATES_BOLD = [
-    '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
-    '/Library/Fonts/Arial Bold.ttf',
-    '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-    '/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf',
-]
-FONT_CANDIDATES = [
-    '/System/Library/Fonts/Supplemental/Arial.ttf',
-    '/Library/Fonts/Arial.ttf',
-    '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-    '/usr/share/fonts/dejavu/DejaVuSans.ttf',
-]
+SS = 4  # supersampling factor for smooth edges
 
-
-def font(size, bold=True):
-    for path in (FONT_CANDIDATES_BOLD if bold else FONT_CANDIDATES):
-        if os.path.exists(path):
-            return ImageFont.truetype(path, size)
-    return ImageFont.load_default()
-
-
-BRAND_COLORS = {
-    'kestrel': ('#E8590C', '#FFF4E6'),
-    'anvilpoint': ('#1C7ED6', '#E7F5FF'),
-    'brightguard': ('#2F9E44', '#EBFBEE'),
-    'tradehub': ('#5F3DC4', '#F3F0FF'),
+INK = (22, 28, 38)
+BRANDS = {
+    'kestrel': {'color': (232, 89, 12), 'word': ('KESTREL', 'WORKS')},
+    'anvilpoint': {'color': (28, 126, 214), 'word': ('ANVILPOINT', 'HAND TOOLS')},
+    'brightguard': {'color': (47, 158, 68), 'word': ('BRIGHTGUARD', 'SAFETY')},
+    'tradehub': {'color': (13, 148, 136), 'word': ('TRADEHUB', 'DEMO')},
 }
 
 
-def load(name):
-    with open(os.path.join(FIX, name), encoding='utf-8') as fh:
-        return json.load(fh)
+def font_path(weight='Extrabold'):
+    candidates = [
+        os.path.join(SITE_FONTS, 'CabinetGrotesk-%s.otf' % weight),
+        '/System/Library/Fonts/HelveticaNeue.ttc',
+        '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
+        '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    return None
 
 
-def wrap(draw, text, fnt, max_width):
-    words, lines, line = text.split(), [], ''
-    for word in words:
-        trial = (line + ' ' + word).strip()
-        if draw.textlength(trial, font=fnt) <= max_width:
-            line = trial
-        else:
-            if line:
-                lines.append(line)
-            line = word
-    if line:
-        lines.append(line)
-    return lines
+def font(size, weight='Extrabold'):
+    path = font_path(weight)
+    return ImageFont.truetype(path, size) if path else ImageFont.load_default()
 
 
-def centered_block(draw, lines, fnt, cx, top, fill, spacing=10):
-    y = top
-    for line in lines:
-        w = draw.textlength(line, font=fnt)
-        draw.text((cx - w / 2, y), line, font=fnt, fill=fill)
-        y += fnt.size + spacing
-    return y
+def text_width(draw, text, fnt, tracking=0):
+    return sum(draw.textlength(ch, font=fnt) for ch in text) + tracking * (len(text) - 1)
+
+
+def draw_tracked(draw, x, y, text, fnt, fill, tracking=0):
+    for ch in text:
+        draw.text((x, y), ch, font=fnt, fill=fill)
+        x += draw.textlength(ch, font=fnt) + tracking
+    return x
+
+
+# ---- marks, each designed in a 100x100 box, scaled by s and offset by ox/oy ----
+def _pts(ox, oy, s, pts):
+    return [(ox + x * s, oy + y * s) for x, y in pts]
+
+
+def mark_kestrel(d, ox, oy, s, color):
+    """A stooping kestrel seen from above: swept wings around a notched head."""
+    d.polygon(_pts(ox, oy, s, [(0, 18), (34, 18), (50, 46), (66, 18), (100, 18), (58, 88), (42, 88)]), fill=color)
+    d.polygon(_pts(ox, oy, s, [(38, 18), (50, 36), (62, 18)]), fill=(255, 255, 255))
+
+
+def mark_anvilpoint(d, ox, oy, s, color):
+    """Abstract anvil: pointed horn, flat face and base."""
+    d.polygon(_pts(ox, oy, s, [(0, 24), (100, 24), (100, 44), (68, 48), (62, 68), (84, 68), (84, 90), (30, 90),
+                               (30, 68), (52, 68), (46, 48), (32, 44)]), fill=color)
+
+
+def mark_brightguard(d, ox, oy, s, color):
+    """Shield with a rising sun."""
+    d.polygon(_pts(ox, oy, s, [(50, 2), (92, 16), (90, 52), (72, 80), (50, 98), (28, 80), (10, 52), (8, 16)]), fill=color)
+    white = (255, 255, 255)
+    d.pieslice([ox + 27 * s, oy + 44 * s, ox + 73 * s, oy + 90 * s], 180, 360, fill=white)
+    for tri in [((50, 20), (45, 36), (55, 36)), ((28, 30), (31, 43), (40, 37)), ((72, 30), (69, 43), (60, 37))]:
+        d.polygon(_pts(ox, oy, s, tri), fill=white)
+
+
+def mark_tradehub(d, ox, oy, s, color):
+    """Stacked crates."""
+    d.rounded_rectangle([ox + 4 * s, oy + 52 * s, ox + 48 * s, oy + 96 * s], radius=6 * s, fill=color)
+    d.rounded_rectangle([ox + 52 * s, oy + 52 * s, ox + 96 * s, oy + 96 * s], radius=6 * s, fill=color)
+    d.rounded_rectangle([ox + 28 * s, oy + 6 * s, ox + 72 * s, oy + 48 * s], radius=6 * s, fill=(94, 234, 212))
+
+
+MARKS = {'kestrel': mark_kestrel, 'anvilpoint': mark_anvilpoint, 'brightguard': mark_brightguard, 'tradehub': mark_tradehub}
+
+
+def lockup(key, w, h, horizontal=False):
+    """Mark + wordmark lock-up rendered at w x h on white."""
+    brand = BRANDS[key]
+    color = brand['color']
+    main, sub = brand['word']
+    big = Image.new('RGB', (w * SS, h * SS), 'white')
+    d = ImageDraw.Draw(big)
+    if horizontal:
+        mark_h = h * SS * 0.5
+        f_main = font(int(h * SS * 0.30))
+        f_sub = font(int(h * SS * 0.12), 'Bold')
+    else:
+        mark_h = h * SS * 0.38
+        f_main = font(int(w * SS * (0.118 if len(main) > 8 else 0.165)))
+        f_sub = font(int(w * SS * 0.052), 'Bold')
+    tm = int(f_main.size * 0.04)
+    ts = int(f_sub.size * 0.45)
+    mw = text_width(d, main, f_main, tm)
+    sw = text_width(d, sub, f_sub, ts)
+    s = mark_h / 100.0
+    text_h = f_main.size * 1.12 + f_sub.size * 1.2
+    if horizontal:
+        gap = h * SS * 0.14
+        block = 100 * s + gap + max(mw, sw)
+        x0 = (w * SS - block) / 2
+        MARKS[key](d, x0, (h * SS - mark_h) / 2, s, color)
+        tx, ty = x0 + 100 * s + gap, (h * SS - text_h) / 2
+        draw_tracked(d, tx, ty, main, f_main, INK, tm)
+        draw_tracked(d, tx, ty + f_main.size * 1.12, sub, f_sub, color, ts)
+    else:
+        gap = h * SS * 0.07
+        top = (h * SS - (mark_h + gap + text_h)) / 2
+        MARKS[key](d, (w * SS - 100 * s) / 2, top, s, color)
+        ty = top + mark_h + gap
+        draw_tracked(d, (w * SS - mw) / 2, ty, main, f_main, INK, tm)
+        draw_tracked(d, (w * SS - sw) / 2, ty + f_main.size * 1.12, sub, f_sub, color, ts)
+    return big.resize((w, h), Image.LANCZOS)
 
 
 def save(img, rel):
@@ -78,75 +146,23 @@ def save(img, rel):
     img.save(path, 'PNG', optimize=True)
 
 
-def tile(size, brand_key, title, subtitle, footer='TradeHub Demo - placeholder image'):
-    strong, tint = BRAND_COLORS[brand_key]
-    img = Image.new('RGB', (size, size), tint)
-    d = ImageDraw.Draw(img)
-    bar = int(size * 0.14)
-    d.rectangle([0, 0, size, bar], fill=strong)
-    d.text((size * 0.05, bar * 0.22), subtitle.upper(), font=font(int(bar * 0.5)), fill='white')
-    # decorative ring
-    r = int(size * 0.25)
-    cx, cy = size // 2, int(size * 0.42)
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=strong)
-    d.ellipse([cx - r + 18, cy - r + 18, cx + r - 18, cy + r - 18], outline='white', width=6)
-    initials = ''.join(w[0] for w in title.replace('(', ' ').split() if w[0].isalpha())[:2].upper()
-    f_init = font(int(r * 0.9))
-    w = d.textlength(initials, font=f_init)
-    d.text((cx - w / 2, cy - f_init.size * 0.6), initials, font=f_init, fill='white')
-    f_title = font(int(size * 0.055))
-    lines = wrap(d, title, f_title, size * 0.88)[:3]
-    centered_block(d, lines, f_title, size / 2, int(size * 0.72), '#1B1B1F', spacing=8)
-    f_foot = font(int(size * 0.028), bold=False)
-    fw = d.textlength(footer, font=f_foot)
-    d.text((size / 2 - fw / 2, size * 0.955), footer, font=f_foot, fill='#5C5F66')
-    return img
-
-
-def banner(width, height, brand_key, headline, sub, tag):
-    strong, tint = BRAND_COLORS[brand_key]
-    img = Image.new('RGB', (width, height), strong)
-    d = ImageDraw.Draw(img)
-    d.rectangle([int(width * 0.62), 0, width, height], fill=tint)
-    d.ellipse([int(width * 0.66), int(height * 0.12), int(width * 0.98), int(height * 0.12) + int(width * 0.32)], fill=strong)
-    d.text((width * 0.05, height * 0.14), tag.upper(), font=font(int(height * 0.07)), fill='#FFE8CC')
-    f_head = font(int(height * 0.14))
-    y = height * 0.28
-    for line in wrap(d, headline, f_head, width * 0.52)[:3]:
-        d.text((width * 0.05, y), line, font=f_head, fill='white')
-        y += f_head.size + 10
-    f_sub = font(int(height * 0.065), bold=False)
-    for line in wrap(d, sub, f_sub, width * 0.52)[:3]:
-        d.text((width * 0.05, y + 14), line, font=f_sub, fill='#F1F3F5')
-        y += f_sub.size + 8
-    return img
-
-
-def logo(size, brand_key, text):
-    strong, tint = BRAND_COLORS[brand_key]
-    img = Image.new('RGB', (size, size), tint)
-    d = ImageDraw.Draw(img)
-    r = int(size * 0.42)
-    c = size // 2
-    d.ellipse([c - r, c - r, c + r, c + r], fill=strong)
-    initials = ''.join(w[0] for w in text.split()[:2]).upper()
-    f = font(int(size * 0.34))
-    w = d.textlength(initials, font=f)
-    d.text((c - w / 2, c - f.size * 0.6), initials, font=f, fill='white')
-    f2 = font(int(size * 0.075))
-    lines = wrap(d, text, f2, size * 0.9)[:2]
-    centered_block(d, lines, f2, c, int(size * 0.90) - len(lines) * f2.size, '#1B1B1F', spacing=4)
-    return img
+def sysfont(size, bold=False):
+    for path in ['/System/Library/Fonts/Supplemental/Arial%s.ttf' % (' Bold' if bold else ''),
+                 '/usr/share/fonts/truetype/dejavu/DejaVuSans%s.ttf' % ('-Bold' if bold else '')]:
+        if os.path.exists(path):
+            return ImageFont.truetype(path, size)
+    return ImageFont.load_default()
 
 
 def receipt():
     img = Image.new('RGB', (600, 800), 'white')
     d = ImageDraw.Draw(img)
-    d.rectangle([0, 0, 600, 90], fill=BRAND_COLORS['tradehub'][0])
-    d.text((30, 28), 'DEMO PAYMENT PROOF', font=font(32), fill='white')
+    d.rectangle([0, 0, 600, 90], fill=BRANDS['tradehub']['color'])
+    d.text((30, 28), 'DEMO PAYMENT PROOF', font=sysfont(32, True), fill='white')
     y = 130
-    for row in ['Transfer reference: DEMO-TRF-0001', 'Amount: 21,600.00 INR', 'Status: SUCCESS', 'Beneficiary: TradeHub Distribution (Demo)', '', 'Sample image - no real transaction.']:
-        d.text((30, y), row, font=font(24, bold=False), fill='#1B1B1F')
+    for row in ['Transfer reference: DEMO-TRF-0001', 'Amount: 21,600.00 INR', 'Status: SUCCESS',
+                'Beneficiary: TradeHub Distribution (Demo)', '', 'Sample image - no real transaction.']:
+        d.text((30, y), row, font=sysfont(24), fill='#1B1B1F')
         y += 44
     return img
 
@@ -154,48 +170,28 @@ def receipt():
 def proof(title, lines):
     img = Image.new('RGB', (640, 420), '#F8F9FA')
     d = ImageDraw.Draw(img)
-    d.rectangle([0, 0, 640, 70], fill=BRAND_COLORS['anvilpoint'][0])
-    d.text((24, 18), title, font=font(30), fill='white')
+    d.rectangle([0, 0, 640, 70], fill=BRANDS['anvilpoint']['color'])
+    d.text((24, 18), title, font=sysfont(30, True), fill='white')
     y = 110
     for row in lines:
-        d.text((24, y), row, font=font(24, bold=False), fill='#1B1B1F')
+        d.text((24, y), row, font=sysfont(24), fill='#1B1B1F')
         y += 44
-    d.text((24, 372), 'Sample document - fictional data', font=font(18, bold=False), fill='#5C5F66')
+    d.text((24, 372), 'Sample document - fictional data', font=sysfont(18), fill='#5C5F66')
     return img
 
 
 def main():
-    brands = {b['key']: b for b in load('brands.json')}
-    cats = {c['key']: c for c in load('categories.json')}
-
-    def brand_of(cat_key):
-        return cats[cat_key]['brand']
-
-    for p in load('products.json'):
-        b = brand_of(p['category'])
-        img = tile(800, b, p['name'], brands[b]['name'])
-        save(img, p['image'])
-
-    for c in cats.values():
-        img = tile(600, c['brand'], c['name'], brands[c['brand']]['name'], footer='Category - placeholder image')
-        save(img, c['image'])
-
-    for b in brands.values():
-        save(logo(400, b['key'], b['name']), b['logo'])
-
-    save(logo(512, 'tradehub', 'TradeHub Demo'), 'logo.png')
-
-    save(banner(1600, 600, 'kestrel', 'Distribution made simple', 'Tools, fasteners and safety gear at trade prices', 'TradeHub Demo'), 'banners/hero-1.png')
-    save(banner(1600, 600, 'anvilpoint', 'Negotiate bulk prices', 'Wholesale partners can request a better rate on any product', 'For wholesalers'), 'banners/hero-2.png')
-    save(banner(1200, 500, 'brightguard', 'Safety first', 'Helmets, gloves and boots in stock', 'Safety Gear'), 'banners/promo-1.png')
+    with open(os.path.join(FIX, 'brands.json'), encoding='utf-8') as fh:
+        brands = json.load(fh)
+    for b in brands:
+        save(lockup(b['key'], 600, 600), b['logo'])
+    save(lockup('tradehub', 1000, 300, horizontal=True), 'logo.png')
     save(receipt(), 'payments/sample-payment-proof.png')
-    # Private wholesaler-application proofs: stored outside the public tree and
-    # copied into the private media store by the seed.
     private_dir = os.path.join(ROOT, 'assets', 'demo-private')
     os.makedirs(private_dir, exist_ok=True)
     proof('SHOP FRONT (SAMPLE)', ['NewCo Traders', '9 Station Lane, Sample City', 'Demo State 000000']).save(os.path.join(private_dir, 'proof-shopfront.png'), 'PNG', optimize=True)
     proof('TRADE REGISTRATION (SAMPLE)', ['Registered name: NewCo Traders', 'Registration no: 00DDDDD0000D1Z0', 'Status: ACTIVE']).save(os.path.join(private_dir, 'proof-registration.png'), 'PNG', optimize=True)
-    print('Generated images in', OUT)
+    print('Generated synthetic images in', OUT)
 
 
 if __name__ == '__main__':

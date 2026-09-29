@@ -96,9 +96,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
   static const Color _txtSec = Color(0xFF64748B);
   static const Color _txtMuted = Color(0xFF94A3B8);
   static const Color _border = Color(0xFFE2E8F0);
-  static const Color _violet = Color(0xFF7C3AED);
+  static const Color _violet = Color(0xFF0F766E);
   static const Color _mrpAmount = Color(0xFF94A3B8);
-  static const Color _customerAmount = Color(0xFF6366F1);
+  static const Color _customerAmount = Color(0xFF0F766E);
   static const Color _specialAmountWholesale = Color(0xFF15803D);
 
   @override
@@ -2135,7 +2135,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+          colors: [Color(0xFF0F766E), Color(0xFF115E59)],
         ),
       ),
       child: Column(
@@ -4389,7 +4389,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
                   height: 50,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+                      colors: [Color(0xFF0F766E), Color(0xFF115E59)],
                     ),
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [

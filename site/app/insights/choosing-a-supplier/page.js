@@ -16,7 +16,7 @@ const sections = [
 export default function ChoosingASupplier() {
     return (
         <InsightArticle
-            image="/demo/insights/insight-1.png"
+            image="/demo/insights/insight-1.jpg"
             imageAlt="Abstract illustration of supplier checklist"
             category="Buying Guide"
             title="Choosing a Reliable Supplier: A Demo Checklist"

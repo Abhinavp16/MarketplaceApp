@@ -6,21 +6,21 @@ const blogPosts = [
         title: 'Choosing a Reliable Supplier: A Demo Checklist',
         category: 'Buying Guide',
         date: 'Demo',
-        image: '/demo/insights/insight-1.png',
+        image: '/demo/insights/insight-1.jpg',
         link: '/insights/choosing-a-supplier'
     },
     {
         title: 'Inventory Basics for Growing Distributors',
         category: 'Operations',
         date: 'Demo',
-        image: '/demo/insights/insight-2.png',
+        image: '/demo/insights/insight-2.jpg',
         link: '/insights/inventory-basics'
     },
     {
         title: 'Bulk Ordering Tips for Dealers and Retailers',
         category: 'Dealer Tips',
         date: 'Demo',
-        image: '/demo/insights/insight-3.png',
+        image: '/demo/insights/insight-3.jpg',
         link: '/insights/bulk-ordering-tips'
     },
 ];

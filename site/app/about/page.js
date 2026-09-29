@@ -63,14 +63,14 @@ export default async function AboutPage() {
                     <ScrollReveal className="relative">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <img
-                                src={productImages[0] || '/demo/about/about-product.png'}
+                                src={productImages[0] || '/demo/about/about-product.jpg'}
                                 className="h-72 w-full rounded-2xl object-cover object-center shadow-lg"
-                                alt="Demo product illustration"
+                                alt="Cordless drill and toolbox"
                             />
                             <img
-                                src="/demo/about/about-card.png"
+                                src="/demo/about/about-card.jpg"
                                 className="h-72 w-full rounded-2xl object-cover object-center shadow-lg"
-                                alt="Demo warehouse illustration"
+                                alt="Tool workshop wall"
                             />
                             <div className="bg-brand-primary p-6 rounded-2xl text-white sm:col-span-2">
                                 <p className="text-3xl font-bold italic mb-1">Demo placeholder content</p>

@@ -18,7 +18,7 @@ class AboutScreen extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
               gradient: const LinearGradient(
-                colors: [Color(0xFF4F46E5), Color(0xFF0F766E)],
+                colors: [Color(0xFF14B8A6), Color(0xFF0F766E)],
               ),
             ),
             child: Column(

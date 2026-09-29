@@ -1,7 +1,7 @@
 import ScrollReveal from '@/components/ScrollReveal';
 
-const fallbackProductImages = ['/demo/about/about-product.png', '/demo/about/about-card.png'];
-const aboutCardImage = '/demo/about/about-card.png';
+const fallbackProductImages = ['/demo/about/about-product.jpg', '/demo/about/about-card.jpg'];
+const aboutCardImage = '/demo/about/about-card.jpg';
 
 export default function AboutSection({ productImages = fallbackProductImages }) {
     const images = productImages.filter(Boolean).length > 0 ? productImages.filter(Boolean) : fallbackProductImages;

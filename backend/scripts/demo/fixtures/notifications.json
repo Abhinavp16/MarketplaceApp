@@ -4,7 +4,7 @@
       "user": "sunrise",
       "type": "negotiation_accepted",
       "title": "Order Created!",
-      "body": "TradeHub Demo accepted your requirement for Combination Spanner Set 12pc at ₹1300/unit. Order ORD-DEMO-1001 is ready to view.",
+      "body": "TradeHub Demo accepted your requirement for Combination Spanner Set 12 pc, 6-22 mm, Chrome Vanadium at ₹1300/unit. Order ORD-DEMO-1001 is ready to view.",
       "hoursAgo": 293,
       "isRead": true,
       "data": {
@@ -67,7 +67,7 @@
       "user": "metro",
       "type": "negotiation_countered",
       "title": "New Price from TradeHub Demo",
-      "body": "TradeHub Demo shared a new price ₹6300/unit for Impact Driver 20V. Review and respond.",
+      "body": "TradeHub Demo shared a new price ₹6300/unit for 20V Cordless Impact Drill Driver, 13 mm Chuck, 2-Speed (2 x 2.0 Ah). Review and respond.",
       "hoursAgo": 236,
       "isRead": false,
       "data": {
@@ -78,7 +78,7 @@
       "user": "bluepeak",
       "type": "negotiation_countered",
       "title": "New Price from TradeHub Demo",
-      "body": "TradeHub Demo shared a new price ₹345/unit for Safety Helmet with Ratchet. Review and respond.",
+      "body": "TradeHub Demo shared a new price ₹345/unit for Industrial Safety Helmet, Yellow, Ratchet Adjustment. Review and respond.",
       "hoursAgo": 20,
       "isRead": false,
       "data": {
@@ -89,7 +89,7 @@
       "user": "bluepeak",
       "type": "negotiation_rejected",
       "title": "Requirement Declined",
-      "body": "TradeHub Demo could not confirm requirement for Hex Bolt M10 x 50 (Box of 100): Below cost at this volume. Please resubmit at 100+ boxes.",
+      "body": "TradeHub Demo could not confirm requirement for Hex Bolt M10 x 50 mm, Stainless Steel A2 (Box of 100): Below cost at this volume. Please resubmit at 100+ boxes.",
       "hoursAgo": 80,
       "isRead": true,
       "data": {
@@ -102,7 +102,7 @@
       "type": "negotiation_created",
       "severity": "info",
       "title": "New deal request NGT-DEMO-1002",
-      "body": "Anita Desai requested 40 × Angle Grinder 850W 100mm at ₹2100/unit.",
+      "body": "Anita Desai requested 40 × 850 W Angle Grinder 100 mm, 12,000 rpm (Side Handle, Guard) at ₹2100/unit.",
       "link": "/negotiations",
       "hoursAgo": 6,
       "read": false,
@@ -152,7 +152,7 @@
       "type": "negotiation_created",
       "severity": "info",
       "title": "New deal request NGT-DEMO-1004",
-      "body": "Vikram Rao requested 60 × Hex Bolt M10 x 50 at ₹700/unit.",
+      "body": "Vikram Rao requested 60 × Hex Bolt M10 x 50 mm, Stainless Steel A2 (Box of 100) at ₹700/unit.",
       "link": "/negotiations",
       "hoursAgo": 96,
       "read": true,

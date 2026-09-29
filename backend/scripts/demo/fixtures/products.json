@@ -1,8 +1,8 @@
 [
   {
     "sku": "KW-DRL-18V",
-    "name": "Cordless Drill 18V",
-    "nameHindi": "कॉर्डलेस ड्रिल 18V",
+    "name": "18V Brushless Cordless Drill Driver, 13 mm Chuck (2 x 2.0 Ah)",
+    "nameHindi": "18V ब्रशलेस कॉर्डलेस ड्रिल ड्राइवर, 13 मिमी चक (2 x 2.0 Ah)",
     "category": "drills-drivers",
     "mrp": 7499,
     "retailPrice": 6499,
@@ -10,37 +10,47 @@
     "minWholesaleQuantity": 5,
     "stock": 1200,
     "priceUnit": "piece",
-    "packing": "1 kit (2 batteries + charger)",
-    "shortDescription": "18V brushless cordless drill with 13mm chuck.",
-    "description": "18V brushless cordless drill with 13mm chuck. Demo catalogue item.",
+    "packing": "1 kit (drill, 2 x 2.0 Ah batteries, fast charger, carry case)",
+    "shortDescription": "Compact 18V brushless drill driver with 13 mm keyless chuck and 2 batteries.",
+    "description": "Brushless 18V drill driver with a 13 mm keyless metal chuck, 20+1 torque settings and a built-in LED work light. Delivers up to 55 Nm for wood, steel and masonry drilling and screw driving. Supplied as a kit with two 2.0 Ah Li-ion batteries, a 1-hour charger and a carry case.",
     "tags": [
       "drill",
       "cordless",
-      "18v"
+      "18v",
+      "brushless",
+      "drill driver"
     ],
     "isFeatured": true,
     "isHot": true,
     "specifications": [
       {
         "key": "Voltage",
-        "value": "18 V"
+        "value": "18 V Li-ion"
       },
       {
         "key": "Chuck",
-        "value": "13 mm keyless"
+        "value": "13 mm keyless, metal"
       },
       {
-        "key": "Torque",
+        "key": "Max torque",
         "value": "55 Nm"
+      },
+      {
+        "key": "No-load speed",
+        "value": "0-450 / 0-1,800 rpm"
+      },
+      {
+        "key": "Battery",
+        "value": "2 x 2.0 Ah"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/kw-drl-18v.png"
+    "image": "products/kw-drl-18v.jpg"
   },
   {
     "sku": "KW-IMP-20V",
-    "name": "Impact Driver 20V",
-    "nameHindi": "इम्पैक्ट ड्राइवर 20V",
+    "name": "20V Cordless Impact Drill Driver, 13 mm Chuck, 2-Speed (2 x 2.0 Ah)",
+    "nameHindi": "20V कॉर्डलेस इम्पैक्ट ड्रिल ड्राइवर, 13 मिमी चक, 2-स्पीड (2 x 2.0 Ah)",
     "category": "drills-drivers",
     "mrp": 8999,
     "retailPrice": 7899,
@@ -48,33 +58,47 @@
     "minWholesaleQuantity": 5,
     "stock": 900,
     "priceUnit": "piece",
-    "packing": "1 kit (2 batteries + charger)",
-    "shortDescription": "Compact 20V impact driver for fastening jobs.",
-    "description": "Compact 20V impact driver for fastening jobs. Demo catalogue item.",
+    "packing": "1 kit (tool, 2 x 2.0 Ah batteries, charger)",
+    "shortDescription": "Compact 20V impact drill driver with 2-speed gearbox for fastening and drilling.",
+    "description": "Compact 20V drill driver with impact mode for driving long screws and drilling into brick or timber. The two-speed gearbox and 13 mm chuck cover most workshop and site jobs. Includes two 2.0 Ah batteries and a rapid charger.",
     "tags": [
       "driver",
       "impact",
-      "20v"
+      "20v",
+      "cordless",
+      "drill"
     ],
     "isFeatured": true,
     "isHot": false,
     "specifications": [
       {
         "key": "Voltage",
-        "value": "20 V"
+        "value": "20 V Li-ion"
       },
       {
         "key": "Max torque",
         "value": "180 Nm"
+      },
+      {
+        "key": "Chuck",
+        "value": "13 mm keyless"
+      },
+      {
+        "key": "Speed",
+        "value": "0-500 / 0-1,900 rpm"
+      },
+      {
+        "key": "Battery",
+        "value": "2 x 2.0 Ah"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/kw-imp-20v.png"
+    "image": "products/kw-imp-20v.jpg"
   },
   {
     "sku": "KW-RHD-800",
-    "name": "Rotary Hammer Drill 800W",
-    "nameHindi": "रोटरी हैमर ड्रिल 800W",
+    "name": "800 W SDS-plus Rotary Hammer, 26 mm, 2.7 J (3 Modes)",
+    "nameHindi": "800 W SDS-प्लस रोटरी हैमर, 26 मिमी, 2.7 J (3 मोड)",
     "category": "drills-drivers",
     "mrp": 9499,
     "retailPrice": 8299,
@@ -82,13 +106,15 @@
     "minWholesaleQuantity": 3,
     "stock": 700,
     "priceUnit": "piece",
-    "packing": "1 case",
-    "shortDescription": "SDS-plus rotary hammer for concrete and masonry.",
-    "description": "SDS-plus rotary hammer for concrete and masonry. Demo catalogue item.",
+    "packing": "1 case (hammer, side handle, depth stop, chisel and bit)",
+    "shortDescription": "800 W SDS-plus rotary hammer for concrete and masonry with chiselling mode.",
+    "description": "800 W SDS-plus rotary hammer for drilling and chiselling in concrete, brick and stone. Three modes (drill, hammer drill, chisel) with a 2.7 J impact energy and drilling capacity up to 26 mm in concrete. Supplied in a carry case with side handle and depth stop.",
     "tags": [
       "hammer",
       "sds",
-      "drill"
+      "rotary hammer",
+      "drill",
+      "concrete"
     ],
     "isFeatured": false,
     "isHot": false,
@@ -100,15 +126,27 @@
       {
         "key": "Impact energy",
         "value": "2.7 J"
+      },
+      {
+        "key": "Concrete drilling",
+        "value": "up to 26 mm"
+      },
+      {
+        "key": "Chuck",
+        "value": "SDS-plus"
+      },
+      {
+        "key": "Modes",
+        "value": "Drill / Hammer / Chisel"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/kw-rhd-800.png"
+    "image": "products/kw-rhd-800.jpg"
   },
   {
     "sku": "KW-AGR-850",
-    "name": "Angle Grinder 850W 100mm",
-    "nameHindi": "एंगल ग्राइंडर 850W 100mm",
+    "name": "850 W Angle Grinder 100 mm, 12,000 rpm (Side Handle, Guard)",
+    "nameHindi": "850 W एंगल ग्राइंडर 100 मिमी, 12,000 rpm (साइड हैंडल, गार्ड)",
     "category": "grinders-sanders",
     "mrp": 3299,
     "retailPrice": 2799,
@@ -116,13 +154,14 @@
     "minWholesaleQuantity": 10,
     "stock": 2400,
     "priceUnit": "piece",
-    "packing": "1 piece",
-    "shortDescription": "850W angle grinder with side handle and guard.",
-    "description": "850W angle grinder with side handle and guard. Demo catalogue item.",
+    "packing": "1 piece (grinder, side handle, guard, spanner)",
+    "shortDescription": "850 W, 100 mm angle grinder with side handle and adjustable wheel guard.",
+    "description": "850 W angle grinder for cutting, grinding and deburring metal, tile and masonry with 100 mm discs. The slim body, spindle lock and adjustable guard make it easy to handle on site. Supplied with side handle and a wheel spanner.",
     "tags": [
       "grinder",
-      "angle",
-      "850w"
+      "angle grinder",
+      "850w",
+      "100mm"
     ],
     "isFeatured": true,
     "isHot": true,
@@ -132,21 +171,29 @@
         "value": "850 W"
       },
       {
-        "key": "Disc",
+        "key": "Disc diameter",
         "value": "100 mm"
       },
       {
-        "key": "Speed",
-        "value": "11000 rpm"
+        "key": "No-load speed",
+        "value": "12,000 rpm"
+      },
+      {
+        "key": "Spindle thread",
+        "value": "M10"
+      },
+      {
+        "key": "Cable",
+        "value": "2 m"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/kw-agr-850.png"
+    "image": "products/kw-agr-850.jpg"
   },
   {
     "sku": "KW-SND-300",
-    "name": "Orbital Sander 300W",
-    "nameHindi": "ऑर्बिटल सैंडर 300W",
+    "name": "300 W Random Orbital Sander 125 mm with Dust Bag",
+    "nameHindi": "300 W रैंडम ऑर्बिटल सैंडर 125 मिमी, डस्ट बैग सहित",
     "category": "grinders-sanders",
     "mrp": 2599,
     "retailPrice": 2199,
@@ -154,12 +201,14 @@
     "minWholesaleQuantity": 10,
     "stock": 1500,
     "priceUnit": "piece",
-    "packing": "1 piece",
-    "shortDescription": "Lightweight orbital sander with dust bag.",
-    "description": "Lightweight orbital sander with dust bag. Demo catalogue item.",
+    "packing": "1 piece (sander, dust bag, 3 sanding discs)",
+    "shortDescription": "300 W 125 mm random orbital sander with hook-and-loop pad and dust bag.",
+    "description": "300 W random orbital sander with a 125 mm hook-and-loop pad for fast, swirl-free finishing of wood and paint. Variable speed and an integrated dust bag keep the work surface clean. Supplied with three sanding discs.",
     "tags": [
       "sander",
-      "orbital"
+      "orbital",
+      "300w",
+      "finishing"
     ],
     "isFeatured": false,
     "isHot": false,
@@ -169,17 +218,29 @@
         "value": "300 W"
       },
       {
-        "key": "Pad",
+        "key": "Pad size",
         "value": "125 mm"
+      },
+      {
+        "key": "Orbit",
+        "value": "2.5 mm"
+      },
+      {
+        "key": "Speed",
+        "value": "7,000-12,000 opm"
+      },
+      {
+        "key": "Dust collection",
+        "value": "Bag, 12 mm hose port"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/kw-snd-300.png"
+    "image": "products/kw-snd-300.jpg"
   },
   {
     "sku": "KW-JSW-650",
-    "name": "Jigsaw 650W",
-    "nameHindi": "जिगसॉ 650W",
+    "name": "650 W Jigsaw, 65 mm Cutting Depth, Variable Speed (3 Blades)",
+    "nameHindi": "650 W जिगसॉ, 65 मिमी कटिंग डेप्थ, वेरिएबल स्पीड (3 ब्लेड)",
     "category": "saws",
     "mrp": 3899,
     "retailPrice": 3299,
@@ -188,11 +249,13 @@
     "stock": 1100,
     "priceUnit": "piece",
     "packing": "1 piece + 3 blades",
-    "shortDescription": "Variable-speed jigsaw with orbital action.",
-    "description": "Variable-speed jigsaw with orbital action. Demo catalogue item.",
+    "shortDescription": "650 W variable-speed jigsaw cutting up to 65 mm in wood.",
+    "description": "650 W jigsaw with pendulum action and variable speed for clean curved and straight cuts. Cuts up to 65 mm in wood and 6 mm in steel, and the tool-free blade change speeds up jobs. Supplied with three assorted blades.",
     "tags": [
       "jigsaw",
-      "saw"
+      "saw",
+      "650w",
+      "woodworking"
     ],
     "isFeatured": false,
     "isHot": false,
@@ -202,17 +265,29 @@
         "value": "650 W"
       },
       {
-        "key": "Cut depth",
+        "key": "Cut depth (wood)",
         "value": "65 mm"
+      },
+      {
+        "key": "Cut depth (steel)",
+        "value": "6 mm"
+      },
+      {
+        "key": "Stroke rate",
+        "value": "0-3,000 spm"
+      },
+      {
+        "key": "Bevel",
+        "value": "0-45 degrees"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/kw-jsw-650.png"
+    "image": "products/kw-jsw-650.jpg"
   },
   {
     "sku": "KW-CSW-1200",
-    "name": "Circular Saw 1200W 185mm",
-    "nameHindi": "सर्कुलर सॉ 1200W 185mm",
+    "name": "1200 W Circular Saw 185 mm, 65 mm Depth of Cut (Blade Included)",
+    "nameHindi": "1200 W सर्कुलर सॉ 185 मिमी, 65 मिमी कटिंग डेप्थ (ब्लेड सहित)",
     "category": "saws",
     "mrp": 6999,
     "retailPrice": 5999,
@@ -220,12 +295,14 @@
     "minWholesaleQuantity": 5,
     "stock": 800,
     "priceUnit": "piece",
-    "packing": "1 piece + blade",
-    "shortDescription": "1200W circular saw with laser guide.",
-    "description": "1200W circular saw with laser guide. Demo catalogue item.",
+    "packing": "1 piece + 24T blade",
+    "shortDescription": "1200 W handheld circular saw with 185 mm blade and adjustable bevel.",
+    "description": "1200 W handheld circular saw for ripping and cross-cutting timber, boards and panels. Cuts up to 65 mm deep at 90 degrees with a bevel setting up to 45 degrees and an integrated dust port. Supplied with a 24-tooth 185 mm blade.",
     "tags": [
       "circular",
-      "saw"
+      "saw",
+      "1200w",
+      "185mm"
     ],
     "isFeatured": false,
     "isHot": false,
@@ -235,17 +312,29 @@
         "value": "1200 W"
       },
       {
-        "key": "Blade",
+        "key": "Blade diameter",
         "value": "185 mm"
+      },
+      {
+        "key": "Cut depth at 90 degrees",
+        "value": "65 mm"
+      },
+      {
+        "key": "Bevel",
+        "value": "0-45 degrees"
+      },
+      {
+        "key": "No-load speed",
+        "value": "5,000 rpm"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/kw-csw-1200.png"
+    "image": "products/kw-csw-1200.jpg"
   },
   {
     "sku": "AP-CSS-12",
-    "name": "Combination Spanner Set 12pc",
-    "nameHindi": "कॉम्बिनेशन स्पैनर सेट 12पीस",
+    "name": "Combination Spanner Set 12 pc, 6-22 mm, Chrome Vanadium",
+    "nameHindi": "कॉम्बिनेशन स्पैनर सेट 12 पीस, 6-22 मिमी, क्रोम वैनेडियम",
     "category": "wrenches-pliers",
     "mrp": 2199,
     "retailPrice": 1799,
@@ -253,33 +342,43 @@
     "minWholesaleQuantity": 10,
     "stock": 3000,
     "priceUnit": "set",
-    "packing": "1 set (6-22mm)",
-    "shortDescription": "Chrome vanadium combination spanners, 6 to 22 mm.",
-    "description": "Chrome vanadium combination spanners, 6 to 22 mm. Demo catalogue item.",
+    "packing": "1 set (12 spanners, 6-22 mm)",
+    "shortDescription": "12-piece chrome vanadium combination spanner set, 6 to 22 mm.",
+    "description": "Drop-forged chrome vanadium combination spanners with a 15-degree offset ring end and a polished finish. The 12-piece metric set (6, 8, 10, 12, 13, 14, 15, 17, 19, 21, 22 mm) covers everyday workshop and maintenance work. Supplied in a roll-up pouch.",
     "tags": [
       "spanner",
       "wrench",
-      "set"
+      "set",
+      "combination",
+      "chrome vanadium"
     ],
     "isFeatured": true,
     "isHot": false,
     "specifications": [
       {
         "key": "Material",
-        "value": "Chrome vanadium"
+        "value": "Chrome vanadium steel"
       },
       {
         "key": "Sizes",
-        "value": "6-22 mm"
+        "value": "6-22 mm (12 pieces)"
+      },
+      {
+        "key": "Finish",
+        "value": "Polished chrome"
+      },
+      {
+        "key": "Type",
+        "value": "Combination (ring + open end)"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-css-12.png"
+    "image": "products/ap-css-12.jpg"
   },
   {
-    "sku": "AP-ADJ-10",
-    "name": "Adjustable Wrench 10-inch",
-    "nameHindi": "एडजस्टेबल रिंच 10 इंच",
+    "sku": "AP-ADJ-06",
+    "name": "Adjustable Wrench 6 inch (150 mm), Drop Forged, Chrome Plated",
+    "nameHindi": "एडजस्टेबल रिंच 6 इंच (150 मिमी), ड्रॉप फोर्ज्ड, क्रोम प्लेटेड",
     "category": "wrenches-pliers",
     "mrp": 549,
     "retailPrice": 449,
@@ -288,27 +387,40 @@
     "stock": 4200,
     "priceUnit": "piece",
     "packing": "1 piece",
-    "shortDescription": "Forged 10-inch adjustable wrench.",
-    "description": "Forged 10-inch adjustable wrench. Demo catalogue item.",
+    "shortDescription": "6 inch drop-forged adjustable wrench with a 20 mm jaw opening.",
+    "description": "Drop-forged carbon steel adjustable wrench with a smooth worm-gear adjustment and a chrome-plated finish. Opens to 20 mm and is ideal for plumbing, electrical and general maintenance jobs.",
     "tags": [
       "wrench",
-      "adjustable"
+      "adjustable",
+      "6 inch"
     ],
     "isFeatured": false,
     "isHot": false,
     "specifications": [
       {
         "key": "Length",
-        "value": "10 inch"
+        "value": "6 inch (150 mm)"
+      },
+      {
+        "key": "Jaw opening",
+        "value": "20 mm"
+      },
+      {
+        "key": "Material",
+        "value": "Drop-forged carbon steel"
+      },
+      {
+        "key": "Finish",
+        "value": "Chrome plated"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-adj-10.png"
+    "image": "products/ap-adj-06.jpg"
   },
   {
     "sku": "AP-PLR-8",
-    "name": "Slip Joint Pliers 8-inch",
-    "nameHindi": "स्लिप जॉइंट प्लायर 8 इंच",
+    "name": "Slip Joint Pliers 8 inch, Drop Forged, PVC-Dipped Handles",
+    "nameHindi": "स्लिप जॉइंट प्लायर 8 इंच, ड्रॉप फोर्ज्ड, पीवीसी हैंडल",
     "category": "wrenches-pliers",
     "mrp": 399,
     "retailPrice": 329,
@@ -317,26 +429,40 @@
     "stock": 3800,
     "priceUnit": "piece",
     "packing": "1 piece",
-    "shortDescription": "Insulated-grip slip joint pliers.",
-    "description": "Insulated-grip slip joint pliers. Demo catalogue item.",
+    "shortDescription": "8 inch drop-forged slip joint pliers with dipped grips.",
+    "description": "Drop-forged slip joint pliers with hardened serrated jaws and a two-position pivot for gripping round and flat stock. Comfort PVC-dipped handles give a secure grip. Suitable for general workshop use.",
     "tags": [
-      "pliers"
+      "pliers",
+      "slip joint",
+      "8 inch"
     ],
     "isFeatured": false,
     "isHot": false,
     "specifications": [
       {
         "key": "Length",
-        "value": "8 inch"
+        "value": "8 inch (200 mm)"
+      },
+      {
+        "key": "Jaw opening",
+        "value": "Two positions"
+      },
+      {
+        "key": "Material",
+        "value": "Drop-forged steel"
+      },
+      {
+        "key": "Handle",
+        "value": "PVC dipped"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-plr-8.png"
+    "image": "products/ap-plr-8.jpg"
   },
   {
     "sku": "AP-TPE-5M",
-    "name": "Steel Measuring Tape 5m",
-    "nameHindi": "स्टील मेजरिंग टेप 5 मीटर",
+    "name": "Steel Measuring Tape 5 m x 19 mm, Auto-Lock, Metric/Inch",
+    "nameHindi": "स्टील मेजरिंग टेप 5 मीटर x 19 मिमी, ऑटो-लॉक, मीट्रिक/इंच",
     "category": "measuring-marking",
     "mrp": 249,
     "retailPrice": 199,
@@ -345,31 +471,41 @@
     "stock": 5000,
     "priceUnit": "piece",
     "packing": "1 piece",
-    "shortDescription": "5 metre steel tape with auto-lock.",
-    "description": "5 metre steel tape with auto-lock. Demo catalogue item.",
+    "shortDescription": "5 m x 19 mm steel tape with auto-lock and belt clip.",
+    "description": "Pocket steel measuring tape with a 5 m x 19 mm blade printed in metric and inches. The auto-lock button holds the blade in place, and the hooked end tab and belt clip make one-handed measuring easy.",
     "tags": [
       "tape",
-      "measuring"
+      "measuring",
+      "5m",
+      "steel tape"
     ],
     "isFeatured": false,
     "isHot": true,
     "specifications": [
       {
         "key": "Length",
-        "value": "5 m"
+        "value": "5 m / 16 ft"
       },
       {
-        "key": "Width",
+        "key": "Blade width",
         "value": "19 mm"
+      },
+      {
+        "key": "Scale",
+        "value": "Metric and inch"
+      },
+      {
+        "key": "Lock",
+        "value": "Auto-lock"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-tpe-5m.png"
+    "image": "products/ap-tpe-5m.jpg"
   },
   {
     "sku": "AP-HXB-M10",
-    "name": "Hex Bolt M10 x 50 (Box of 100)",
-    "nameHindi": "हेक्स बोल्ट M10 x 50 (100 का डिब्बा)",
+    "name": "Hex Bolt M10 x 50 mm, Stainless Steel A2 (Box of 100)",
+    "nameHindi": "हेक्स बोल्ट M10 x 50 मिमी, स्टेनलेस स्टील A2 (100 का डिब्बा)",
     "category": "bolts-nuts",
     "mrp": 1299,
     "retailPrice": 1049,
@@ -378,12 +514,13 @@
     "stock": 2600,
     "priceUnit": "box",
     "packing": "Box of 100",
-    "shortDescription": "Zinc-plated grade 8.8 hex bolts.",
-    "description": "Zinc-plated grade 8.8 hex bolts. Demo catalogue item.",
+    "shortDescription": "Stainless steel A2 hex head bolts, M10 x 50 mm, fully threaded, box of 100.",
+    "description": "Fully threaded hex head bolts in A2 (304) stainless steel for outdoor and corrosion-prone fixings. Metric M10 x 50 mm thread with 1.5 mm pitch, packed in a box of 100 pieces.",
     "tags": [
       "bolt",
       "hex",
-      "m10"
+      "m10",
+      "stainless"
     ],
     "isFeatured": false,
     "isHot": false,
@@ -393,17 +530,29 @@
         "value": "M10 x 50 mm"
       },
       {
-        "key": "Grade",
-        "value": "8.8"
+        "key": "Material",
+        "value": "Stainless steel A2 (304)"
+      },
+      {
+        "key": "Thread",
+        "value": "Fully threaded, 1.5 mm pitch"
+      },
+      {
+        "key": "Head",
+        "value": "Hexagon, DIN 933"
+      },
+      {
+        "key": "Quantity",
+        "value": "100 pieces"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-hxb-m10.png"
+    "image": "products/ap-hxb-m10.jpg"
   },
   {
     "sku": "AP-HXN-M10",
-    "name": "Hex Nut M10 (Box of 200)",
-    "nameHindi": "हेक्स नट M10 (200 का डिब्बा)",
+    "name": "Hex Nut M10, Zinc Plated, Grade 8 (Box of 200)",
+    "nameHindi": "हेक्स नट M10, जिंक प्लेटेड, ग्रेड 8 (200 का डिब्बा)",
     "category": "bolts-nuts",
     "mrp": 899,
     "retailPrice": 729,
@@ -412,32 +561,45 @@
     "stock": 2800,
     "priceUnit": "box",
     "packing": "Box of 200",
-    "shortDescription": "Zinc-plated hex nuts to match M10 bolts.",
-    "description": "Zinc-plated hex nuts to match M10 bolts. Demo catalogue item.",
+    "shortDescription": "Zinc plated M10 hex nuts, grade 8, box of 200.",
+    "description": "Full hex nuts in zinc-plated carbon steel for use with M10 bolts and studs. Grade 8 strength with a bright zinc finish for general engineering and construction use, supplied in a box of 200.",
     "tags": [
       "nut",
       "hex",
-      "m10"
+      "m10",
+      "zinc"
     ],
     "isFeatured": false,
     "isHot": false,
     "specifications": [
       {
         "key": "Size",
-        "value": "M10"
+        "value": "M10 (1.5 mm pitch)"
       },
       {
         "key": "Grade",
         "value": "8"
+      },
+      {
+        "key": "Finish",
+        "value": "Bright zinc plated"
+      },
+      {
+        "key": "Standard",
+        "value": "DIN 934"
+      },
+      {
+        "key": "Quantity",
+        "value": "200 pieces"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-hxn-m10.png"
+    "image": "products/ap-hxn-m10.jpg"
   },
   {
-    "sku": "AP-SDS-48",
-    "name": "Self-Drilling Screw 4.8 x 38 (Box of 500)",
-    "nameHindi": "सेल्फ ड्रिलिंग स्क्रू 4.8 x 38 (500 का डिब्बा)",
+    "sku": "AP-CSK-48",
+    "name": "Countersunk Pozi Wood Screw 4.8 x 38 mm, Zinc Plated (Box of 500)",
+    "nameHindi": "काउंटरसंक पोज़ी वुड स्क्रू 4.8 x 38 मिमी, जिंक प्लेटेड (500 का डिब्बा)",
     "category": "screws-anchors",
     "mrp": 1099,
     "retailPrice": 899,
@@ -446,11 +608,13 @@
     "stock": 2200,
     "priceUnit": "box",
     "packing": "Box of 500",
-    "shortDescription": "Hex-head self-drilling roofing screws.",
-    "description": "Hex-head self-drilling roofing screws. Demo catalogue item.",
+    "shortDescription": "Zinc plated countersunk pozidriv wood screws, 4.8 x 38 mm, box of 500.",
+    "description": "Countersunk Pozidriv screws with a sharp point and a deep thread for chipboard, MDF and softwood. The zinc-plated finish resists corrosion in interior use. Packed in a box of 500 for fast site restocking.",
     "tags": [
       "screw",
-      "self-drilling"
+      "wood screw",
+      "pozi",
+      "countersunk"
     ],
     "isFeatured": false,
     "isHot": false,
@@ -458,44 +622,74 @@
       {
         "key": "Size",
         "value": "4.8 x 38 mm"
+      },
+      {
+        "key": "Head",
+        "value": "Countersunk, Pozidriv PZ2"
+      },
+      {
+        "key": "Finish",
+        "value": "Zinc plated"
+      },
+      {
+        "key": "Quantity",
+        "value": "500 pieces"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-sds-48.png"
+    "image": "products/ap-csk-48.jpg"
   },
   {
-    "sku": "AP-WAN-M12",
-    "name": "Wedge Anchor M12 x 100 (Pack of 50)",
-    "nameHindi": "वेज एंकर M12 x 100 (50 का पैक)",
+    "sku": "AP-FRA-10",
+    "name": "Nylon Frame Anchor 10 x 100 mm with Steel Screw (Pack of 50)",
+    "nameHindi": "नायलॉन फ्रेम एंकर 10 x 100 मिमी, स्टील स्क्रू सहित (50 का पैक)",
     "category": "screws-anchors",
-    "mrp": 1499,
-    "retailPrice": 1249,
-    "wholesalePrice": 930,
+    "mrp": 799,
+    "retailPrice": 649,
+    "wholesalePrice": 480,
     "minWholesaleQuantity": 10,
     "stock": 1900,
     "priceUnit": "pack",
     "packing": "Pack of 50",
-    "shortDescription": "Heavy-duty wedge anchors for concrete.",
-    "description": "Heavy-duty wedge anchors for concrete. Demo catalogue item.",
+    "shortDescription": "Nylon frame anchors with steel screws for door and window frames, pack of 50.",
+    "description": "Long nylon frame anchors with pre-fitted zinc-plated steel screws for fixing door and window frames, battens and rails into concrete and brick. Drill a 10 mm hole, tap the anchor in and drive the screw to expand it. Pack of 50 sets.",
     "tags": [
       "anchor",
-      "wedge"
+      "frame anchor",
+      "nylon",
+      "fixing"
     ],
     "isFeatured": false,
     "isHot": false,
     "specifications": [
       {
         "key": "Size",
-        "value": "M12 x 100 mm"
+        "value": "10 x 100 mm"
+      },
+      {
+        "key": "Anchor material",
+        "value": "Nylon PA6"
+      },
+      {
+        "key": "Screw",
+        "value": "Zinc plated steel, Torx head"
+      },
+      {
+        "key": "Drill hole",
+        "value": "10 mm"
+      },
+      {
+        "key": "Quantity",
+        "value": "50 sets"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-wan-m12.png"
+    "image": "products/ap-fra-10.jpg"
   },
   {
-    "sku": "AP-BBV-1IN",
-    "name": "Brass Ball Valve 1-inch",
-    "nameHindi": "ब्रास बॉल वाल्व 1 इंच",
+    "sku": "AP-BEL-34",
+    "name": "Brass Elbow 90 Degree 3/4 inch BSP, Female-Male (Pack of 10)",
+    "nameHindi": "ब्रास एल्बो 90 डिग्री 3/4 इंच BSP, फीमेल-मेल (10 का पैक)",
     "category": "pipe-fittings",
     "mrp": 899,
     "retailPrice": 749,
@@ -503,33 +697,47 @@
     "minWholesaleQuantity": 20,
     "stock": 1800,
     "priceUnit": "piece",
-    "packing": "1 piece",
-    "shortDescription": "Full-bore brass ball valve with lever handle.",
-    "description": "Full-bore brass ball valve with lever handle. Demo catalogue item.",
+    "packing": "Pack of 10",
+    "shortDescription": "Forged brass 90 degree elbows, 3/4 inch BSP, pack of 10.",
+    "description": "Forged brass 90-degree elbows with 3/4 inch BSP threads (female one end, male the other) for water and air lines. Machined threads seal reliably with PTFE tape. Pack of 10 pieces.",
     "tags": [
-      "valve",
+      "elbow",
       "brass",
-      "ball"
+      "fitting",
+      "3/4 inch",
+      "plumbing"
     ],
     "isFeatured": false,
     "isHot": false,
     "specifications": [
       {
         "key": "Size",
-        "value": "1 inch"
+        "value": "3/4 inch BSP"
       },
       {
         "key": "Material",
-        "value": "Brass"
+        "value": "Forged brass"
+      },
+      {
+        "key": "Angle",
+        "value": "90 degrees"
+      },
+      {
+        "key": "Threads",
+        "value": "Female x Male"
+      },
+      {
+        "key": "Quantity",
+        "value": "10 pieces"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/ap-bbv-1in.png"
+    "image": "products/ap-bel-34.jpg"
   },
   {
     "sku": "BG-HLM-RT",
-    "name": "Safety Helmet with Ratchet",
-    "nameHindi": "सेफ्टी हेलमेट (रैचेट)",
+    "name": "Industrial Safety Helmet, Yellow, Ratchet Adjustment",
+    "nameHindi": "इंडस्ट्रियल सेफ्टी हेलमेट, पीला, रैचेट एडजस्टमेंट",
     "category": "head-eye-protection",
     "mrp": 599,
     "retailPrice": 499,
@@ -538,31 +746,41 @@
     "stock": 4500,
     "priceUnit": "piece",
     "packing": "1 piece",
-    "shortDescription": "Ventilated safety helmet with ratchet adjustment.",
-    "description": "Ventilated safety helmet with ratchet adjustment. Demo catalogue item.",
+    "shortDescription": "Yellow industrial safety helmet with adjustable harness.",
+    "description": "Lightweight industrial safety helmet with a high-impact shell, 4-point textile harness and a ratchet dial for one-hand fit adjustment. Suitable for construction, factory and warehouse use. Available in yellow.",
     "tags": [
       "helmet",
-      "safety"
+      "safety",
+      "hard hat",
+      "head protection"
     ],
     "isFeatured": true,
     "isHot": true,
     "specifications": [
       {
-        "key": "Material",
-        "value": "HDPE"
+        "key": "Shell",
+        "value": "High-impact HDPE"
       },
       {
-        "key": "Adjustment",
-        "value": "Ratchet"
+        "key": "Harness",
+        "value": "4-point, ratchet adjust"
+      },
+      {
+        "key": "Colour",
+        "value": "Yellow"
+      },
+      {
+        "key": "Head size",
+        "value": "52-64 cm"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/bg-hlm-rt.png"
+    "image": "products/bg-hlm-rt.jpg"
   },
   {
     "sku": "BG-GGL-AF",
-    "name": "Clear Safety Goggles Anti-fog",
-    "nameHindi": "क्लियर सेफ्टी गॉगल्स (एंटी-फॉग)",
+    "name": "Clear Safety Goggles, Anti-Fog and Anti-Scratch, Indirect Vent",
+    "nameHindi": "क्लियर सेफ्टी गॉगल्स, एंटी-फॉग और एंटी-स्क्रैच, इनडायरेक्ट वेंट",
     "category": "head-eye-protection",
     "mrp": 249,
     "retailPrice": 199,
@@ -571,27 +789,41 @@
     "stock": 5200,
     "priceUnit": "piece",
     "packing": "1 piece",
-    "shortDescription": "Anti-fog, scratch-resistant clear goggles.",
-    "description": "Anti-fog, scratch-resistant clear goggles. Demo catalogue item.",
+    "shortDescription": "Clear polycarbonate goggles with anti-fog coating and elastic strap.",
+    "description": "Wrap-around clear polycarbonate goggles with an anti-fog and anti-scratch coating and indirect ventilation. The adjustable elastic strap fits over prescription glasses. Recommended for grinding, drilling and dusty work.",
     "tags": [
       "goggles",
-      "safety"
+      "safety",
+      "eye protection",
+      "anti-fog"
     ],
     "isFeatured": false,
     "isHot": false,
     "specifications": [
       {
         "key": "Lens",
-        "value": "Polycarbonate"
+        "value": "Polycarbonate, clear"
+      },
+      {
+        "key": "Coating",
+        "value": "Anti-fog, anti-scratch"
+      },
+      {
+        "key": "Ventilation",
+        "value": "Indirect"
+      },
+      {
+        "key": "Strap",
+        "value": "Adjustable elastic"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/bg-ggl-af.png"
+    "image": "products/bg-ggl-af.jpg"
   },
   {
-    "sku": "BG-GLV-C5",
-    "name": "Cut-Resistant Gloves Level 5 (Pair)",
-    "nameHindi": "कट-रेज़िस्टेंट दस्ताने लेवल 5 (जोड़ी)",
+    "sku": "BG-GLV-LR",
+    "name": "Leather Work Gloves, Driver Style, Elasticated Wrist (Pair)",
+    "nameHindi": "लेदर वर्क ग्लव्स, ड्राइवर स्टाइल, इलास्टिक कलाई (जोड़ी)",
     "category": "hand-foot-protection",
     "mrp": 349,
     "retailPrice": 279,
@@ -600,28 +832,41 @@
     "stock": 4800,
     "priceUnit": "pair",
     "packing": "1 pair",
-    "shortDescription": "Level 5 cut-resistant work gloves.",
-    "description": "Level 5 cut-resistant work gloves. Demo catalogue item.",
+    "shortDescription": "Grain leather driver-style work gloves with elasticated wrist.",
+    "description": "Durable grain leather driver-style gloves with reinforced stitching and an elasticated wrist for a snug fit. Good all-round protection for handling, loading and general workshop tasks.",
     "tags": [
       "gloves",
-      "cut",
-      "safety"
+      "leather",
+      "safety",
+      "hand protection"
     ],
     "isFeatured": false,
     "isHot": false,
     "specifications": [
       {
-        "key": "Cut level",
-        "value": "5"
+        "key": "Material",
+        "value": "Grain leather"
+      },
+      {
+        "key": "Style",
+        "value": "Driver, keystone thumb"
+      },
+      {
+        "key": "Wrist",
+        "value": "Elasticated"
+      },
+      {
+        "key": "Size",
+        "value": "Free size (L)"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/bg-glv-c5.png"
+    "image": "products/bg-glv-lr.jpg"
   },
   {
     "sku": "BG-BTS-ST",
-    "name": "Steel-Toe Safety Boots",
-    "nameHindi": "स्टील-टो सेफ्टी बूट",
+    "name": "Leather Safety Boots, Steel Toe Cap, Oil-Resistant Sole (Pair)",
+    "nameHindi": "लेदर सेफ्टी बूट, स्टील टो कैप, ऑयल-रेज़िस्टेंट सोल (जोड़ी)",
     "category": "hand-foot-protection",
     "mrp": 2499,
     "retailPrice": 2099,
@@ -630,26 +875,35 @@
     "stock": 1300,
     "priceUnit": "pair",
     "packing": "1 pair",
-    "shortDescription": "Steel-toe boots with slip-resistant sole.",
-    "description": "Steel-toe boots with slip-resistant sole. Demo catalogue item.",
+    "shortDescription": "Steel toe cap leather safety boots with slip-resistant sole.",
+    "description": "Full-grain leather lace-up safety boots with a steel toe cap, padded ankle collar and oil-resistant, slip-resistant outsole. Built for warehouses, workshops and construction sites.",
     "tags": [
       "boots",
       "safety",
-      "steel-toe"
+      "steel-toe",
+      "footwear"
     ],
     "isFeatured": false,
     "isHot": false,
     "specifications": [
       {
+        "key": "Upper",
+        "value": "Full-grain leather"
+      },
+      {
         "key": "Toe cap",
-        "value": "Steel"
+        "value": "Steel, 200 J"
       },
       {
         "key": "Sole",
-        "value": "Slip-resistant"
+        "value": "Oil and slip resistant"
+      },
+      {
+        "key": "Standard",
+        "value": "EN ISO 20345 S3 class"
       }
     ],
     "negotiationEnabled": true,
-    "image": "products/bg-bts-st.png"
+    "image": "products/bg-bts-st.jpg"
   }
 ]

@@ -16,7 +16,7 @@ const sections = [
 export default function InventoryBasics() {
     return (
         <InsightArticle
-            image="/demo/insights/insight-2.png"
+            image="/demo/insights/insight-2.jpg"
             imageAlt="Abstract illustration of stacked inventory boxes"
             category="Operations"
             title="Inventory Basics for Growing Distributors"

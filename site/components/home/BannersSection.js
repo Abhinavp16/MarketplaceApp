@@ -52,7 +52,7 @@ export default function BannersSection() {
                         <div className="absolute right-[max(28px,calc(50%-590px))] top-1/2 hidden h-56 w-56 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-[0_24px_60px_rgba(30,27,75,0.12)] sm:flex lg:h-64 lg:w-64">
                             <img
                                 src="/demo/banner/dealer-partnership.png"
-                                alt="Dealer partnership graphic"
+                                alt="Hand tools laid out on a workbench"
                                 className="w-[82%] object-contain"
                             />
                         </div>

@@ -6,8 +6,8 @@
     "brand": "kestrel",
     "parent": null,
     "order": 1,
-    "description": "Power Tools - demo catalogue category.",
-    "image": "categories/power-tools.png"
+    "description": "Corded and cordless drills, rotary hammers, grinders, sanders and saws for workshops and job sites.",
+    "image": "categories/power-tools.jpg"
   },
   {
     "key": "drills-drivers",
@@ -16,8 +16,8 @@
     "brand": "kestrel",
     "parent": "power-tools",
     "order": 1,
-    "description": "Drills & Drivers - demo catalogue category.",
-    "image": "categories/drills-drivers.png"
+    "description": "Cordless drill drivers, impact drivers and SDS rotary hammers for drilling and fastening in wood, steel and masonry.",
+    "image": "categories/drills-drivers.jpg"
   },
   {
     "key": "grinders-sanders",
@@ -26,8 +26,8 @@
     "brand": "kestrel",
     "parent": "power-tools",
     "order": 2,
-    "description": "Grinders & Sanders - demo catalogue category.",
-    "image": "categories/grinders-sanders.png"
+    "description": "Angle grinders and orbital sanders for cutting, grinding, deburring and surface finishing.",
+    "image": "categories/grinders-sanders.jpg"
   },
   {
     "key": "saws",
@@ -36,8 +36,8 @@
     "brand": "kestrel",
     "parent": "power-tools",
     "order": 3,
-    "description": "Saws - demo catalogue category.",
-    "image": "categories/saws.png"
+    "description": "Jigsaws and circular saws for cutting timber, boards and panels.",
+    "image": "categories/saws.jpg"
   },
   {
     "key": "hand-tools",
@@ -46,8 +46,8 @@
     "brand": "anvilpoint",
     "parent": null,
     "order": 2,
-    "description": "Hand Tools - demo catalogue category.",
-    "image": "categories/hand-tools.png"
+    "description": "Spanners, wrenches, pliers and measuring tools for everyday trade work.",
+    "image": "categories/hand-tools.jpg"
   },
   {
     "key": "wrenches-pliers",
@@ -56,8 +56,8 @@
     "brand": "anvilpoint",
     "parent": "hand-tools",
     "order": 1,
-    "description": "Wrenches & Pliers - demo catalogue category.",
-    "image": "categories/wrenches-pliers.png"
+    "description": "Chrome vanadium spanner sets, adjustable wrenches and pliers for maintenance and assembly.",
+    "image": "categories/wrenches-pliers.jpg"
   },
   {
     "key": "measuring-marking",
@@ -66,8 +66,8 @@
     "brand": "anvilpoint",
     "parent": "hand-tools",
     "order": 2,
-    "description": "Measuring & Marking - demo catalogue category.",
-    "image": "categories/measuring-marking.png"
+    "description": "Steel tapes, rules and marking tools for accurate layout.",
+    "image": "categories/measuring-marking.jpg"
   },
   {
     "key": "fasteners-fittings",
@@ -76,8 +76,8 @@
     "brand": "anvilpoint",
     "parent": null,
     "order": 3,
-    "description": "Fasteners & Fittings - demo catalogue category.",
-    "image": "categories/fasteners-fittings.png"
+    "description": "Bolts, nuts, screws, anchors and brass fittings sold by the box and pack.",
+    "image": "categories/fasteners-fittings.jpg"
   },
   {
     "key": "bolts-nuts",
@@ -86,8 +86,8 @@
     "brand": "anvilpoint",
     "parent": "fasteners-fittings",
     "order": 1,
-    "description": "Bolts & Nuts - demo catalogue category.",
-    "image": "categories/bolts-nuts.png"
+    "description": "Metric hex bolts and nuts in stainless and zinc-plated finishes, packed in boxes of 100 and 200.",
+    "image": "categories/bolts-nuts.jpg"
   },
   {
     "key": "screws-anchors",
@@ -96,8 +96,8 @@
     "brand": "anvilpoint",
     "parent": "fasteners-fittings",
     "order": 2,
-    "description": "Screws & Anchors - demo catalogue category.",
-    "image": "categories/screws-anchors.png"
+    "description": "Wood screws and frame anchors for timber, masonry and frame fixing.",
+    "image": "categories/screws-anchors.jpg"
   },
   {
     "key": "pipe-fittings",
@@ -106,8 +106,8 @@
     "brand": "anvilpoint",
     "parent": "fasteners-fittings",
     "order": 3,
-    "description": "Pipe Fittings - demo catalogue category.",
-    "image": "categories/pipe-fittings.png"
+    "description": "Brass elbows, valves and threaded fittings for water and air lines.",
+    "image": "categories/pipe-fittings.jpg"
   },
   {
     "key": "safety-gear",
@@ -116,8 +116,8 @@
     "brand": "brightguard",
     "parent": null,
     "order": 4,
-    "description": "Safety Gear - demo catalogue category.",
-    "image": "categories/safety-gear.png"
+    "description": "Head, eye, hand and foot protection for industrial and construction teams.",
+    "image": "categories/safety-gear.jpg"
   },
   {
     "key": "head-eye-protection",
@@ -126,8 +126,8 @@
     "brand": "brightguard",
     "parent": "safety-gear",
     "order": 1,
-    "description": "Head & Eye Protection - demo catalogue category.",
-    "image": "categories/head-eye-protection.png"
+    "description": "Safety helmets and anti-fog goggles for site, workshop and warehouse use.",
+    "image": "categories/head-eye-protection.jpg"
   },
   {
     "key": "hand-foot-protection",
@@ -136,7 +136,7 @@
     "brand": "brightguard",
     "parent": "safety-gear",
     "order": 2,
-    "description": "Hand & Foot Protection - demo catalogue category.",
-    "image": "categories/hand-foot-protection.png"
+    "description": "Work gloves and steel-toe safety boots for handling and site work.",
+    "image": "categories/hand-foot-protection.jpg"
   }
 ]

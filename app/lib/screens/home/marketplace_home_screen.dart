@@ -41,6 +41,7 @@ import '../../core/utils/number_formatter.dart';
 import '../../core/utils/deal_desk_presentation.dart';
 import '../../core/utils/product_search.dart';
 import '../../core/utils/recent_searches.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/theme/app_fonts.dart';
 
 enum _SearchScope { product, brand, category }
@@ -1647,8 +1648,8 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
         break;
       default:
         icon = Icons.notifications_rounded;
-        iconColor = const Color(0xFF8B5CF6);
-        iconBg = const Color(0xFFF5F3FF);
+        iconColor = AppColors.primary;
+        iconBg = const Color(0xFFE6F7F5);
     }
 
     String timeAgo = '';
@@ -2128,7 +2129,7 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
                   const Color(0xFF3B82F6),
                   const Color(0xFF10B981),
                   const Color(0xFFF59E0B),
-                  const Color(0xFF8B5CF6),
+                  const Color(0xFF14B8A6),
                 ];
                 final icons = [
                   Icons.water_drop_rounded,
@@ -4934,8 +4935,8 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
         return {
           'label': (orderStatusLabel ?? l10n.statusDealOrderCreated)
               .toUpperCase(),
-          'color': const Color(0xFF7C3AED),
-          'bg': const Color(0xFFF3E8FF),
+          'color': const Color(0xFF0F766E),
+          'bg': const Color(0xFFE6F7F5),
         };
       default:
         return {
@@ -5512,7 +5513,7 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
       {
         'type': 'setting',
         'icon': HugeIcons.strokeRoundedNotification02,
-        'color': const Color(0xFF7C3AED),
+        'color': const Color(0xFF0F766E),
         'title': l10n.homeNotificationsTitle,
         'subtitle': null,
         'onTap': () => context.push('/notifications', extra: {'bottomTab': 4}),
@@ -5605,9 +5606,9 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFF8B5CF6), // Vibrant Purple
-                        Color(0xFF6366F1), // Indigo
-                        Color(0xFF4F46E5), // Deeper Indigo
+                        AppColors.secondary, // Teal accent
+                        AppColors.primary, // Brand teal
+                        AppColors.primaryDark, // Deep teal
                       ],
                     ),
                   ),
@@ -5733,13 +5734,13 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
                                               const Icon(
                                                 HugeIcons.strokeRoundedUser,
                                                 size: 40,
-                                                color: Color(0xFF6366F1),
+                                                color: AppColors.primary,
                                               ),
                                         )
                                       : const Icon(
                                           HugeIcons.strokeRoundedUser,
                                           size: 40,
-                                          color: Color(0xFF6366F1),
+                                          color: AppColors.primary,
                                         ),
                                 ),
                               ),
@@ -5902,7 +5903,7 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
                               l10n.homeMyOrders,
                               orderCount.toString(),
                               size: quickStatSize,
-                              color: const Color(0xFF6366F1), // Premium Indigo
+                              color: AppColors.primary,
                               onTap: () => context.push('/previous-orders'),
                             ),
                             _buildQuickStat(
@@ -6054,7 +6055,7 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
               width: 96,
               height: 96,
               decoration: const BoxDecoration(
-                color: Color(0xFFE0E7FF),
+                color: Color(0xFFCCFBF1),
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -9437,8 +9438,8 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
       },
       {
         'icon': Icons.local_offer_rounded,
-        'color': const Color(0xFF7C3AED),
-        'bg': const Color(0xFFF5F3FF),
+        'color': const Color(0xFF0F766E),
+        'bg': const Color(0xFFE6F7F5),
         'title': l10n.homeWhyBuyPricingTitle,
         'subtitle': l10n.homeWhyBuyPricingSubtitle,
       },

@@ -54,7 +54,7 @@ target used by the Manage Website page, defaults to `https://demo.tradehub.examp
 - Brand colour: green replaced by indigo/teal (`app/globals.css`, `styles/globals.css`, and
   hard-coded hex/`emerald-*` utilities across the app).
 - Generated assets in `public/`: `icon.svg`, `icon.png`, `icon-192.png`, `icon-maskable-512.png`,
-  `apple-touch-icon.png`, `favicon.ico`, `images/Banner/1-5.jpg` (generic placeholders).
+  `apple-touch-icon.png`, `favicon.ico`, `images/Banner/1-5.jpg` (real royalty-free photos, see `../backend/assets/demo-images/CREDITS.md`).
 
 ## Tests
 

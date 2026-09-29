@@ -34,10 +34,10 @@
   ],
   "heroBanners": [
     {
-      "title": "Distribution made simple",
-      "subtitle": "Tools, fasteners and safety gear at trade prices",
+      "title": "Tools at trade prices",
+      "subtitle": "Power tools, hand tools, fasteners and safety gear",
       "tag": "TradeHub Demo",
-      "image": "banners/hero-1.png",
+      "image": "banners/hero-1.jpg",
       "buttonText": "Shop Now",
       "order": 1
     },
@@ -45,7 +45,7 @@
       "title": "Negotiate bulk prices",
       "subtitle": "Wholesale partners can request a better rate on any product",
       "tag": "For wholesalers",
-      "image": "banners/hero-2.png",
+      "image": "banners/hero-2.jpg",
       "buttonText": "Browse Products",
       "order": 2
     }
@@ -53,11 +53,19 @@
   "promoBanners": [
     {
       "title": "Safety first",
-      "subtitle": "Helmets, gloves and boots in stock",
+      "subtitle": "Helmets, goggles, gloves and boots in stock",
       "tag": "Safety Gear",
-      "image": "banners/promo-1.png",
+      "image": "banners/promo-1.jpg",
       "buttonText": "View Range",
       "order": 1
+    },
+    {
+      "title": "Fasteners by the box",
+      "subtitle": "Bolts, nuts, screws and anchors ready to ship",
+      "tag": "Fasteners",
+      "image": "banners/promo-2.jpg",
+      "buttonText": "View Range",
+      "order": 2
     }
   ]
 }

@@ -8,11 +8,11 @@ const fallbackBrandImage = '/demo/brand-placeholder.png';
 // Bundled tiles for the four demo categories / three demo brand slots, used only when the API
 // returns no image. Unknown slugs fall back to a neutral placeholder.
 const demoCategoryTiles = {
-    'power-tools': '/demo/categories/power-tools.png',
-    'hand-tools': '/demo/categories/hand-tools.png',
-    'fasteners-fittings': '/demo/categories/fasteners-fittings.png',
-    'fasteners-and-fittings': '/demo/categories/fasteners-fittings.png',
-    'safety-gear': '/demo/categories/safety-gear.png',
+    'power-tools': '/demo/categories/power-tools.jpg',
+    'hand-tools': '/demo/categories/hand-tools.jpg',
+    'fasteners-fittings': '/demo/categories/fasteners-fittings.jpg',
+    'fasteners-and-fittings': '/demo/categories/fasteners-fittings.jpg',
+    'safety-gear': '/demo/categories/safety-gear.jpg',
 };
 
 function pickCategoryFallback(slug = '') {

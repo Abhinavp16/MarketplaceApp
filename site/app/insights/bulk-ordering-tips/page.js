@@ -16,7 +16,7 @@ const sections = [
 export default function BulkOrderingTips() {
     return (
         <InsightArticle
-            image="/demo/insights/insight-3.png"
+            image="/demo/insights/insight-3.jpg"
             imageAlt="Abstract illustration of pallets and delivery"
             category="Dealer Tips"
             title="Bulk Ordering Tips for Dealers and Retailers"

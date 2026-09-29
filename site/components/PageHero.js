@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 
-// Generic banner artwork generated into public/demo/hero (see scripts/generate_assets.py).
+// Real CC0 / public-domain hero photographs in public/demo/hero (credits: backend/assets/demo-images/CREDITS.md).
 const defaultPageHeroImages = [
     '/demo/hero/hero-1.jpg',
     '/demo/hero/hero-2.jpg',

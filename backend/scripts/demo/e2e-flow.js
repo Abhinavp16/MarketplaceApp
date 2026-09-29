@@ -17,7 +17,7 @@ const BASE_URL = (process.env.BASE_URL || 'http://127.0.0.1:5050/api/v1').replac
 const users = require(path.join(__dirname, 'fixtures', 'users.json'));
 const credentials = (key) => users.find((u) => u.key === key);
 
-const LIVE_PRODUCT_NAME = 'Cordless Drill 18V';
+const LIVE_PRODUCT_NAME = '18V Brushless Cordless Drill Driver, 13 mm Chuck (2 x 2.0 Ah)';
 const QUANTITY = 20;
 const REQUESTED_PRICE = 4900;
 const COUNTER_PRICE = 5050;
@@ -88,7 +88,7 @@ async function runFlow(label) {
   assert.ok(product.primaryImage && product.primaryImage.includes('/uploads/demo/'), 'product images use the /uploads/demo scheme');
   const imageResponse = await fetch(product.primaryImage);
   assert.strictEqual(imageResponse.status, 200, 'product image must be downloadable');
-  assert.ok((imageResponse.headers.get('content-type') || '').includes('image/png'));
+  assert.ok((imageResponse.headers.get('content-type') || '').includes('image/jpeg'));
   const buyerList = await api('GET', '/products?limit=5', { token: buyer.token });
   assert.ok(buyerList.json.data.length > 0, 'buyer can list products');
   step(`catalogue lists ${list.json.data.length} products; ${LIVE_PRODUCT_NAME} is ${product.wholesalePrice} wholesale / ${product.retailPrice} retail; image OK`);

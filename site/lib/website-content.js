@@ -3,7 +3,7 @@ import { normalizeFeaturedProduct } from '@/lib/featured-products';
 import { normalizeWebsiteImageUrl } from '@/lib/media-url';
 import { getWebsiteHomeCatalog } from '@/lib/catalog-api';
 
-// Generic banner artwork generated into public/demo/hero (see scripts/generate_assets.py).
+// Real CC0 / public-domain hero photographs in public/demo/hero (credits: backend/assets/demo-images/CREDITS.md).
 export const defaultHeroImages = [
     '/demo/hero/hero-1.jpg',
     '/demo/hero/hero-2.jpg',
