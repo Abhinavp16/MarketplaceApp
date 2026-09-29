@@ -1,0 +1,162 @@
+{
+  "user": [
+    {
+      "user": "sunrise",
+      "type": "negotiation_accepted",
+      "title": "Order Created!",
+      "body": "TradeHub Demo accepted your requirement for Combination Spanner Set 12pc at ₹1300/unit. Order ORD-DEMO-1001 is ready to view.",
+      "hoursAgo": 293,
+      "isRead": true,
+      "data": {
+        "negotiation": "ngt-sunrise-spanner",
+        "order": "ord-1001"
+      }
+    },
+    {
+      "user": "sunrise",
+      "type": "order_update",
+      "title": "Order Shipped!",
+      "body": "Your order is on its way!",
+      "hoursAgo": 270,
+      "isRead": true,
+      "data": {
+        "order": "ord-1001"
+      }
+    },
+    {
+      "user": "sunrise",
+      "type": "order_update",
+      "title": "Order Delivered!",
+      "body": "Your order has been delivered. Enjoy!",
+      "hoursAgo": 240,
+      "isRead": true,
+      "data": {
+        "order": "ord-1001"
+      }
+    },
+    {
+      "user": "sunrise",
+      "type": "general",
+      "title": "Welcome to the TradeHub demo",
+      "body": "Browse the catalogue and send a price request on any product to start a negotiation.",
+      "hoursAgo": 2,
+      "isRead": false,
+      "data": {}
+    },
+    {
+      "user": "priya",
+      "type": "order_update",
+      "title": "Order Accepted",
+      "body": "Your order ORD-DEMO-1005 has been accepted. You can now complete payment.",
+      "hoursAgo": 58,
+      "isRead": true,
+      "data": {
+        "order": "ord-1005"
+      }
+    },
+    {
+      "user": "priya",
+      "type": "promotion",
+      "title": "Welcome offer",
+      "body": "Use code DEMO10 for 10% off your next order.",
+      "hoursAgo": 30,
+      "isRead": false,
+      "data": {}
+    },
+    {
+      "user": "metro",
+      "type": "negotiation_countered",
+      "title": "New Price from TradeHub Demo",
+      "body": "TradeHub Demo shared a new price ₹6300/unit for Impact Driver 20V. Review and respond.",
+      "hoursAgo": 236,
+      "isRead": false,
+      "data": {
+        "negotiation": "ngt-metro-driver"
+      }
+    },
+    {
+      "user": "bluepeak",
+      "type": "negotiation_countered",
+      "title": "New Price from TradeHub Demo",
+      "body": "TradeHub Demo shared a new price ₹345/unit for Safety Helmet with Ratchet. Review and respond.",
+      "hoursAgo": 20,
+      "isRead": false,
+      "data": {
+        "negotiation": "ngt-bluepeak-helmet"
+      }
+    },
+    {
+      "user": "bluepeak",
+      "type": "negotiation_rejected",
+      "title": "Requirement Declined",
+      "body": "TradeHub Demo could not confirm requirement for Hex Bolt M10 x 50 (Box of 100): Below cost at this volume. Please resubmit at 100+ boxes.",
+      "hoursAgo": 80,
+      "isRead": true,
+      "data": {
+        "negotiation": "ngt-bluepeak-bolt"
+      }
+    }
+  ],
+  "admin": [
+    {
+      "type": "negotiation_created",
+      "severity": "info",
+      "title": "New deal request NGT-DEMO-1002",
+      "body": "Anita Desai requested 40 × Angle Grinder 850W 100mm at ₹2100/unit.",
+      "link": "/negotiations",
+      "hoursAgo": 6,
+      "read": false,
+      "actor": "metro"
+    },
+    {
+      "type": "order_created",
+      "severity": "info",
+      "title": "New customer order ORD-DEMO-1004",
+      "body": "Priya Sharma placed a retail order awaiting acceptance.",
+      "link": "/orders",
+      "hoursAgo": 5,
+      "read": false,
+      "actor": "priya"
+    },
+    {
+      "type": "payment_submitted",
+      "severity": "warning",
+      "title": "Payment proof uploaded",
+      "body": "Bluepeak Construction Supplies uploaded a payment proof for ORD-DEMO-1003.",
+      "link": "/payments",
+      "hoursAgo": 18,
+      "read": false,
+      "actor": "bluepeak"
+    },
+    {
+      "type": "negotiation_message",
+      "severity": "info",
+      "title": "New message in NGT-DEMO-1003",
+      "body": "Vikram Rao: Delivery in 10 days would work for us.",
+      "link": "/negotiations",
+      "hoursAgo": 29,
+      "read": true,
+      "actor": "bluepeak"
+    },
+    {
+      "type": "wholesaler_application",
+      "severity": "warning",
+      "title": "Wholesaler verification pending",
+      "body": "Kabir Singh (NewCo Traders) submitted business details for verification.",
+      "link": "/account-upgrades",
+      "hoursAgo": 40,
+      "read": false,
+      "actor": "pending"
+    },
+    {
+      "type": "negotiation_created",
+      "severity": "info",
+      "title": "New deal request NGT-DEMO-1004",
+      "body": "Vikram Rao requested 60 × Hex Bolt M10 x 50 at ₹700/unit.",
+      "link": "/negotiations",
+      "hoursAgo": 96,
+      "read": true,
+      "actor": "bluepeak"
+    }
+  ]
+}

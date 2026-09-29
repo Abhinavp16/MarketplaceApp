@@ -1,0 +1,9 @@
+# English and Hindi app text. Edit lib/l10n/app_en.arb and lib/l10n/app_hi.arb,
+# then run `flutter gen-l10n` (also runs automatically on `flutter run/build`).
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-dir: lib/l10n/generated
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false
+required-resource-attributes: false

@@ -1,0 +1,30 @@
+[
+  {
+    "user": "arjun",
+    "sku": "KW-DRL-18V",
+    "viewCount": 4,
+    "totalWatchSeconds": 150,
+    "lastViewedMinutesAgo": 35
+  },
+  {
+    "user": "sneha",
+    "sku": "KW-IMP-20V",
+    "viewCount": 3,
+    "totalWatchSeconds": 60,
+    "lastViewedMinutesAgo": 90
+  },
+  {
+    "user": "priya",
+    "sku": "BG-HLM-RT",
+    "viewCount": 2,
+    "totalWatchSeconds": 40,
+    "lastViewedMinutesAgo": 200
+  },
+  {
+    "user": "sunrise",
+    "sku": "KW-DRL-18V",
+    "viewCount": 3,
+    "totalWatchSeconds": 95,
+    "lastViewedMinutesAgo": 45
+  }
+]

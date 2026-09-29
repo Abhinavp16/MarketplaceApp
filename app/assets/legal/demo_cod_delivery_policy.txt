@@ -1,0 +1,18 @@
+Shipping and COD Delivery Policy - TradeHub Demo
+Effective date: 17 August 2026
+
+DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
+
+SHIPPING AND DELIVERY
+
+This is a placeholder shipping and cash-on-delivery policy for demonstration.
+
+Sample rules shown in this demo:
+- delivery timelines are illustrative
+- delivery charges, if any, are shown at checkout
+- cash-on-delivery availability may vary by order and location
+
+No goods are shipped and no payments are collected in this demo environment.
+
+Contact: demo@tradehub.example
+Company: TradeHub Distribution Pvt Ltd (Demo)

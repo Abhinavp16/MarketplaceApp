@@ -1,0 +1,18 @@
+Dealer Agreement - TradeHub Demo
+Effective date: 17 August 2026
+
+DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
+
+DEALER AGREEMENT
+
+This is a placeholder dealer agreement for demonstration.
+
+Sample terms shown in this demo:
+- dealers provide accurate business information
+- dealers follow the platform pricing and conduct guidelines
+- the platform may review or suspend demo accounts at any time
+
+No binding agreement is created by using this demo environment.
+
+Contact: demo@tradehub.example
+Company: TradeHub Distribution Pvt Ltd (Demo)

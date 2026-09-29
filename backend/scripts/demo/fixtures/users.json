@@ -1,0 +1,147 @@
+[
+  {
+    "key": "admin",
+    "name": "Demo Business Owner",
+    "email": "admin@tradehub.example",
+    "phone": "9000000001",
+    "role": "admin",
+    "password": "Demo@12345",
+    "preferredLanguage": "en"
+  },
+  {
+    "key": "sunrise",
+    "name": "Rohan Mehta",
+    "email": "rohan.mehta@sunrise-trade.example",
+    "phone": "9000000002",
+    "role": "wholesaler",
+    "password": "Demo@12345",
+    "address": "Plot 12, Trade Park, Sample City, Demo State 000000",
+    "preferredLanguage": "en",
+    "businessInfo": {
+      "businessName": "Sunrise Trade House",
+      "gstNumber": "00AAAAA0000A1Z0",
+      "businessAddress": "Plot 12, Trade Park, Sample City, Demo State 000000",
+      "contactPerson": "Rohan Mehta",
+      "status": "accepted",
+      "verified": true,
+      "verifiedDaysAgo": 60,
+      "shopLocation": {
+        "lat": 20.5937,
+        "lng": 78.9629,
+        "placeLabel": "Trade Park, Sample City"
+      }
+    }
+  },
+  {
+    "key": "priya",
+    "name": "Priya Sharma",
+    "email": "priya.sharma@tradehub.example",
+    "phone": "9000000003",
+    "role": "buyer",
+    "password": "Demo@12345",
+    "address": "21 Garden Lane, Sample City, Demo State 000000",
+    "preferredLanguage": "en"
+  },
+  {
+    "key": "operator",
+    "name": "Demo Operator",
+    "username": "demo.operator",
+    "email": "demo.operator@tradehub.example",
+    "phone": "9000000004",
+    "role": "staff",
+    "password": "Demo@12345",
+    "mustChangePassword": false
+  },
+  {
+    "key": "metro",
+    "name": "Anita Desai",
+    "email": "anita.desai@metro-hardware.example",
+    "phone": "9000000005",
+    "role": "wholesaler",
+    "password": "Demo@12345",
+    "address": "48 Market Road, Sample City, Demo State 000000",
+    "preferredLanguage": "hi",
+    "businessInfo": {
+      "businessName": "Metro Hardware Traders",
+      "gstNumber": "00BBBBB0000B1Z0",
+      "businessAddress": "48 Market Road, Sample City, Demo State 000000",
+      "contactPerson": "Anita Desai",
+      "status": "accepted",
+      "verified": true,
+      "verifiedDaysAgo": 90,
+      "shopLocation": {
+        "lat": 19.0,
+        "lng": 77.5,
+        "placeLabel": "Market Road, Sample City"
+      }
+    }
+  },
+  {
+    "key": "bluepeak",
+    "name": "Vikram Rao",
+    "email": "vikram.rao@bluepeak-supplies.example",
+    "phone": "9000000006",
+    "role": "wholesaler",
+    "password": "Demo@12345",
+    "address": "7 Industrial Estate, Sample City, Demo State 000000",
+    "preferredLanguage": "en",
+    "businessInfo": {
+      "businessName": "Bluepeak Construction Supplies",
+      "gstNumber": "00CCCCC0000C1Z0",
+      "businessAddress": "7 Industrial Estate, Sample City, Demo State 000000",
+      "contactPerson": "Vikram Rao",
+      "status": "accepted",
+      "verified": true,
+      "verifiedDaysAgo": 45,
+      "shopLocation": {
+        "lat": 21.2,
+        "lng": 79.1,
+        "placeLabel": "Industrial Estate, Sample City"
+      }
+    }
+  },
+  {
+    "key": "arjun",
+    "name": "Arjun Nair",
+    "email": "arjun.nair@tradehub.example",
+    "phone": "9000000007",
+    "role": "buyer",
+    "password": "Demo@12345",
+    "address": "5 Lake View, Sample City, Demo State 000000"
+  },
+  {
+    "key": "sneha",
+    "name": "Sneha Kapoor",
+    "email": "sneha.kapoor@tradehub.example",
+    "phone": "9000000008",
+    "role": "buyer",
+    "password": "Demo@12345",
+    "address": "14 Park Avenue, Sample City, Demo State 000000"
+  },
+  {
+    "key": "pending",
+    "name": "Kabir Singh",
+    "email": "kabir.singh@newco-traders.example",
+    "phone": "9000000009",
+    "role": "buyer",
+    "password": "Demo@12345",
+    "address": "9 Station Lane, Sample City, Demo State 000000",
+    "businessInfo": {
+      "businessName": "NewCo Traders",
+      "gstNumber": "00DDDDD0000D1Z0",
+      "businessAddress": "9 Station Lane, Sample City, Demo State 000000",
+      "contactPerson": "Kabir Singh",
+      "status": "pending",
+      "verified": false,
+      "shopLocation": {
+        "lat": 20.0,
+        "lng": 78.0,
+        "placeLabel": "Station Lane, Sample City"
+      },
+      "proofFiles": [
+        "proof-shopfront.png",
+        "proof-registration.png"
+      ]
+    }
+  }
+]

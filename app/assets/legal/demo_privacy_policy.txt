@@ -1,0 +1,23 @@
+Privacy Policy - TradeHub Demo
+Effective date: 17 August 2026
+
+DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
+
+PRIVACY POLICY
+
+TradeHub Demo is a demonstration marketplace. This placeholder describes, in sample form, the kind of information a distribution marketplace might handle:
+- account and contact details, such as name, phone number, email address, and business name
+- delivery details, saved addresses, order history, inquiry and negotiation content
+- approximate location when you choose to use location-based features
+
+Information may be used for:
+- account management and demo support
+- order processing walkthroughs
+- showing how negotiations, orders and notifications work
+
+DATA IN THIS DEMO
+
+Every record shown in this environment is synthetic. Please do not enter real personal, financial or business information. Demo data may be reset at any time without notice.
+
+Contact: demo@tradehub.example
+Company: TradeHub Distribution Pvt Ltd (Demo)

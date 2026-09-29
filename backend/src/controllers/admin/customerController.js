@@ -1,0 +1,313 @@
+const { User, Order, Negotiation, DeviceToken, Notification } = require('../../models');
+const { getSignedReadUrl } = require('../../config/storage');
+const notificationService = require('../../services/notificationService');
+const { NotFoundError, BadRequestError } = require('../../utils/errors');
+const { paginate, formatPaginationResponse } = require('../../utils/helpers');
+
+const normalizeExcludedCategories = (values = []) => {
+  if (!Array.isArray(values)) return [];
+  return [...new Set(values.map((value) => String(value || '').trim()).filter(Boolean))];
+};
+
+async function serializeCustomerForAdmin(customer) {
+  const value = customer?.toObject ? customer.toObject() : { ...customer };
+  const businessInfo = value.businessInfo ? { ...value.businessInfo } : null;
+
+  if (!businessInfo) return value;
+
+  const privateProofKeys = Array.isArray(businessInfo.proofImageKeys)
+    ? businessInfo.proofImageKeys.filter(Boolean)
+    : [];
+  const legacyProofUrls = Array.isArray(businessInfo.proofImages)
+    ? businessInfo.proofImages.filter(Boolean)
+    : [];
+
+  const signedPrivateProofUrls = await Promise.all(
+    privateProofKeys.map((key) => getSignedReadUrl(key))
+  );
+
+  value.businessInfo = {
+    ...businessInfo,
+    // Legacy public URLs are included only until their matching records migrate.
+    proofImages: [...signedPrivateProofUrls.filter(Boolean), ...legacyProofUrls],
+  };
+  delete value.businessInfo.proofImageKeys;
+
+  return value;
+}
+
+exports.getCustomers = async (req, res, next) => {
+  try {
+    const { role, search } = req.query;
+    const { page, limit, skip } = paginate(req.query.page, req.query.limit);
+
+    const query = { role: { $ne: 'admin' } };
+    if (role) query.role = role;
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { 'businessInfo.businessName': { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const [customers, total] = await Promise.all([
+      User.find(query)
+        .select('-fcmTokens')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      User.countDocuments(query),
+    ]);
+    const serializedCustomers = await Promise.all(customers.map(serializeCustomerForAdmin));
+
+    res.json({
+      success: true,
+      ...formatPaginationResponse(serializedCustomers, total, page, limit),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getCustomerById = async (req, res, next) => {
+  try {
+    const customer = await User.findById(req.params.id).select('-fcmTokens');
+
+    if (!customer || customer.role === 'admin') {
+      throw new NotFoundError('Customer not found', 'CUSTOMER_NOT_FOUND');
+    }
+
+    const [orderStats, negotiationStats, serializedCustomer] = await Promise.all([
+      Order.aggregate([
+        { $match: { userId: customer._id } },
+        {
+          $group: {
+            _id: null,
+            totalOrders: { $sum: 1 },
+            totalSpent: { $sum: '$total' },
+          },
+        },
+      ]),
+      Negotiation.aggregate([
+        { $match: { wholesalerId: customer._id } },
+        {
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      serializeCustomerForAdmin(customer),
+    ]);
+
+    const recentOrders = await Order.find({ userId: customer._id })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('orderNumber total status createdAt');
+
+    res.json({
+      success: true,
+      data: {
+        ...serializedCustomer,
+        stats: {
+          orders: orderStats[0] || { totalOrders: 0, totalSpent: 0 },
+          negotiations: negotiationStats.reduce((acc, n) => {
+            acc[n._id] = n.count;
+            return acc;
+          }, {}),
+        },
+        recentOrders,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.upgradeCustomer = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { action, excludedCategories } = req.body;
+
+    const customer = await User.findById(id);
+
+    if (!customer || customer.role === 'admin') {
+      throw new NotFoundError('Customer not found', 'CUSTOMER_NOT_FOUND');
+    }
+
+    if (action === 'accept') {
+      customer.role = 'wholesaler';
+      if (customer.businessInfo) {
+        customer.businessInfo.status = 'accepted';
+        customer.businessInfo.verified = true;
+        customer.businessInfo.verifiedAt = new Date();
+        customer.businessInfo.excludedCategories = normalizeExcludedCategories(excludedCategories);
+      }
+    } else if (action === 'reject') {
+      if (customer.businessInfo) {
+        customer.businessInfo.status = 'rejected';
+        customer.businessInfo.verified = false;
+        // Keep data so admin can see history and user can see rejection details
+      }
+    }
+
+    await customer.save();
+
+    if (customer.fcmTokens && customer.fcmTokens.length > 0) {
+      const { getMessaging } = require('../../config/firebase');
+      const messaging = getMessaging();
+      if (messaging) {
+        const { renderNotification } = require('../../services/notificationTemplates');
+        const payload = {
+          notification: renderNotification(
+            action === 'accept' ? 'wholesalerApproved' : 'wholesalerRejected',
+            customer.preferredLanguage,
+          ),
+          data: {
+            type: 'ROLE_UPDATED',
+            action: action
+          },
+          tokens: customer.fcmTokens,
+        };
+        try {
+          await messaging.sendEachForMulticast(payload);
+        } catch (fcmErr) {
+          console.error('FCM Notification error:', fcmErr);
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Customer application ${action}ed successfully.`
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateWholesalerCategoryAccess = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { excludedCategories } = req.body;
+
+    const customer = await User.findById(id);
+
+    if (!customer || customer.role === 'admin') {
+      throw new NotFoundError('Customer not found', 'CUSTOMER_NOT_FOUND');
+    }
+
+    if (customer.role !== 'wholesaler' && customer.businessInfo?.status !== 'accepted') {
+      throw new BadRequestError('Category access can only be updated for accepted wholesalers', 'NOT_ACCEPTED_WHOLESALER');
+    }
+
+    if (!customer.businessInfo) {
+      customer.businessInfo = {};
+    }
+
+    customer.businessInfo.excludedCategories = normalizeExcludedCategories(excludedCategories);
+    await customer.save();
+
+    res.json({
+      success: true,
+      message: 'Wholesaler category permissions updated',
+      data: customer,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getWholesalerLocations = async (req, res, next) => {
+  try {
+    const { search } = req.query;
+
+    const query = {
+      role: 'wholesaler',
+      'businessInfo.status': 'accepted',
+      'businessInfo.shopLocation.lat': { $type: 'number' },
+      'businessInfo.shopLocation.lng': { $type: 'number' },
+    };
+
+    if (search) {
+      query.$or = [
+        { 'businessInfo.businessName': { $regex: search, $options: 'i' } },
+        { 'businessInfo.contactPerson': { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const customers = await User.find(query)
+      .select('name phone role businessInfo createdAt updatedAt')
+      .sort({ 'businessInfo.verifiedAt': -1, updatedAt: -1 })
+      .lean();
+
+    const locations = customers.map((customer) => ({
+      id: customer._id,
+      businessName: customer.businessInfo?.businessName || customer.name,
+      contactPerson: customer.businessInfo?.contactPerson || customer.name,
+      phone: customer.phone || '',
+      businessAddress: customer.businessInfo?.businessAddress || '',
+      approvedAt: customer.businessInfo?.verifiedAt || customer.updatedAt || customer.createdAt,
+      shopLocation: {
+        lat: customer.businessInfo?.shopLocation?.lat,
+        lng: customer.businessInfo?.shopLocation?.lng,
+        placeLabel: customer.businessInfo?.shopLocation?.placeLabel || null,
+        capturedAt: customer.businessInfo?.shopLocation?.capturedAt || null,
+      },
+    }));
+
+    res.json({
+      success: true,
+      data: locations,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.sendNotification = async (req, res, next) => {
+  try {
+    const { userIds, title, body } = req.body;
+
+    const tokens = await DeviceToken.find({
+      userId: { $in: userIds },
+      isActive: true,
+    }).select('fcmToken');
+
+    if (!tokens || tokens.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No active device tokens found for selected customers.',
+      });
+    }
+
+    const fcmTokens = tokens.map((t) => t.fcmToken);
+    await notificationService.sendToMultipleDevices(fcmTokens, { title, body }, { type: 'custom_admin_notification' });
+
+    // Save to Notification database for history in the app
+    const notificationsToSave = userIds.map(userId => ({
+      userId,
+      title,
+      body,
+      type: 'general',
+      data: { type: 'custom_admin_notification' }
+    }));
+    
+    try {
+      await Notification.insertMany(notificationsToSave);
+    } catch (saveError) {
+      console.error('Error saving notifications to DB:', saveError);
+    }
+
+    res.json({
+      success: true,
+      message: 'Notification sent and saved successfully.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

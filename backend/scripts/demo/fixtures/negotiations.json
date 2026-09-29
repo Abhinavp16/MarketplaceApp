@@ -1,0 +1,178 @@
+[
+  {
+    "key": "ngt-sunrise-spanner",
+    "number": "NGT-DEMO-1001",
+    "wholesaler": "sunrise",
+    "sku": "AP-CSS-12",
+    "requestedQuantity": 30,
+    "requestedPricePerUnit": 1250,
+    "message": "Need 30 sets for our new store opening. Can you support a better rate?",
+    "status": "converted",
+    "createdHoursAgo": 300,
+    "expiresInDays": 7,
+    "order": "ord-1001",
+    "currentOfferBy": "admin",
+    "currentPricePerUnit": 1300,
+    "finalPricePerUnit": 1300,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 1250,
+        "message": "Need 30 sets for our new store opening. Can you support a better rate?",
+        "hoursAfterCreate": 0
+      },
+      {
+        "action": "countered",
+        "by": "admin",
+        "actor": "admin",
+        "pricePerUnit": 1320,
+        "message": "Best we can do at this volume.",
+        "hoursAfterCreate": 3
+      },
+      {
+        "action": "message",
+        "by": "wholesaler",
+        "message": "Can you do 1300? We plan to reorder every month.",
+        "hoursAfterCreate": 5
+      },
+      {
+        "action": "countered",
+        "by": "admin",
+        "actor": "admin",
+        "pricePerUnit": 1300,
+        "message": "Agreed for a monthly reorder.",
+        "hoursAfterCreate": 6
+      },
+      {
+        "action": "accepted",
+        "by": "admin",
+        "actor": "admin",
+        "pricePerUnit": 1300,
+        "message": "Accepted by Admin Demo Business Owner",
+        "hoursAfterCreate": 7
+      }
+    ]
+  },
+  {
+    "key": "ngt-metro-grinder",
+    "number": "NGT-DEMO-1002",
+    "wholesaler": "metro",
+    "sku": "KW-AGR-850",
+    "requestedQuantity": 40,
+    "requestedPricePerUnit": 2100,
+    "message": "Regular buyer, looking to place a recurring monthly order.",
+    "status": "pending",
+    "createdHoursAgo": 6,
+    "expiresInDays": 7,
+    "currentOfferBy": "wholesaler",
+    "currentPricePerUnit": 2100,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 2100,
+        "message": "Regular buyer, looking to place a recurring monthly order.",
+        "hoursAfterCreate": 0
+      }
+    ]
+  },
+  {
+    "key": "ngt-bluepeak-helmet",
+    "number": "NGT-DEMO-1003",
+    "wholesaler": "bluepeak",
+    "sku": "BG-HLM-RT",
+    "requestedQuantity": 200,
+    "requestedPricePerUnit": 330,
+    "message": "Site crew of 200 needs helmets before month end.",
+    "status": "countered",
+    "createdHoursAgo": 30,
+    "expiresInDays": 7,
+    "currentOfferBy": "admin",
+    "currentPricePerUnit": 345,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 330,
+        "message": "Site crew of 200 needs helmets before month end.",
+        "hoursAfterCreate": 0
+      },
+      {
+        "action": "message",
+        "by": "wholesaler",
+        "message": "Delivery in 10 days would work for us.",
+        "hoursAfterCreate": 1
+      },
+      {
+        "action": "countered",
+        "by": "admin",
+        "actor": "admin",
+        "pricePerUnit": 345,
+        "message": "345 per helmet for 200+ units, delivery in 8 days.",
+        "hoursAfterCreate": 10
+      }
+    ]
+  },
+  {
+    "key": "ngt-bluepeak-bolt",
+    "number": "NGT-DEMO-1004",
+    "wholesaler": "bluepeak",
+    "sku": "AP-HXB-M10",
+    "requestedQuantity": 60,
+    "requestedPricePerUnit": 700,
+    "message": "Looking for a bulk rate on M10 bolts.",
+    "status": "rejected",
+    "createdHoursAgo": 96,
+    "expiresInDays": -1,
+    "currentOfferBy": "wholesaler",
+    "currentPricePerUnit": 700,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 700,
+        "message": "Looking for a bulk rate on M10 bolts.",
+        "hoursAfterCreate": 0
+      },
+      {
+        "action": "rejected",
+        "by": "admin",
+        "actor": "admin",
+        "message": "Below cost at this volume. Please resubmit at 100+ boxes.",
+        "hoursAfterCreate": 16
+      }
+    ]
+  },
+  {
+    "key": "ngt-metro-driver",
+    "number": "NGT-DEMO-1005",
+    "wholesaler": "metro",
+    "sku": "KW-IMP-20V",
+    "requestedQuantity": 10,
+    "requestedPricePerUnit": 6000,
+    "message": "Need 10 impact drivers for our service team.",
+    "status": "expired",
+    "createdHoursAgo": 240,
+    "expiresInDays": -3,
+    "currentOfferBy": "admin",
+    "currentPricePerUnit": 6300,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 6000,
+        "message": "Need 10 impact drivers for our service team.",
+        "hoursAfterCreate": 0
+      },
+      {
+        "action": "countered",
+        "by": "admin",
+        "actor": "admin",
+        "pricePerUnit": 6300,
+        "message": "6300 is our best price for 10 units.",
+        "hoursAfterCreate": 4
+      }
+    ]
+  }
+]

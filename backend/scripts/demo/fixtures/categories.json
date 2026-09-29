@@ -1,0 +1,142 @@
+[
+  {
+    "key": "power-tools",
+    "name": "Power Tools",
+    "nameHindi": "पावर टूल्स",
+    "brand": "kestrel",
+    "parent": null,
+    "order": 1,
+    "description": "Power Tools - demo catalogue category.",
+    "image": "categories/power-tools.png"
+  },
+  {
+    "key": "drills-drivers",
+    "name": "Drills & Drivers",
+    "nameHindi": "ड्रिल और ड्राइवर",
+    "brand": "kestrel",
+    "parent": "power-tools",
+    "order": 1,
+    "description": "Drills & Drivers - demo catalogue category.",
+    "image": "categories/drills-drivers.png"
+  },
+  {
+    "key": "grinders-sanders",
+    "name": "Grinders & Sanders",
+    "nameHindi": "ग्राइंडर और सैंडर",
+    "brand": "kestrel",
+    "parent": "power-tools",
+    "order": 2,
+    "description": "Grinders & Sanders - demo catalogue category.",
+    "image": "categories/grinders-sanders.png"
+  },
+  {
+    "key": "saws",
+    "name": "Saws",
+    "nameHindi": "आरी",
+    "brand": "kestrel",
+    "parent": "power-tools",
+    "order": 3,
+    "description": "Saws - demo catalogue category.",
+    "image": "categories/saws.png"
+  },
+  {
+    "key": "hand-tools",
+    "name": "Hand Tools",
+    "nameHindi": "हैंड टूल्स",
+    "brand": "anvilpoint",
+    "parent": null,
+    "order": 2,
+    "description": "Hand Tools - demo catalogue category.",
+    "image": "categories/hand-tools.png"
+  },
+  {
+    "key": "wrenches-pliers",
+    "name": "Wrenches & Pliers",
+    "nameHindi": "रिंच और प्लायर",
+    "brand": "anvilpoint",
+    "parent": "hand-tools",
+    "order": 1,
+    "description": "Wrenches & Pliers - demo catalogue category.",
+    "image": "categories/wrenches-pliers.png"
+  },
+  {
+    "key": "measuring-marking",
+    "name": "Measuring & Marking",
+    "nameHindi": "मापन और मार्किंग",
+    "brand": "anvilpoint",
+    "parent": "hand-tools",
+    "order": 2,
+    "description": "Measuring & Marking - demo catalogue category.",
+    "image": "categories/measuring-marking.png"
+  },
+  {
+    "key": "fasteners-fittings",
+    "name": "Fasteners & Fittings",
+    "nameHindi": "फास्टनर और फिटिंग",
+    "brand": "anvilpoint",
+    "parent": null,
+    "order": 3,
+    "description": "Fasteners & Fittings - demo catalogue category.",
+    "image": "categories/fasteners-fittings.png"
+  },
+  {
+    "key": "bolts-nuts",
+    "name": "Bolts & Nuts",
+    "nameHindi": "बोल्ट और नट",
+    "brand": "anvilpoint",
+    "parent": "fasteners-fittings",
+    "order": 1,
+    "description": "Bolts & Nuts - demo catalogue category.",
+    "image": "categories/bolts-nuts.png"
+  },
+  {
+    "key": "screws-anchors",
+    "name": "Screws & Anchors",
+    "nameHindi": "स्क्रू और एंकर",
+    "brand": "anvilpoint",
+    "parent": "fasteners-fittings",
+    "order": 2,
+    "description": "Screws & Anchors - demo catalogue category.",
+    "image": "categories/screws-anchors.png"
+  },
+  {
+    "key": "pipe-fittings",
+    "name": "Pipe Fittings",
+    "nameHindi": "पाइप फिटिंग",
+    "brand": "anvilpoint",
+    "parent": "fasteners-fittings",
+    "order": 3,
+    "description": "Pipe Fittings - demo catalogue category.",
+    "image": "categories/pipe-fittings.png"
+  },
+  {
+    "key": "safety-gear",
+    "name": "Safety Gear",
+    "nameHindi": "सेफ्टी गियर",
+    "brand": "brightguard",
+    "parent": null,
+    "order": 4,
+    "description": "Safety Gear - demo catalogue category.",
+    "image": "categories/safety-gear.png"
+  },
+  {
+    "key": "head-eye-protection",
+    "name": "Head & Eye Protection",
+    "nameHindi": "सिर और आंख की सुरक्षा",
+    "brand": "brightguard",
+    "parent": "safety-gear",
+    "order": 1,
+    "description": "Head & Eye Protection - demo catalogue category.",
+    "image": "categories/head-eye-protection.png"
+  },
+  {
+    "key": "hand-foot-protection",
+    "name": "Hand & Foot Protection",
+    "nameHindi": "हाथ और पैर की सुरक्षा",
+    "brand": "brightguard",
+    "parent": "safety-gear",
+    "order": 2,
+    "description": "Hand & Foot Protection - demo catalogue category.",
+    "image": "categories/hand-foot-protection.png"
+  }
+]

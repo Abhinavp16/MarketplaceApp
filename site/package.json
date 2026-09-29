@@ -1,0 +1,26 @@
+{
+  "name": "marketplace-demo-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generic TradeHub Demo public website (synthetic data, demonstration only)",
+  "scripts": {
+    "dev": "next dev --webpack -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "eslint",
+    "assets": "python3 scripts/generate_assets.py"
+  },
+  "dependencies": {
+    "@hugeicons/core-free-icons": "^4.2.0",
+    "@hugeicons/react": "^1.1.6",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4"
+  }
+}

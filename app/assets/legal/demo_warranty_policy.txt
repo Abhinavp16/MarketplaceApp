@@ -1,0 +1,18 @@
+Warranty Policy - TradeHub Demo
+Effective date: 17 August 2026
+
+DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
+
+WARRANTY POLICY
+
+This is a placeholder warranty policy for demonstration.
+
+Sample rules shown in this demo:
+- warranty terms depend on the product and are shown in the product details
+- warranty claims require proof of purchase
+- misuse or unauthorized repair may void a warranty
+
+No real warranties are offered through this demo environment.
+
+Contact: demo@tradehub.example
+Company: TradeHub Distribution Pvt Ltd (Demo)

@@ -1,0 +1,21 @@
+Comprehensive Policies - TradeHub Demo
+Effective date: 17 August 2026
+
+DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
+
+OVERVIEW
+
+This placeholder document stands in for a combined set of platform policies, for demonstration only.
+
+CANCELLATION
+
+Sample rules shown in this demo:
+- orders may be cancelled before dispatch
+- cancellation outcomes depend on the order status
+
+DISPUTES
+
+Sample dispute handling would be described here in a production deployment. No real transactions take place in this demo.
+
+Contact: demo@tradehub.example
+Company: TradeHub Distribution Pvt Ltd (Demo)

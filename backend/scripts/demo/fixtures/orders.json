@@ -1,0 +1,402 @@
+[
+  {
+    "key": "ord-1001",
+    "number": "ORD-DEMO-1001",
+    "user": "sunrise",
+    "type": "wholesale",
+    "negotiation": "ngt-sunrise-spanner",
+    "createdHoursAgo": 293,
+    "items": [
+      {
+        "sku": "AP-CSS-12",
+        "quantity": 30,
+        "pricePerUnit": 1300
+      }
+    ],
+    "deliveryFee": 0,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Rohan Mehta",
+      "phone": "9000000002",
+      "addressLine1": "Plot 12, Trade Park",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "delivered",
+    "acceptanceStatus": null,
+    "inventoryCommitted": true,
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 293,
+        "note": "Negotiation NGT-DEMO-1001 accepted by Admin Demo Business Owner - order confirmed"
+      },
+      {
+        "status": "payment_verified",
+        "hoursAgo": 285,
+        "note": "Payment marked complete in office",
+        "actor": "admin"
+      },
+      {
+        "status": "processing",
+        "hoursAgo": 284,
+        "note": "Order confirmed",
+        "actor": "admin"
+      },
+      {
+        "status": "shipped",
+        "hoursAgo": 270,
+        "note": "Shipped via Demo Express. Tracking: DEMO-TRK-1001",
+        "actor": "admin"
+      },
+      {
+        "status": "delivered",
+        "hoursAgo": 240,
+        "note": "Delivered",
+        "actor": "admin"
+      }
+    ],
+    "courierName": "Demo Express",
+    "trackingNumber": "DEMO-TRK-1001",
+    "shippedHoursAgo": 270,
+    "deliveredHoursAgo": 240,
+    "payment": {
+      "number": "PAY-DEMO-1001",
+      "status": "verified",
+      "method": "office_manual"
+    },
+    "adminNote": "Negotiation NGT-DEMO-1001 accepted by Admin Demo Business Owner - order confirmed from negotiation chat."
+  },
+  {
+    "key": "ord-1002",
+    "number": "ORD-DEMO-1002",
+    "user": "metro",
+    "type": "wholesale",
+    "createdHoursAgo": 168,
+    "items": [
+      {
+        "sku": "KW-AGR-850",
+        "quantity": 25,
+        "pricePerUnit": 2250
+      },
+      {
+        "sku": "BG-GLV-C5",
+        "quantity": 100,
+        "pricePerUnit": 195
+      }
+    ],
+    "deliveryFee": 0,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Anita Desai",
+      "phone": "9000000005",
+      "addressLine1": "48 Market Road",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "shipped",
+    "acceptanceStatus": null,
+    "inventoryCommitted": true,
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 168,
+        "note": "Order placed"
+      },
+      {
+        "status": "payment_verified",
+        "hoursAgo": 150,
+        "note": "Payment marked complete in office",
+        "actor": "admin"
+      },
+      {
+        "status": "processing",
+        "hoursAgo": 148,
+        "note": "Order confirmed",
+        "actor": "admin"
+      },
+      {
+        "status": "shipped",
+        "hoursAgo": 120,
+        "note": "Shipped via Demo Express. Tracking: DEMO-TRK-1002",
+        "actor": "admin"
+      }
+    ],
+    "courierName": "Demo Express",
+    "trackingNumber": "DEMO-TRK-1002",
+    "shippedHoursAgo": 120,
+    "payment": {
+      "number": "PAY-DEMO-1002",
+      "status": "verified",
+      "method": "bank_transfer",
+      "screenshot": "payments/sample-payment-proof.png"
+    }
+  },
+  {
+    "key": "ord-1003",
+    "number": "ORD-DEMO-1003",
+    "user": "bluepeak",
+    "type": "wholesale",
+    "createdHoursAgo": 20,
+    "items": [
+      {
+        "sku": "BG-HLM-RT",
+        "quantity": 60,
+        "pricePerUnit": 360
+      }
+    ],
+    "deliveryFee": 0,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Vikram Rao",
+      "phone": "9000000006",
+      "addressLine1": "7 Industrial Estate",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "payment_uploaded",
+    "acceptanceStatus": null,
+    "inventoryCommitted": false,
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 20,
+        "note": "Order placed"
+      },
+      {
+        "status": "payment_uploaded",
+        "hoursAgo": 18,
+        "note": "Payment proof uploaded"
+      }
+    ],
+    "payment": {
+      "number": "PAY-DEMO-1003",
+      "status": "pending",
+      "method": "bank_transfer",
+      "screenshot": "payments/sample-payment-proof.png",
+      "uploadedHoursAgo": 18
+    }
+  },
+  {
+    "key": "ord-1004",
+    "number": "ORD-DEMO-1004",
+    "user": "priya",
+    "type": "retail",
+    "createdHoursAgo": 5,
+    "items": [
+      {
+        "sku": "KW-AGR-850",
+        "quantity": 1,
+        "pricePerUnit": 2799
+      },
+      {
+        "sku": "BG-GGL-AF",
+        "quantity": 2,
+        "pricePerUnit": 199
+      }
+    ],
+    "deliveryFee": 50,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Priya Sharma",
+      "phone": "9000000003",
+      "addressLine1": "21 Garden Lane",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "pending_payment",
+    "acceptanceStatus": "pending",
+    "inventoryCommitted": false,
+    "customerNote": "Please share the warranty card with the grinder.",
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 5,
+        "note": "Order placed - awaiting acceptance"
+      }
+    ]
+  },
+  {
+    "key": "ord-1005",
+    "number": "ORD-DEMO-1005",
+    "user": "priya",
+    "type": "retail",
+    "createdHoursAgo": 60,
+    "items": [
+      {
+        "sku": "KW-JSW-650",
+        "quantity": 1,
+        "pricePerUnit": 3299
+      }
+    ],
+    "deliveryFee": 50,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Priya Sharma",
+      "phone": "9000000003",
+      "addressLine1": "21 Garden Lane",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "processing",
+    "acceptanceStatus": "accepted",
+    "acceptedHoursAgo": 58,
+    "inventoryCommitted": true,
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 60,
+        "note": "Order placed - awaiting acceptance"
+      },
+      {
+        "status": "pending_payment",
+        "hoursAgo": 58,
+        "note": "Retail order accepted; inventory committed",
+        "actor": "admin"
+      },
+      {
+        "status": "payment_verified",
+        "hoursAgo": 50,
+        "note": "Payment marked complete in office",
+        "actor": "admin"
+      },
+      {
+        "status": "processing",
+        "hoursAgo": 50,
+        "note": "Order auto-confirmed after payment verification",
+        "actor": "admin"
+      }
+    ],
+    "payment": {
+      "number": "PAY-DEMO-1004",
+      "status": "verified",
+      "method": "office_manual"
+    }
+  },
+  {
+    "key": "ord-1006",
+    "number": "ORD-DEMO-1006",
+    "user": "arjun",
+    "type": "retail",
+    "createdHoursAgo": 100,
+    "items": [
+      {
+        "sku": "KW-CSW-1200",
+        "quantity": 2,
+        "pricePerUnit": 5999
+      }
+    ],
+    "deliveryFee": 50,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Arjun Nair",
+      "phone": "9000000007",
+      "addressLine1": "5 Lake View",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "cancelled",
+    "acceptanceStatus": "rejected",
+    "rejectedHoursAgo": 90,
+    "rejectionReason": "Requested quantity is not available for retail delivery this week.",
+    "inventoryCommitted": false,
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 100,
+        "note": "Order placed - awaiting acceptance"
+      },
+      {
+        "status": "cancelled",
+        "hoursAgo": 90,
+        "note": "Order rejected: Requested quantity is not available for retail delivery this week.",
+        "actor": "admin"
+      }
+    ]
+  },
+  {
+    "key": "ord-1007",
+    "number": "ORD-DEMO-1007",
+    "user": "sneha",
+    "type": "retail",
+    "createdHoursAgo": 200,
+    "items": [
+      {
+        "sku": "AP-CSS-12",
+        "quantity": 1,
+        "pricePerUnit": 1799
+      },
+      {
+        "sku": "AP-PLR-8",
+        "quantity": 2,
+        "pricePerUnit": 329
+      }
+    ],
+    "deliveryFee": 50,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Sneha Kapoor",
+      "phone": "9000000008",
+      "addressLine1": "14 Park Avenue",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "delivered",
+    "acceptanceStatus": "accepted",
+    "acceptedHoursAgo": 198,
+    "inventoryCommitted": true,
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 200,
+        "note": "Order placed - awaiting acceptance"
+      },
+      {
+        "status": "pending_payment",
+        "hoursAgo": 198,
+        "note": "Retail order accepted; inventory committed",
+        "actor": "admin"
+      },
+      {
+        "status": "payment_verified",
+        "hoursAgo": 190,
+        "note": "Payment marked complete in office",
+        "actor": "admin"
+      },
+      {
+        "status": "processing",
+        "hoursAgo": 190,
+        "note": "Order auto-confirmed after payment verification",
+        "actor": "admin"
+      },
+      {
+        "status": "shipped",
+        "hoursAgo": 170,
+        "note": "Shipped via Demo Express. Tracking: DEMO-TRK-1007",
+        "actor": "admin"
+      },
+      {
+        "status": "delivered",
+        "hoursAgo": 140,
+        "note": "Delivered",
+        "actor": "admin"
+      }
+    ],
+    "courierName": "Demo Express",
+    "trackingNumber": "DEMO-TRK-1007",
+    "shippedHoursAgo": 170,
+    "deliveredHoursAgo": 140,
+    "payment": {
+      "number": "PAY-DEMO-1005",
+      "status": "verified",
+      "method": "office_manual"
+    }
+  }
+]

@@ -1,0 +1,1713 @@
+{
+  "@@locale": "en",
+  "aboutBrand": "TradeHub Demo",
+  "aboutDescription": "TradeHub Demo is a demonstration marketplace that shows how retailers, wholesalers, and buyers can work together on one platform. You can discover products, place orders, negotiate bulk deals, and manage delivery from one app. All data in this environment is synthetic.",
+  "aboutFeatureCatalogue": "A sample catalogue across many product categories",
+  "aboutFeatureDealerSupport": "Dealer and bulk order support",
+  "aboutFeatureDirectContact": "Direct contact with the business support team",
+  "aboutFeatureDispatch": "Sales and dispatch coordination",
+  "aboutTagline": "Distribution made simple",
+  "aboutTitle": "About TradeHub Demo",
+  "aboutWhatYouCanDo": "What you can do",
+  "addProductAllowNegotiation": "Allow Price Negotiation",
+  "addProductAllowNegotiationHint": "Buyers can send price proposals",
+  "addProductBasicInfo": "Basic Information",
+  "addProductCategoryHarvesters": "Harvesters",
+  "addProductCategoryLabel": "Category",
+  "addProductCategoryMills": "Mills",
+  "addProductCategoryOther": "Other",
+  "addProductCategoryPumps": "Pumps",
+  "addProductCategorySprayers": "Sprayers",
+  "addProductCategoryTillers": "Tillers",
+  "addProductDescriptionHint": "Enter product description",
+  "addProductDescriptionLabel": "Description",
+  "addProductEnginePowerHint": "e.g., 7HP",
+  "addProductEnginePowerLabel": "Engine Power",
+  "addProductFuelTypeHint": "e.g., Petrol",
+  "addProductFuelTypeLabel": "Fuel Type",
+  "addProductMinOrderQtyLabel": "Minimum Order Qty",
+  "addProductNameHint": "Enter product name",
+  "addProductNameLabel": "Product Name",
+  "addProductPriceLabel": "Price ($)",
+  "addProductPricingStock": "Pricing & Stock",
+  "addProductPublish": "Publish Product",
+  "addProductPublished": "Product published successfully!",
+  "addProductSaveDraft": "Save Draft",
+  "addProductSpecifications": "Specifications",
+  "addProductStockQtyLabel": "Stock Qty",
+  "addProductTitle": "Add New Product",
+  "addProductUploadHint": "Add up to 5 images (JPG, PNG)",
+  "addProductUploadImages": "Upload Product Images",
+  "addProductWarrantyHint": "e.g., 1 Year",
+  "addProductWarrantyLabel": "Warranty",
+  "addProductWeightHint": "e.g., 50kg",
+  "addProductWeightLabel": "Weight",
+  "addProductWholesaleSettings": "Wholesale Settings",
+  "addressAdd": "Add",
+  "addressBanner": "Keep two delivery slots ready: Primary and Secondary.",
+  "addressDefaultBadge": "Default",
+  "addressDefaultForDelivery": "Default for delivery",
+  "addressEmpty": "No address saved yet. Add this delivery slot now.",
+  "addressPrimarySaved": "Primary address saved",
+  "addressPrimarySetDefault": "Primary set as default",
+  "addressPrimaryTitle": "Primary Address",
+  "addressSaveButton": "Save Address",
+  "addressSaveFailed": "Could not save address. Please try again.",
+  "addressSecondarySaved": "Secondary address saved",
+  "addressSecondarySetDefault": "Secondary set as default",
+  "addressSecondaryTitle": "Secondary Address",
+  "addressSetAsDefault": "Set as default",
+  "addressSlotPrimary": "Primary",
+  "addressSlotSecondary": "Secondary",
+  "apiErrorAccountDeactivated": "Your account is deactivated. Please contact support.",
+  "apiErrorAddressIncomplete": "Your address is incomplete. Please enter the full delivery address.",
+  "apiErrorCartEmpty": "Your cart is empty.",
+  "apiErrorCouponMinPurchase": "Your order total is below the minimum amount for this coupon.",
+  "apiErrorCouponMinPurchaseAmount": "Minimum purchase amount for this coupon is ₹{amount}.",
+  "@apiErrorCouponMinPurchaseAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "apiErrorCouponNotApplicable": "This coupon can't be used for this order.",
+  "apiErrorInsufficientStock": "Some items don't have enough stock. Please update the quantity.",
+  "apiErrorInvalidCoupon": "Invalid or expired coupon code.",
+  "apiErrorInvalidQuantity": "Please enter a valid quantity.",
+  "apiErrorMinWholesaleQuantity": "Please order at least the minimum wholesale quantity.",
+  "apiErrorNegotiationCheckoutDisabled": "Ordering from a deal is turned off right now.",
+  "apiErrorNegotiationDisabled": "Negotiation is not available for this product.",
+  "apiErrorNegotiationExpired": "This deal has expired.",
+  "apiErrorNegotiationNotFound": "This deal is no longer available.",
+  "apiErrorNoPermission": "You don't have permission to do this.",
+  "apiErrorOrderNotFound": "This order could not be found.",
+  "apiErrorProductNotFound": "This product is no longer available.",
+  "apiErrorServiceUnavailable": "The service is temporarily unavailable. Please try again later.",
+  "apiErrorSessionExpired": "Your session has expired. Please log in again.",
+  "apiErrorTooManyRequests": "Too many requests. Please wait a moment and try again.",
+  "appTitle": "TradeHub Demo",
+  "authBusinessNameHint": "Your shop or company name",
+  "authConfirmPasswordHint": "Re-enter your password",
+  "authConfirmPasswordLabel": "Confirm Password",
+  "authConsentAnd": "and",
+  "authConsentIntro": "By continuing, you agree to our:",
+  "authConsentPointCollect": "- We collect basic details like name, phone, email, and app usage data.",
+  "authConsentPointRights": "- You can request access, correction, or deletion of your data where permitted.",
+  "authConsentPointShare": "- We share data only with logistics, payment, service partners, or legal authorities.",
+  "authConsentPointUse": "- We use this data to process orders, provide support, and improve services.",
+  "authConsentPrivacyLink": "Privacy Policy.",
+  "authCreateAccount": "Create Account",
+  "authErrorAcceptTerms": "Please accept Terms & Conditions and Privacy Policy",
+  "authErrorInvalidPhone": "Please enter a valid phone number",
+  "authErrorPasswordMismatch": "Passwords do not match",
+  "authErrorPasswordShort": "Password must be at least 6 characters",
+  "authErrorPhoneIndian": "Enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.",
+  "authErrorPhoneNotReal": "Enter a real mobile number, not a repeated or sequential number.",
+  "authHaveAccount": "Already have an account? ",
+  "authJoinSubtitle": "Join TradeHub Demo today",
+  "authNameHint": "Enter your name",
+  "authNeedHelp": "Need help accessing your account? Contact Support",
+  "authNoAccount": "Don't have an account? ",
+  "authPasswordHint": "Enter your password",
+  "authPasswordLabel": "Password",
+  "authPhoneHint": "10-digit mobile number",
+  "authRoleCustomer": "Customer",
+  "authRoleWholesaler": "Wholesaler",
+  "authSignIn": "Sign In",
+  "authSignInSubtitle": "Sign in to continue to TradeHub Demo",
+  "authSignUp": "Sign Up",
+  "authWelcomeBack": "Welcome Back",
+  "authWholesalerProofNote": "After creating your account, submit your business proof from Become a Wholesaler for admin review.",
+  "buyNowAddAddress": "Add",
+  "buyNowAddDeliveryAddress": "Add Delivery Address",
+  "buyNowAddNewAddress": "+ Add New",
+  "buyNowChangeAddress": "Change",
+  "buyNowDeliveryAddress": "Delivery Address",
+  "buyNowLoginRequiredMessage": "Login is required before placing an order. Please log in to continue checkout.",
+  "buyNowOrderFailed": "Failed to create order",
+  "buyNowPreviewDisabled": "Buy Now is disabled in customer preview mode. Your wholesaler account remains unchanged.",
+  "buyNowPreviewTitle": "Customer Preview",
+  "buyNowPrimaryAddress": "Primary",
+  "buyNowSelectAddress": "Select Address",
+  "buyNowSubmitOrder": "Submit Order",
+  "buyNowTitle": "Order Summary",
+  "cartBrowseProducts": "Browse Products",
+  "cartCheckingStock": "Checking stock...",
+  "cartCheckoutFailed": "Checkout failed",
+  "cartCouponApplied": "Code applied: -₹{amount}",
+  "@cartCouponApplied": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cartCouponEnterCode": "Please enter a coupon code",
+  "cartCouponFailed": "Failed to apply coupon",
+  "cartCouponHint": "Enter coupon code",
+  "cartCouponInvalid": "Invalid coupon code",
+  "cartDeliveryFee": "Delivery Fee",
+  "cartDiscount": "Discount",
+  "cartEmpty": "Your cart is empty",
+  "cartFixStockIssues": "Fix Stock Issues",
+  "cartGrandTotal": "Grand Total",
+  "cartInStockCount": "{count} in stock",
+  "@cartInStockCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cartIssueGeneric": "Stock issue",
+  "cartIssueInsufficientStock": "Only {count, plural, =1{1 unit} other{{count} units}} of {product} available",
+  "@cartIssueInsufficientStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "cartIssueMinWholesale": "Minimum wholesale quantity for {product} is {quantity}",
+  "@cartIssueMinWholesale": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "cartIssueOutOfStock": "{product} is out of stock",
+  "@cartIssueOutOfStock": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "cartIssueUnavailable": "{product} is currently unavailable",
+  "@cartIssueUnavailable": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "cartItemMinWholesale": "Minimum wholesale quantity is {quantity}",
+  "@cartItemMinWholesale": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "cartItemOnlyAvailable": "Only {available} available (you selected {selected})",
+  "@cartItemOnlyAvailable": {
+    "placeholders": {
+      "available": {
+        "type": "String"
+      },
+      "selected": {
+        "type": "String"
+      }
+    }
+  },
+  "cartItemOnlyStockAvailable": "Only {available} available",
+  "@cartItemOnlyStockAvailable": {
+    "placeholders": {
+      "available": {
+        "type": "String"
+      }
+    }
+  },
+  "cartItemOutOfStock": "Out of stock — please remove this item",
+  "cartItemUnavailable": "This product is currently unavailable",
+  "cartLoginRequiredMessage": "You can add products to cart, but login is required to place an order.",
+  "cartLoginRequiredTitle": "Login Required",
+  "cartMinusRupees": "-₹{amount}",
+  "@cartMinusRupees": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cartNotNow": "Not now",
+  "cartOnlyUnitsAvailable": "Only {count, plural, =1{1 unit} other{{count} units}} available",
+  "@cartOnlyUnitsAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartPreviewCheckoutDisabled": "Checkout is disabled in customer preview mode.",
+  "cartPreviewDisabled": "Shopping is disabled in preview mode",
+  "cartPreviewPrivate": "Your wholesaler cart is private and remains unchanged.",
+  "cartPreviewTitle": "Customer Cart Preview",
+  "cartPriceSummary": "Price Summary",
+  "cartProceedToCheckout": "Proceed to Checkout",
+  "cartProcessing": "Processing...",
+  "cartSetQuantity": "Set to {quantity}",
+  "@cartSetQuantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "cartStockIssuesBanner": "Some items have stock issues. Please adjust quantities.",
+  "cartStockIssuesMessage": "Some items in your cart have stock issues. Please update quantities before checkout.",
+  "cartStockIssuesTitle": "Stock Issues",
+  "cartTitle": "Shopping Cart",
+  "categoryBackToCategories": "Back to categories",
+  "categoryBackToTypes": "Back to types",
+  "categoryBrandNotFound": "Brand not found. Select a brand from the left.",
+  "categoryCategoriesCount": "{count, plural, =1{1 category} other{{count} categories}}",
+  "@categoryCategoriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryGeneralProducts": "General Products",
+  "categoryLoadProductsError": "Could not load products",
+  "categoryNoBrands": "No brands found",
+  "categoryNoCategoriesForBrand": "No categories available for this brand",
+  "categoryNoProductsInCategory": "No products in this category",
+  "categoryNoProductsInSubcategory": "No products in this subcategory",
+  "categoryOtherProducts": "Other Products",
+  "categorySelectCategory": "Select a category",
+  "categorySelectType": "Select a type",
+  "categorySubcategoriesCount": "{count, plural, =1{1 subcategory} other{{count} subcategories}}",
+  "@categorySubcategoriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryTitle": "Categories",
+  "categoryTypesCount": "{count, plural, =1{1 type} other{{count} types}}",
+  "@categoryTypesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryViewProduct": "View Product",
+  "checkoutAddressLine1": "Address Line 1",
+  "checkoutApprovalNote": "We’ll notify you after the TradeHub Demo team reviews your order.",
+  "checkoutAwaitingApproval": "Awaiting Approval",
+  "checkoutChooseAnotherWay": "Choose another way to send or save your receipt.",
+  "checkoutConfirmAndPay": "Confirm & Pay",
+  "checkoutContinueShopping": "Continue Shopping",
+  "checkoutCopyOrderDetails": "Copy Order Details",
+  "checkoutFullName": "Full Name",
+  "checkoutOrderDetailsCopied": "Order details copied.",
+  "checkoutOrderSaved": "Order saved successfully",
+  "checkoutOrderSavedChooseAnotherWay": "Order {orderNumber} is saved. Choose another way to send or save your receipt.",
+  "@checkoutOrderSavedChooseAnotherWay": {
+    "placeholders": {
+      "orderNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutOrderSubmitted": "Order Submitted",
+  "checkoutPhone": "Phone",
+  "checkoutPhoneValue": "Phone: {phone}",
+  "@checkoutPhoneValue": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutReceiptPrepareFailed": "We saved your order, but could not prepare the PDF receipt.",
+  "checkoutReceiptShareFailed": "We saved your order, but could not open the receipt sharing options.",
+  "checkoutReceiptUnavailableNow": "Unable to prepare the PDF receipt right now.",
+  "checkoutShareOptionsFailed": "Unable to open receipt sharing options.",
+  "checkoutShareReceipt": "Share Receipt",
+  "checkoutShareSheetOpened": "Choose an app to send your receipt.",
+  "checkoutShippingAddress": "Shipping Address",
+  "checkoutViewOrder": "View Order",
+  "checkoutWebSavedMessage": "Your order was saved. You can try sharing the receipt again.",
+  "commonApply": "Apply",
+  "commonBack": "Back",
+  "commonCall": "Call",
+  "commonCancel": "Cancel",
+  "commonClear": "Clear",
+  "commonClose": "Close",
+  "commonConfirm": "Confirm",
+  "commonContinue": "Continue",
+  "commonCopied": "Copied",
+  "commonCopy": "Copy",
+  "commonDate": "Date",
+  "commonDelete": "Delete",
+  "commonDone": "Done",
+  "commonEdit": "Edit",
+  "commonGotIt": "Got it",
+  "commonInStock": "In Stock",
+  "commonItemsCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@commonItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonLoading": "Loading...",
+  "commonLogin": "Log In",
+  "commonLoginRequired": "Please log in to continue",
+  "commonLogout": "Log Out",
+  "commonMrp": "MRP",
+  "commonNetworkError": "Could not connect. Please check your internet and try again.",
+  "commonNext": "Next",
+  "commonNo": "No",
+  "commonNoDataFound": "Nothing to show yet",
+  "commonOk": "OK",
+  "commonOptional": "Optional",
+  "commonOutOfStock": "Out of Stock",
+  "commonPerUnit": "/unit",
+  "commonPercentOff": "{percent}% OFF",
+  "@commonPercentOff": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "commonPrice": "Price",
+  "commonPricePerUnit": "₹{price}/unit",
+  "@commonPricePerUnit": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "commonProductsCount": "{count, plural, =1{1 product} other{{count} products}}",
+  "@commonProductsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonQtyValue": "Qty: {quantity}",
+  "@commonQtyValue": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "commonQuantity": "Quantity",
+  "commonRemove": "Remove",
+  "commonRequired": "Required",
+  "commonRetry": "Retry",
+  "commonRupees": "₹{amount}",
+  "@commonRupees": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "commonSave": "Save",
+  "commonSaveChanges": "Save Changes",
+  "commonSearch": "Search",
+  "commonSeeAll": "See All",
+  "commonShare": "Share",
+  "commonSkip": "Skip",
+  "commonSomethingWentWrong": "Something went wrong. Please try again.",
+  "commonStatus": "Status",
+  "commonStock": "Stock",
+  "commonSubmit": "Submit",
+  "commonSubtotal": "Subtotal",
+  "commonTotal": "Total",
+  "commonTryAgain": "Try Again",
+  "commonUnitsCount": "{count, plural, =1{1 unit} other{{count} units}}",
+  "@commonUnitsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonView": "View",
+  "commonViewAll": "View All",
+  "commonViewDetails": "View Details",
+  "commonYes": "Yes",
+  "conversionAddressRequired": "Address is required",
+  "conversionAlreadyAppliedBody": "Your wholesaler application is currently under review by our team. We will notify you shortly once it has been processed.",
+  "conversionAlreadyAppliedTitle": "Already Applied",
+  "conversionBusinessAddress": "Business Address",
+  "conversionBusinessAddressHint": "Enter full office address",
+  "conversionBusinessNameHint": "Enter your company name",
+  "conversionBusinessNameRequired": "Business name is required",
+  "conversionChange": "Change",
+  "conversionContactPerson": "Contact Person",
+  "conversionContactPersonHint": "Full name",
+  "conversionContactPersonRequired": "Contact person name is required",
+  "conversionGoBack": "Go Back",
+  "conversionGstHint": "Enter 15-digit GSTIN",
+  "conversionGstInvalid": "Invalid GST number format",
+  "conversionGstNumber": "GST Number",
+  "conversionHeaderSubtitle": "Get access to exclusive bulk pricing, negotiation tools, and priority support.",
+  "conversionHeaderTitle": "Wholesaler Account Application",
+  "conversionImageFormats": "JPG, PNG, or similar image files",
+  "conversionImagesSelected": "{count}/3 images selected",
+  "@conversionImagesSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "conversionLoginFirst": "Please login first, then submit your application.",
+  "conversionLoginRequiredBody": "Please login to your account first, then submit your wholesaler application.",
+  "conversionLoginRequiredTitle": "Login Required",
+  "conversionMaxProofImages": "You can upload up to 3 proof images only.",
+  "conversionPhoneHint": "Enter 10-digit mobile number",
+  "conversionPhoneInvalid": "Enter a valid phone number",
+  "conversionPhoneRequired": "Phone number is required",
+  "conversionPick": "Pick",
+  "conversionPickLocationError": "Please pick your shop location on the map.",
+  "conversionPickShopLocation": "Pick shop location on map",
+  "conversionProofAdd": "Add",
+  "conversionProofDescription": "Upload shop photo, GST certificate, trade license, or any valid business proof.",
+  "conversionProofFull": "Full",
+  "conversionProofImagesTrimmed": "Only the first 3 proof images were added.",
+  "conversionProofLimit": "(Up to 3)",
+  "conversionProofTitle": "Valid Image Proof",
+  "conversionRejectedNote": "Your previous application was not approved. You can review your details and submit again.",
+  "conversionSectionBusiness": "BUSINESS INFORMATION",
+  "conversionSectionContact": "CONTACT INFORMATION",
+  "conversionShopLocation": "Shop Location",
+  "conversionShopLocationDescription": "Mark your shop on the map. You can use current location and then adjust the pin before saving it.",
+  "conversionShopLocationHint": "Use current location or manually place a pin",
+  "conversionShopLocationSelected": "Shop location selected",
+  "conversionStatusTitle": "Application Status",
+  "conversionSubmit": "Submit Application",
+  "conversionSubmitFailed": "Failed to submit application. Please try again.",
+  "conversionSubmitted": "Application submitted successfully! Our team will verify your details.",
+  "conversionTitle": "Apply for wholesaler account",
+  "conversionUnexpectedError": "An unexpected error occurred.",
+  "conversionUploadProof": "Upload proof images",
+  "dealAcceptedByPlatform": "Accepted by TradeHub Demo",
+  "dealAcceptedByPlatformName": "Accepted by TradeHub Demo: {name}",
+  "@dealAcceptedByPlatformName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dealBulletTotal": "• Total: ₹{amount}",
+  "@dealBulletTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dealChatAndHistory": "Chat & History",
+  "dealConfirmAndProceed": "Confirm & Proceed",
+  "dealCreateOrderFailed": "Failed to create order",
+  "dealCurrentPricePerUnit": "Current Price/unit",
+  "dealDeclinedByPlatform": "Declined by TradeHub Demo",
+  "dealEnterMessage": "Please enter a message",
+  "dealErrorWithDetails": "Error: {error}",
+  "@dealErrorWithDetails": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dealFieldAddressLine1": "Address Line 1",
+  "dealFieldCouponCode": "Coupon / Affiliate Code (Optional)",
+  "dealFieldFullName": "Full Name",
+  "dealFieldPhone": "Phone",
+  "dealPlatform": "TradeHub Demo",
+  "dealPlatformActor": "TradeHub Demo: {name}",
+  "@dealPlatformActor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dealLoadFailed": "Failed to load",
+  "dealLrLine": "LR: {tracking}",
+  "@dealLrLine": {
+    "placeholders": {
+      "tracking": {
+        "type": "String"
+      }
+    }
+  },
+  "dealLrLineWithCourier": "LR: {tracking} · {courier}",
+  "@dealLrLineWithCourier": {
+    "placeholders": {
+      "tracking": {
+        "type": "String"
+      },
+      "courier": {
+        "type": "String"
+      }
+    }
+  },
+  "dealMessageHint": "Message",
+  "dealMessageSent": "Message sent!",
+  "dealMessageTooLong": "Message too long (max {max} characters)",
+  "@dealMessageTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "dealOrderStatusCancelled": "Cancelled",
+  "dealOrderStatusDelivered": "Delivered",
+  "dealOrderStatusDispatched": "Dispatched",
+  "dealOrderStatusLine": "Order {orderNumber} · {status}",
+  "@dealOrderStatusLine": {
+    "placeholders": {
+      "orderNumber": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "dealOrderStatusPacking": "Packing",
+  "dealOrderStatusPaymentPending": "Payment Pending",
+  "dealOrderStatusPaymentVerificationPending": "Payment Verification Pending",
+  "dealOrderStatusPaymentVerified": "Payment Verified",
+  "dealOrderTrackingNote": "Live status from your order. Open full order for payment & dispatch details.",
+  "dealProductFallback": "Product",
+  "dealQtyUnits": "Qty: {count, plural, =1{1 unit} other{{count} units}}",
+  "@dealQtyUnits": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dealReplyInChat": "Reply in Chat",
+  "dealRetailPrice": "Retail: ₹{price}",
+  "@dealRetailPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "dealSendMessageFailed": "Failed to send message",
+  "dealShippingAddressTitle": "Shipping Address",
+  "dealStatusAccepted": "Accepted",
+  "dealStatusNewPriceFromPlatform": "New Price from TradeHub Demo",
+  "dealStatusNewPriceReceived": "New Price Received",
+  "dealStatusRequirementDeclined": "Requirement Declined",
+  "dealStatusRequirementExpired": "Requirement Expired",
+  "dealStatusRequirementSent": "Requirement Sent",
+  "dealStatusYourCounterOffer": "Your Counter Offer",
+  "dealTotalForUnits": "Total ({count, plural, =1{1 unit} other{{count} units}})",
+  "@dealTotalForUnits": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dealTyping": "{name} is typing...",
+  "@dealTyping": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dealViewOrder": "View Order",
+  "dealViewOrderNumber": "View Order {orderNumber}",
+  "@dealViewOrderNumber": {
+    "placeholders": {
+      "orderNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "dealYou": "You",
+  "dealYouAccepted": "You Accepted",
+  "dealYouCancelled": "You Cancelled",
+  "editProfileUpdateFailed": "Failed to update profile",
+  "editProfileUpdated": "Profile updated successfully",
+  "featuredEmpty": "No products available",
+  "featuredHotDealsCustomer": "Hot Deals",
+  "featuredHotDealsDealer": "Dealer Schemes",
+  "featuredLoadError": "Error loading products",
+  "featuredPopularCustomer": "Popular Products",
+  "featuredPopularDealer": "Fast-Moving Products",
+  "fieldAddressLine1": "Address Line 1",
+  "fieldBusinessName": "Business Name",
+  "fieldCity": "City",
+  "fieldEnterName": "Please enter your name",
+  "fieldEnterPincode": "Enter a pincode",
+  "fieldFullName": "Full Name",
+  "fieldOptionalTag": "(Optional)",
+  "fieldPhone": "Phone",
+  "fieldPhoneNumber": "Phone Number",
+  "fieldPincodeEditable": "Pincode (editable)",
+  "fieldSelectCity": "Select a city",
+  "fieldSelectState": "Select a state",
+  "fieldState": "State",
+  "guestPreviewSubtitle": "You're seeing what customers see",
+  "guestPreviewTitle": "Viewing as Customer",
+  "guideContactSupport": "Contact Support",
+  "guideHeroSubtitle": "Learn how to request and review bulk-price offers.",
+  "guideHeroTitle": "Bulk Pricing Guide",
+  "guideHowItWorksBody": "Use negotiations for bulk requirements when you want to discuss quantity, price, and delivery expectations with the seller.",
+  "guideHowItWorksTitle": "How price negotiation works",
+  "guideStep1Body": "Open an eligible product and submit your quantity, target price, and delivery requirements.",
+  "guideStep1Title": "Request a bulk price",
+  "guideStep2Body": "The seller may accept your request or send a counter-offer. Check the app for updates before confirming an order.",
+  "guideStep2Title": "Review the seller response",
+  "guideStep3Body": "After your order is created, share its receipt with the TradeHub Demo team so they can coordinate the next step.",
+  "guideStep3Title": "Send your order receipt",
+  "guideStep4Body": "Complete payment at the shop or using QR or bank details provided by the TradeHub Demo team. Your order status is updated after admin verification.",
+  "guideStep4Title": "Pay through the TradeHub Demo team",
+  "guideTip": "Include the quantity and your preferred delivery timeline in your request so the seller can provide a useful response.",
+  "guideTitle": "Negotiation Guide",
+  "guideViewNegotiations": "View Negotiations",
+  "helpAppTagline": "Distribution made simple",
+  "helpBrandName": "TradeHub Demo",
+  "helpCallUs": "Call Us",
+  "helpContactInfoSubtitle": "Get in touch with our support team",
+  "helpContactInfoTitle": "Contact Information",
+  "helpEmailUs": "Email Us",
+  "helpFaqBulkOrderAnswer": "Navigate to the product page and tap \"Initiate Negotiation\" to start the bulk ordering process. You can request custom pricing for large quantities.",
+  "helpFaqBulkOrderQuestion": "How do I place a bulk order?",
+  "helpFaqDeliveryAnswer": "Delivery availability and timing depend on the product, order, and location. Contact support to confirm delivery arrangements for your order.",
+  "helpFaqDeliveryQuestion": "How long does delivery take?",
+  "helpFaqNegotiationAnswer": "Wholesalers can negotiate prices for bulk orders. Submit a negotiation request with your preferred price, and our team will review and respond with a counter-offer or acceptance.",
+  "helpFaqNegotiationQuestion": "How do negotiations work?",
+  "helpFaqPaymentAnswer": "Retail orders are reviewed in the app after submission. Once accepted, complete payment at the shop or use the QR code, UPI, or bank details shared by our team. Your order status updates after payment is confirmed.",
+  "helpFaqPaymentQuestion": "What payment methods are accepted?",
+  "helpFaqReturnAnswer": "Return availability depends on the product and order. Contact support so our team can review your request.",
+  "helpFaqReturnQuestion": "What is the return policy?",
+  "helpFaqTitle": "Frequently Asked Questions",
+  "helpFaqTrackAnswer": "Go to the Orders section in your profile and tap on any order to view its available status updates.",
+  "helpFaqTrackQuestion": "How do I track my order?",
+  "helpFaqWholesalerAnswer": "Register with a wholesaler account and provide your business details. Once verified by our team, you'll get access to wholesale pricing and negotiations.",
+  "helpFaqWholesalerQuestion": "How do I become a wholesaler?",
+  "helpHeroSubtitle": "We're here to help with anything you need.\nReach out and we'll respond as soon as we can.",
+  "helpHeroTitle": "How can we help you?",
+  "helpSupportTitle": "Help & Support",
+  "helpVersion": "Version {version}",
+  "@helpVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "helpVersionLabel": "Version",
+  "helpWorkingHours": "Working Hours",
+  "helpWorkingHoursValue": "Mon - Sat, 9:00 AM - 6:00 PM",
+  "homeAdd": "Add",
+  "homeAddShippingDetails": "Add Shipping Details",
+  "homeAddedToCart": "Added to cart",
+  "homeAffiliateCodeApplied": "Affiliate code applied",
+  "homeAllOrders": "All Orders",
+  "homeApplyCoupon": "APPLY COUPON",
+  "homeBadgeHot": "HOT",
+  "homeBadgeNew": "NEW",
+  "homeBadgeSale": "SALE",
+  "homeBannerExploreProducts": "Explore Products",
+  "homeBannerNewArrival": "NEW ARRIVAL",
+  "homeBannerShopNow": "Shop Now",
+  "homeBrandFirstWord": "TradeHub",
+  "homeBrandName": "TradeHub Demo",
+  "homeBrandSecondWord": "Demo",
+  "homeBrandTagline": "Grow Together  •  Trade Better",
+  "homeBrandValue": "Brand: {brand}",
+  "@homeBrandValue": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "homeBrowseCategories": "Browse Categories",
+  "homeBrowseProducts": "Browse Products",
+  "homeCartEmptySubtitle": "Discover products and add them here",
+  "homeCartEmptyTitle": "Your cart is empty",
+  "homeCatalogProducts": "Catalog Products",
+  "homeCategoriesTitle": "Categories",
+  "homeCategoryValue": "Category: {category}",
+  "@homeCategoryValue": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "homeChangeCode": "Change code",
+  "homeCheckoutFailed": "Checkout failed",
+  "homeCheckoutLoginMessage": "You can add products to cart and view them, but login is required to buy.",
+  "homeClearAll": "CLEAR ALL",
+  "homeConfirmAndProceed": "Confirm & Proceed",
+  "homeContinueDealChat": "Continue Deal Chat",
+  "homeCountdownSoon": "Soon",
+  "homeCounterLabel": "Counter:",
+  "homeCouponAppliedAtCheckout": "Applied successfully during checkout",
+  "homeCouponAppliedButton": "Applied",
+  "homeCouponAppliedSuccess": "Coupon applied successfully",
+  "homeCouponCopied": "{code} copied! Use it in cart or find it in \"My Coupons\" in Profile.",
+  "@homeCouponCopied": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCouponFieldHint": "Enter coupon or affiliate code",
+  "homeCouponFieldLabel": "Coupon / Affiliate Code",
+  "homeCouponWithCode": "Coupon ({code})",
+  "@homeCouponWithCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCreateOrderFailed": "Failed to create order",
+  "homeCreatingOrder": "Creating Order...",
+  "homeCurrentLabel": "Current:",
+  "homeDealDeskTitle": "Deal Desk",
+  "homeDealEmptyActive": "No active negotiations",
+  "homeDealEmptyCompleted": "No completed negotiations",
+  "homeDealEmptyHint": "Start negotiating on product pages",
+  "homeDealNewPriceReceived": "New Price Received",
+  "homeDealQtyTotal": "Qty {quantity} · ₹{amount}",
+  "@homeDealQtyTotal": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDealRequirementSent": "Requirement Sent",
+  "homeDealStatusCountered": "COUNTER-OFFER",
+  "homeDealStatusExpired": "EXPIRED",
+  "homeDealStatusPending": "PENDING",
+  "homeDealStatusRejected": "REJECTED",
+  "homeDealTabActive": "Active",
+  "homeDealTabCompleted": "Completed",
+  "homeDelivery": "Delivery",
+  "homeDurationHours": "{hours}h",
+  "@homeDurationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDurationHoursMinutes": "{hours}h {minutes}m",
+  "@homeDurationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDurationMinutes": "{minutes}m",
+  "@homeDurationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "homeEditProfile": "Edit Profile",
+  "homeErrorWithDetails": "Error: {error}",
+  "@homeErrorWithDetails": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "homeExclusiveOffers": "Exclusive Offers",
+  "homeExitCustomerPreview": "Exit Customer Preview",
+  "homeExpired": "Expired",
+  "homeExploreTitle": "Explore",
+  "homeFeaturedProducts": "Featured Products",
+  "homeFieldAddressLine1": "Address Line 1",
+  "homeFieldCity": "City",
+  "homeFieldFullName": "Full Name",
+  "homeFieldPhone": "Phone",
+  "homeFieldPincode": "Pincode",
+  "homeFieldState": "State",
+  "homeGuestPromptMessage": "Please login or sign up to continue enjoying all features.",
+  "homeGuestPromptTitle": "Login Required",
+  "homeGuestUser": "Guest User",
+  "homeHotDealsCustomer": "Hot Deals",
+  "homeHotDealsDealer": "Dealer Schemes",
+  "homeHotDealsSubtitleCustomer": "Limited-time savings",
+  "homeHotDealsSubtitleDealer": "Bulk offers for your business",
+  "homeInvalidCoupon": "Invalid coupon code",
+  "homeLoginOrSignUp": "Login / Sign Up",
+  "homeMinWholesaleQtyValue": "Min. wholesale quantity: {quantity}",
+  "@homeMinWholesaleQtyValue": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "homeMyCart": "My Cart",
+  "homeMyOrders": "My Orders",
+  "homeNavCart": "Cart",
+  "homeNavCategories": "Categories",
+  "homeNavDealDesk": "Deal Desk",
+  "homeNavHome": "Home",
+  "homeNavProfile": "Profile",
+  "homeNavSearch": "Search",
+  "homeNegotiationFallback": "NEGOTIATION",
+  "homeNewPriceEffectiveIn": "New price effective in {time}",
+  "@homeNewPriceEffectiveIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "homeNoBrandsAvailable": "No brands available",
+  "homeNoBrandsFound": "No brands found",
+  "homeNoCategoriesFound": "No categories found",
+  "homeNoDate": "No date",
+  "homeNoOpenDeals": "No open deals — browse the catalogue to send your first requirement",
+  "homeNoProductsAvailable": "No products available",
+  "homeNotNow": "Not now",
+  "homeNotificationsEmptySubtitle": "You're all caught up!",
+  "homeNotificationsEmptyTitle": "No notifications yet",
+  "homeNotificationsMarkAllRead": "Mark all read",
+  "homeNotificationsTitle": "Notifications",
+  "homeNotificationsViewAll": "View All Notifications",
+  "homeOfferApplyDuringCheckout": "Apply during checkout",
+  "homeOfferCode": "Code: {code}",
+  "@homeOfferCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "homeOfferOff": "OFF",
+  "homeOfferRuleFallback": "Apply during checkout to unlock offer",
+  "homeOfferRuleFlat": "Flat Rs {value} off on eligible orders",
+  "@homeOfferRuleFlat": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "homeOfferRulePercent": "Up to {value}% off on selected products",
+  "@homeOfferRulePercent": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "homeOrderFallback": "Order",
+  "homeOrderNumber": "Order {number}",
+  "@homeOrderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeOrderNumberTotal": "Order {number} · ₹{amount}",
+  "@homeOrderNumberTotal": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "homeOrderStageTotal": "{stage} · ₹{amount}",
+  "@homeOrderStageTotal": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "homePartnershipsTitle": "AUTHORIZED REPRESENTATIVE & PARTNERSHIPS",
+  "homePayableTotal": "Payable Total",
+  "homePopularProductsCustomer": "Popular Products",
+  "homePopularProductsDealer": "Fast-Moving Products",
+  "homePopularSubtitleCustomer": "Loved by buyers",
+  "homePopularSubtitleDealer": "Popular dealer picks",
+  "homePreviewAddToCartDisabled": "Add to Cart disabled in preview mode",
+  "homePreviewCartMessage": "Shopping is disabled in preview mode. Your wholesaler cart remains unchanged.",
+  "homePreviewCartTitle": "Customer cart preview",
+  "homePreviewCheckoutDisabled": "Checkout disabled in preview mode",
+  "homePreviewFeatureDisabled": "This feature is disabled while viewing the customer experience. Exit preview mode to return to your wholesaler account.",
+  "homePreviewGuestCustomer": "Guest Customer",
+  "homePreviewNotificationsHidden": "Notifications hidden in preview mode",
+  "homePreviewOffersReadOnly": "Offers are read-only in preview mode",
+  "homePreviewProfileMessage": "This read-only profile shows the guest customer experience without exposing or changing your wholesaler account.",
+  "homePreviewWishlistDisabled": "Wishlist disabled in preview mode",
+  "homePriceApplyingSoon": "Applying soon",
+  "homeProceedToCheckout": "Proceed to Checkout",
+  "homeProceedToOrder": "Proceed to Order",
+  "homeProfileAbout": "About",
+  "homeProfileAccountPrivacy": "Account & Privacy",
+  "homeProfileAddresses": "Addresses",
+  "homeProfileApplyWholesaler": "Apply for wholesaler account",
+  "homeProfileApplyWholesalerSubtitle": "Unlock bulk pricing & deals",
+  "homeProfileHelpSupport": "Help & Support",
+  "homeProfileLegalPolicies": "Legal & Policies",
+  "homeProfileMyCoupons": "My Coupon & Offer Code",
+  "homeProfileTitle": "Profile",
+  "homeProfileViewCustomerApp": "View Customer App",
+  "homeProfileViewCustomerAppSubtitle": "See what customers see",
+  "homeQtyUnits": "Qty: {quantity} units",
+  "@homeQtyUnits": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRecentSearches": "Recent Searches",
+  "homeRejected": "Rejected",
+  "homeRepeatButton": "Repeat",
+  "homeRepeatFailed": "Could not repeat requirement",
+  "homeRepeatItemQty": "{name} × {quantity}",
+  "@homeRepeatItemQty": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRepeatProductUnavailable": "Product unavailable for repeat",
+  "homeRepeatRequirement": "Repeat Requirement",
+  "homeRequirementFallback": "Requirement",
+  "homeRespondToCounter": "Respond to Counter",
+  "homeReviewsEyebrow": "Voices of Trust",
+  "homeReviewsTitle": "What Our Customers Say",
+  "homeSampleReview1Name": "Rajesh Kumar",
+  "homeSampleReview1Role": "Retail Buyer, Sample City",
+  "homeSampleReview1Text": "TradeHub Demo has completely changed how I source my stock. The bulk pricing and quality are unbeatable.",
+  "homeSampleReview2Name": "Priya Sharma",
+  "homeSampleReview2Role": "Retailer, Demo State",
+  "homeSampleReview2Text": "As a retailer, I need reliable delivery and authentic brands. The service on TradeHub Demo is a lifesaver for my business.",
+  "homeSampleReview3Name": "Amit Patel",
+  "homeSampleReview3Role": "Wholesale Distributor, Gujarat",
+  "homeSampleReview3Text": "I've been using TradeHub Demo for a year now. It has greatly simplified how I manage large orders and track inventory.",
+  "homeSampleReview4Name": "Anjali Singh",
+  "homeSampleReview4Role": "Store Owner, Sample City",
+  "homeSampleReview4Text": "The variety of products on TradeHub Demo is impressive. Truly a one-stop shop for wholesale buying.",
+  "homeSaveAddress": "Save Address",
+  "homeScheduled": "Scheduled",
+  "homeSearchFilterTooltip": "Search filter",
+  "homeSearchHint": "Search products, brands, categories...",
+  "homeSearchLoadFailed": "Unable to load products. Please try again.",
+  "homeSearchLoadMoreFailed": "Could not load more products.",
+  "homeSearchNoResults": "No results found",
+  "homeSearchScopeBrand": "Brand",
+  "homeSearchScopeCategory": "Category",
+  "homeSearchScopeProduct": "Product",
+  "homeSearchTryChangingFilters": "Try changing your filters",
+  "homeShippingAddress": "Shipping Address",
+  "homeSignInToSync": "Sign in to sync data",
+  "homeSoldIn24Hrs": "{count} sold in 24hrs",
+  "@homeSoldIn24Hrs": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "homeStageCancelled": "Cancelled",
+  "homeStageDelivered": "Delivered",
+  "homeStageDispatched": "Dispatched",
+  "homeStagePacking": "Packing",
+  "homeStagePaymentPending": "Payment Pending",
+  "homeStagePaymentVerified": "Payment Verified",
+  "homeStageVerificationPending": "Verification Pending",
+  "homeStockIssueFallback": "Stock issue",
+  "homeStockIssuesTitle": "Cannot proceed — stock issues:",
+  "homeTapApplyCoupon": "Tap Apply to use this coupon",
+  "homeTimeDaysAgo": "{days}d ago",
+  "@homeTimeDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTimeHoursAgo": "{hours}h ago",
+  "@homeTimeHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTimeJustNow": "Just now",
+  "homeTimeLeft": "LEFT",
+  "homeTimeMinutesAgo": "{minutes}m ago",
+  "@homeTimeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTopBrands": "Top Brands",
+  "homeTotalLabel": "Total:",
+  "homeTrackActiveOrders": "Track Active Orders",
+  "homeTrustBulkSale": "Bulk Sale Active",
+  "homeTrustCertifiedProducts": "Certified Products",
+  "homeTrustExpertSupport": "24/7 Expert Support",
+  "homeTrustPanIndiaDelivery": "Pan-India Delivery",
+  "homeTryDifferentSearch": "Try a different search term",
+  "homeUnderReview": "Under Review",
+  "homeUnknownProduct": "Unknown Product",
+  "homeViewDeals": "View Deals",
+  "homeWhyBuyDeliverySubtitle": "Pan-India shipping",
+  "homeWhyBuyDeliveryTitle": "Fast Delivery",
+  "homeWhyBuyPricingSubtitle": "Best wholesale rates",
+  "homeWhyBuyPricingTitle": "Bulk Pricing",
+  "homeWhyBuyQualitySubtitle": "Certified products",
+  "homeWhyBuyQualityTitle": "Premium Quality",
+  "homeWhyBuySupportSubtitle": "Always here to help",
+  "homeWhyBuySupportTitle": "24/7 Support",
+  "homeWhyBuyTitle": "Why Buy From Us?",
+  "homeWishlistCustomer": "Wishlist",
+  "homeWishlistDealer": "Regular Items",
+  "homeYourPriceLabel": "Your Price:",
+  "languageChanged": "Language changed to English",
+  "languageChooseSubtitle": "You can change this anytime from your profile.",
+  "languageChooseTitle": "Choose your language",
+  "languageEnglish": "English",
+  "languageHindi": "हिंदी",
+  "languageTitle": "Language",
+  "legalCancellationPolicy": "Cancellation Policy",
+  "legalCodDeliveryPolicy": "COD Delivery Policy",
+  "legalComprehensivePolicies": "Comprehensive Legal Policies",
+  "legalDealerAgreement": "Dealer Agreement",
+  "legalDealerPricingPolicy": "Dealer Pricing Policy",
+  "legalEnglishOnlyNote": "This policy is available in English.",
+  "legalHubTitle": "Legal & Policies",
+  "legalLoadFailed": "Unable to load policy content.",
+  "legalNotFound": "Policy not found.",
+  "legalPolicyBadge": "Policy",
+  "legalPrivacyPolicy": "Privacy Policy",
+  "legalRefundReturnPolicy": "Refund & Return Policy",
+  "legalShippingPolicy": "Shipping Policy",
+  "legalTermsConditions": "Terms & Conditions",
+  "legalWarrantyPolicy": "Warranty Policy",
+  "localNotificationBrand": "TradeHub Demo",
+  "localNotificationCountdownChannel": "Price Countdown Notifications",
+  "localNotificationCountdownChannelDescription": "Live countdown notifications for scheduled price updates",
+  "localNotificationGeneralChannel": "General Notifications",
+  "localNotificationGeneralChannelDescription": "General notifications for TradeHub Demo",
+  "localNotificationPriceUpdateActive": "A scheduled price update is active.",
+  "localNotificationPriceUpdateScheduled": "Price update scheduled",
+  "localNotificationPricesApplied": "New prices are now applied.",
+  "localNotificationShopNow": "Shop Now",
+  "negotiationCompleted": "Negotiation Completed",
+  "negotiationTitleFallback": "Negotiation",
+  "negotiationsCurrentLabel": "Current:",
+  "negotiationsEmptyActive": "No active negotiations",
+  "negotiationsEmptyCompleted": "No completed negotiations",
+  "negotiationsEmptyHint": "Start negotiating on product pages",
+  "negotiationsLoadFailed": "Failed to load negotiations",
+  "negotiationsNewPriceFromPlatformLabel": "New Price from TradeHub Demo:",
+  "negotiationsNoDate": "No date",
+  "negotiationsNumberFallback": "NEGOTIATION",
+  "negotiationsTabActive": "Active",
+  "negotiationsTabCompleted": "Completed",
+  "negotiationsTitle": "Negotiations",
+  "negotiationsTotalLabel": "Total:",
+  "negotiationsUnknownProduct": "Unknown Product",
+  "negotiationsYourExpectedPrice": "Your Expected Price:",
+  "notificationsDaysAgo": "{count}d ago",
+  "@notificationsDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsEmptySubtitle": "You'll see your notifications here",
+  "notificationsEmptyTitle": "No notifications yet",
+  "notificationsHoursAgo": "{count}h ago",
+  "@notificationsHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsJustNow": "Just now",
+  "notificationsMinutesAgo": "{count}m ago",
+  "@notificationsMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsTitle": "Notifications",
+  "onboardingEnableNotifications": "Enable Notifications",
+  "onboardingNotNow": "Not now",
+  "onboardingNotificationsBody": "Receive alerts when your order or payment status changes and when price updates are scheduled.",
+  "onboardingNotificationsTitle": "Notifications",
+  "onboardingOtherPermissionsNote": "Location and photo access are requested only when you choose a current shop location or upload an image.",
+  "onboardingSubtitle": "Choose whether you would like order, payment, and price-update notifications. You can change this later in device settings.",
+  "onboardingTitle": "Stay updated",
+  "orderIdLabel": "Order ID",
+  "orderNumberLabel": "Order {orderNumber}",
+  "@orderNumberLabel": {
+    "placeholders": {
+      "orderNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "orderSuccessDeliveryNote": "Contact TradeHub Demo to confirm arrangements",
+  "orderSuccessMessage": "Your order has been placed successfully.\nWe'll notify you once it's shipped.",
+  "orderSuccessPaymentPending": "Payment Verification Pending",
+  "orderSuccessTitle": "Order Confirmed!",
+  "ordersCardSubtitle": "{orderType} · {date}",
+  "@ordersCardSubtitle": {
+    "placeholders": {
+      "orderType": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersCardSubtitleNegotiated": "{orderType} · Negotiated price · {date}",
+  "@ordersCardSubtitleNegotiated": {
+    "placeholders": {
+      "orderType": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersCourierValue": "Courier: {courier}",
+  "@ordersCourierValue": {
+    "placeholders": {
+      "courier": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDelivery": "Delivery",
+  "ordersDeliveryDetails": "Delivery Details",
+  "ordersEmpty": "No orders yet",
+  "ordersFree": "Free",
+  "ordersItemQtyPrice": "Qty: {quantity} × ₹{price}",
+  "@ordersItemQtyPrice": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersLoadFailed": "Failed to load orders",
+  "ordersMrpValue": "MRP ₹{price}",
+  "@ordersMrpValue": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersNegotiatedChip": "Negotiated",
+  "ordersProductFallback": "Product",
+  "ordersRejectedNoReason": "This order was not approved. Contact support if you need more information.",
+  "ordersRejectedTitle": "Order Rejected",
+  "ordersSendReceipt": "Send Receipt",
+  "ordersStartShopping": "Start Shopping",
+  "ordersStatusHistory": "Status History",
+  "ordersTitle": "My Orders",
+  "ordersTrackOrder": "Track Order",
+  "ordersTrackingValue": "Tracking: {trackingNumber}",
+  "@ordersTrackingValue": {
+    "placeholders": {
+      "trackingNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersTypeRetail": "Retail order",
+  "ordersTypeWholesale": "Wholesale order",
+  "ordersViewStatus": "View Status",
+  "priceNoticeChangeIn": "₹{currentPrice} → ₹{newPrice} in {time}",
+  "@priceNoticeChangeIn": {
+    "placeholders": {
+      "currentPrice": {
+        "type": "String"
+      },
+      "newPrice": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "priceNoticeChangesSoon": "Price changes soon",
+  "priceNoticeDurationDaysHours": "{days}d {hours}h",
+  "@priceNoticeDurationDaysHours": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "priceNoticeDurationHoursMinutes": "{hours}h {minutes}m",
+  "@priceNoticeDurationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "priceNoticeDurationMinutesSeconds": "{minutes}m {seconds}s",
+  "@priceNoticeDurationMinutesSeconds": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "priceNoticeTimeLeft": "Time left: {time}",
+  "@priceNoticeTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "priceNoticeUpcomingChange": "Upcoming price change",
+  "privacyAfterDeletionBody": "Your account access is revoked. Profile details, saved addresses, uploaded account media, carts, notification tokens, notification history, and negotiations are deleted or anonymized. Orders and payment records are kept in restricted records for the applicable legal retention period. Backup handling follows our applicable operational and legal retention requirements.",
+  "privacyAfterDeletionTitle": "What happens when deletion is completed",
+  "privacyCancelFailed": "Unable to cancel deletion request.",
+  "privacyCancelPending": "Cancel pending request",
+  "privacyCompleteBy": "Complete by: {date}",
+  "@privacyCompleteBy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyCompletedOn": "Completed on: {date}",
+  "@privacyCompletedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyControlsBody": "Manage your account-deletion request here. You can also submit a request after uninstalling the app at {url}.",
+  "@privacyControlsBody": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyControlsTitle": "Your privacy controls",
+  "privacyDialogBody": "We will process your request within 30 days. Direct account data, uploaded business documents, saved addresses, carts, device tokens, and notifications will be removed or anonymized. Financial records may be retained where required for tax, payment, fraud-prevention, dispute, or warranty obligations. Backup handling follows our applicable operational and legal retention requirements.",
+  "privacyDialogTitle": "Request account deletion?",
+  "privacyKeepAccount": "Keep account",
+  "privacyRequestBody": "After Member verification, we complete deletion within 30 days. Restricted financial records may be retained only for legal, tax, payment, fraud-prevention, dispute, or warranty obligations.",
+  "privacyRequestButton": "Request account deletion",
+  "privacyRequestDeletion": "Request deletion",
+  "privacyRequestHeading": "Request account deletion",
+  "privacyStatusCompleted": "Completed",
+  "privacyStatusReceived": "Request received",
+  "privacyStatusUnderReview": "Under review",
+  "privacySubmitFailed": "Unable to submit deletion request.",
+  "privacyTitle": "Account & Privacy",
+  "productAddShort": "Add",
+  "productAddToCart": "Add to Cart",
+  "productAddToCartDisabledPreview": "Add to Cart disabled in preview mode",
+  "productAddedToCart": "Added to cart",
+  "productBadgeHot": "HOT",
+  "productBadgeNew": "NEW",
+  "productBadgeSale": "SALE",
+  "productBrandFallback": "TradeHub Demo",
+  "productBrandValue": "Brand: {brand}",
+  "@productBrandValue": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "productBulkNegotiation": "Bulk Negotiation",
+  "productBulkNegotiationSubtitle": "Get wholesale pricing for custom bulk orders",
+  "productBulkOrder": "Bulk Order",
+  "productBulkQuantityNegotiation": "Bulk Quantity Negotiation",
+  "productBulkQuantityNegotiationBody": "Want to deal in more quantity? Send us your requirement and we'll get back to you with the best price.",
+  "productBulkUpiNote": "Bulk orders require manual UPI verification before processing.",
+  "productBuyNow": "Buy Now",
+  "productBuyNowDisabledPreview": "Buy Now disabled in preview mode",
+  "productChooseVariantHint": "Choose size or pack option",
+  "productConfirmBeforeSubmit": "Confirm details before submitting",
+  "productContinueToPricing": "Continue to Pricing",
+  "productCustomQuantity": "Custom quantity",
+  "productDeliveryWithin5Days": "Delivery within 5 days of Purchase",
+  "productDemoVideo": "Product Demo",
+  "productDescription": "Description",
+  "productEnterQuantity": "Please enter quantity",
+  "productExpectedQuantity": "Expected Quantity",
+  "productExpectedQuantityHint": "e.g. 100 units",
+  "productGallery": "Product Gallery",
+  "productGuestModeDisabledMessage": "This feature is disabled while viewing the customer experience. Exit preview mode to return to your wholesaler account.",
+  "productHowManyUnits": "How many units?",
+  "productHowManyUnitsSubtitle": "Select quantity for your bulk quote",
+  "productInclTaxes": "Incl. taxes",
+  "productLoadFailed": "Failed to load product details",
+  "productLoading": "Loading product...",
+  "productMinWholesaleQuantity": "Minimum wholesale quantity: {quantity}",
+  "@productMinWholesaleQuantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "productMrpLabel": "MRP: ",
+  "productNegotiationSubmitFailed": "Failed to submit negotiation",
+  "productNoDescription": "No description available for this product.",
+  "productNotFound": "Product not found",
+  "productOnlyPlatformCanConfirm": "Only TradeHub Demo can confirm the deal",
+  "productPlaceholderControlPanel": "Control Panel",
+  "productPlaceholderDrone": "Agri Drone",
+  "productPlaceholderFarmTool": "Farm Tool",
+  "productPlaceholderFencing": "Fencing",
+  "productPlaceholderFertilizer": "Fertilizer",
+  "productPlaceholderGiFitting": "GI Fitting",
+  "productPlaceholderHarvester": "Harvester",
+  "productPlaceholderIrrigation": "Irrigation",
+  "productPlaceholderPesticide": "Pesticide",
+  "productPlaceholderPipe": "Pipe",
+  "productPlaceholderProduct": "Product",
+  "productPlaceholderPumpSet": "Pump Set",
+  "productPlaceholderRiceMill": "Rice Mill",
+  "productPlaceholderSeeds": "Seeds",
+  "productPlaceholderStarterOil": "Starter & Oil",
+  "productPlaceholderTestingKit": "Testing Kit",
+  "productPlaceholderTractor": "Tractor",
+  "productPlaceholderWireCable": "Wire & Cable",
+  "productPriceWithUnit": "₹{price}/{unit}",
+  "@productPriceWithUnit": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productQtyRetailSummary": "{count, plural, =1{1 unit} other{{count} units}} · Retail: ₹{price}/unit",
+  "@productQtyRetailSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "productQuickSelect": "QUICK SELECT",
+  "productQuotationSubmitted": "Quotation {number} submitted for {count, plural, =1{1 unit} other{{count} units}}!",
+  "@productQuotationSubmitted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "productReadMore": "Read more",
+  "productRelatedProducts": "Related Products",
+  "productRequirementDetails": "Requirement Details",
+  "productRequirementDetailsHint": "Tell us about your requirement or target price...",
+  "productRetailPrice": "Retail Price",
+  "productReviewProduct": "Product",
+  "productReviewRequirement": "Review Requirement",
+  "productSaveAmount": "Save ₹{amount} total ({percent}% off × {quantity} units)",
+  "@productSaveAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "productSelectQuantity": "Select Quantity:",
+  "productSelectVariant": "Select Variant",
+  "productSendRequirement": "Send Requirement",
+  "productSendToDealDesk": "Send to Deal Desk",
+  "productShareText": "Check out {name} on TradeHub Demo!\n\n{url}",
+  "@productShareText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "productShareTextWithPrice": "Check out {name} - ₹{price} on TradeHub Demo!\n\n{url}",
+  "@productShareTextWithPrice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "productShippingReturns": "Shipping & Returns",
+  "productShippingTermsDefault": "Delivery, payment, and return arrangements depend on the product, order, and location. Contact TradeHub Demo to confirm the applicable terms before payment or dispatch.",
+  "productShowLess": "Show less",
+  "productSkuValue": "SKU: {sku}",
+  "@productSkuValue": {
+    "placeholders": {
+      "sku": {
+        "type": "String"
+      }
+    }
+  },
+  "productSoldLast24h": "{count, plural, =1{1 unit} other{{count} units}} sold in the last 24 hours",
+  "@productSoldLast24h": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productSomethingWentWrongDetail": "Something went wrong: {error}",
+  "@productSomethingWentWrongDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "productSpecialPriceLabel": "Special Price: ",
+  "productSpecifications": "Specifications",
+  "productSubmitQuote": "Submit Quote",
+  "productSuggestedSellingPriceLabel": "Suggested Selling Price: ",
+  "productTapToSelect": "Tap to select",
+  "productTargetPricePerUnit": "TARGET PRICE PER UNIT",
+  "productTrustEasyReturns": "Easy Returns",
+  "productTrustFastDelivery": "Fast Delivery",
+  "productTrustReviews": "Trusted Reviews",
+  "productTrustSecurePayments": "Secure Payments",
+  "productTrustSupport": "Guaranteed Support",
+  "productTrustVerifiedProducts": "Verified Products",
+  "productUnitMeter": "Meter",
+  "productUnitPacket": "Packet",
+  "productUnitPiece": "Piece",
+  "productVariantFallback": "Variant",
+  "productVerifiedSeller": "Verified Seller",
+  "productViewAllSpecifications": "View all specifications",
+  "productWholesaleLabel": "Wholesale: ",
+  "productWishlistDisabledPreview": "Wishlist disabled in preview mode",
+  "productYouSaveVsRetail": "You save ₹{amount} vs retail",
+  "@productYouSaveVsRetail": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "productYourDealerPriceLabel": "Your Dealer Price: ",
+  "productYourExpectedPrice": "Your Expected Price",
+  "profileAccountFallback": "Account",
+  "profileAddProduct": "Add Product",
+  "profileAddProductSubtitle": "Create a product listing",
+  "profileAddresses": "Addresses",
+  "profileAddressesSubtitle": "Manage delivery addresses",
+  "profileBecomeWholesaler": "Become a Wholesaler",
+  "profileCompleteWholesalerVerification": "Complete Wholesaler Verification",
+  "profileEditProfile": "Edit Profile",
+  "profileEditProfileSubtitle": "Update your account information",
+  "profileHelpSupport": "Help & Support",
+  "profileHelpSupportSubtitle": "FAQs and contact information",
+  "profileNegotiations": "Negotiations",
+  "profileNegotiationsSubtitle": "View your price negotiations",
+  "profilePreviousOrders": "Previous Orders",
+  "profilePreviousOrdersSubtitle": "View order history and status",
+  "profilePrivacySubtitle": "How we collect and use data",
+  "profileSectionAccount": "ACCOUNT",
+  "profileSectionActivity": "ACTIVITY",
+  "profileSectionSupportLegal": "SUPPORT & LEGAL",
+  "profileSectionWholesale": "WHOLESALE",
+  "profileSignOut": "Sign Out",
+  "profileSignOutSubtitle": "Log out of your account",
+  "profileStatusApplicationPending": "Wholesaler application pending",
+  "profileStatusApplicationRejected": "Wholesaler application needs attention",
+  "profileStatusCustomer": "Customer account",
+  "profileStatusVerificationRequired": "Wholesaler verification required",
+  "profileStatusVerifiedWholesaler": "Verified wholesaler",
+  "profileSubmitBusinessDetails": "Submit business details for verification",
+  "profileSubmitBusinessProof": "Submit business proof for admin review",
+  "profileTermsSubtitle": "Terms of use",
+  "profileTitle": "My Account",
+  "profileViewApplicationStatus": "View your application status",
+  "profileViewCustomerApp": "View Customer App",
+  "profileViewCustomerAppSubtitle": "See what customers see",
+  "profileWholesalerApplication": "Wholesaler Application",
+  "shopLocationConfirm": "Use This Shop Location",
+  "shopLocationFailed": "Could not get your current location. Please try again.",
+  "shopLocationHint": "Tap anywhere on the map to place your shop, or use your current location and adjust it.",
+  "shopLocationLocating": "Locating",
+  "shopLocationPermissionDenied": "Location permission denied",
+  "shopLocationSelectedCoordinates": "Selected Coordinates",
+  "shopLocationServicesOff": "Location services are turned off",
+  "shopLocationTitle": "Pick Shop Location",
+  "shopLocationUseCurrent": "Use Current",
+  "splashTagline": "Distribution made simple",
+  "statusAcceptedAwaitingPayment": "Accepted · Awaiting Payment",
+  "statusAwaitingAcceptance": "Submitted · Awaiting Approval",
+  "statusCancelled": "Cancelled",
+  "statusDealAcceptedOrderPending": "Accepted · Order Pending",
+  "statusDealOrderCreated": "Order Created",
+  "statusDelivered": "Delivered",
+  "statusPaymentUploaded": "Awaiting Shop Confirmation",
+  "statusPaymentVerified": "Payment Confirmed",
+  "statusPendingPayment": "Awaiting Payment Confirmation",
+  "statusProcessing": "Processing",
+  "statusRejected": "Order Rejected",
+  "statusShipped": "Shipped",
+  "trackingContactSupport": "Contact support if you need more information.",
+  "trackingCourier": "Courier",
+  "trackingCourierInfo": "Courier Information",
+  "trackingDeliveredDate": "Delivered Date",
+  "trackingInvalidOrder": "This notification does not contain a valid order.",
+  "trackingItemQtyTotal": "Qty: {quantity} • ₹{amount}",
+  "@trackingItemQtyTotal": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "trackingLatestBadge": "LATEST",
+  "trackingLoadFailed": "Could not load order details. Please try again.",
+  "trackingMoreItems": "{count, plural, =1{+1 more item} other{+{count} more items}}",
+  "@trackingMoreItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trackingNotApproved": "Order not approved",
+  "trackingNumberLabel": "Tracking Number",
+  "trackingOrderGone": "This order is no longer available.",
+  "trackingOrderJourney": "Order Journey",
+  "trackingOrderNotFound": "Order not found",
+  "trackingShippedDate": "Shipped Date",
+  "trackingSignInToView": "Please sign in to view this order.",
+  "trackingTitle": "Shipment Details",
+  "trackingUnavailable": "Order details are unavailable.",
+  "trackingViewPreviousOrders": "View Previous Orders",
+  "updateCurrentVersion": "Current",
+  "updateLatestVersion": "Latest",
+  "updateNow": "Update Now",
+  "updateOpeningStore": "Opening Store...",
+  "updateStoreOpenFailed": "Unable to open the app store. Check your connection and try again.",
+  "wishlistClearAll": "Clear All",
+  "wishlistClearMessage": "Remove all items from your wishlist?",
+  "wishlistClearTitle": "Clear Wishlist?",
+  "wishlistEmptySubtitle": "Save items you love by tapping the\nheart icon on product pages",
+  "wishlistEmptyTitle": "Your wishlist is empty",
+  "wishlistSwipeToRemove": "Swipe left on an item to remove it",
+  "wishlistTitle": "My Wishlist",
+  "productRequirementMessageLabel": "MESSAGE / DELIVERY REQUIREMENT (OPTIONAL)",
+  "productRequirementMessageHint": "e.g. preferred delivery date, packaging or site details",
+  "productRequirementMessageReview": "Message",
+  "negotiationBuyerMessage": "Message"
+}

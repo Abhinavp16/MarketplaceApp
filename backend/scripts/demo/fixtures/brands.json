@@ -1,0 +1,23 @@
+[
+  {
+    "key": "kestrel",
+    "name": "Kestrel Works",
+    "description": "Professional power tools for workshops and job sites.",
+    "order": 1,
+    "logo": "brands/kestrel.png"
+  },
+  {
+    "key": "anvilpoint",
+    "name": "Anvilpoint",
+    "description": "Hand tools, fasteners and fittings for everyday trade work.",
+    "order": 2,
+    "logo": "brands/anvilpoint.png"
+  },
+  {
+    "key": "brightguard",
+    "name": "Brightguard Safety",
+    "description": "Personal protective equipment for industrial teams.",
+    "order": 3,
+    "logo": "brands/brightguard.png"
+  }
+]

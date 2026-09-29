@@ -1,0 +1,22 @@
+Terms of Service - TradeHub Demo
+Effective date: 17 August 2026
+
+DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
+
+TERMS OF SERVICE
+
+These placeholder terms describe sample rules for using the TradeHub Demo platform.
+
+By using the demo, you agree to:
+- use it only for evaluation and demonstration purposes
+- avoid entering real personal or financial information
+- avoid misuse or unauthorized access
+
+Pricing, stock, delivery and commercial terms shown in the demo are illustrative only.
+
+ACCOUNT DELETION
+
+In a production deployment, account deletion requests would be handled from Account & Privacy in the app. In this demo, accounts and data are synthetic and may be reset at any time.
+
+Contact: demo@tradehub.example
+Company: TradeHub Distribution Pvt Ltd (Demo)

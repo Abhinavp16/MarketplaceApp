@@ -1,0 +1,63 @@
+{
+  "reviews": [
+    {
+      "name": "Rohan M.",
+      "role": "Wholesale partner, Sample City",
+      "review": "Price requests are answered quickly and the order shows up in the app straight away.",
+      "rating": 5
+    },
+    {
+      "name": "Priya S.",
+      "role": "Retail customer",
+      "review": "Clear pricing and quick order acceptance. Delivery tracking was easy to follow.",
+      "rating": 5
+    },
+    {
+      "name": "Anita D.",
+      "role": "Trade buyer, Sample City",
+      "review": "Bulk pricing negotiation in one place saves us a lot of phone calls.",
+      "rating": 4
+    }
+  ],
+  "offers": [
+    {
+      "title": "Welcome offer",
+      "description": "10% off your first retail order (demo).",
+      "code": "DEMO10",
+      "discountType": "percentage",
+      "discountValue": 10,
+      "targetGroup": "buyer",
+      "minPurchaseAmount": 1000,
+      "maxDiscountAmount": 500,
+      "endInDays": 60
+    }
+  ],
+  "heroBanners": [
+    {
+      "title": "Distribution made simple",
+      "subtitle": "Tools, fasteners and safety gear at trade prices",
+      "tag": "TradeHub Demo",
+      "image": "banners/hero-1.png",
+      "buttonText": "Shop Now",
+      "order": 1
+    },
+    {
+      "title": "Negotiate bulk prices",
+      "subtitle": "Wholesale partners can request a better rate on any product",
+      "tag": "For wholesalers",
+      "image": "banners/hero-2.png",
+      "buttonText": "Browse Products",
+      "order": 2
+    }
+  ],
+  "promoBanners": [
+    {
+      "title": "Safety first",
+      "subtitle": "Helmets, gloves and boots in stock",
+      "tag": "Safety Gear",
+      "image": "banners/promo-1.png",
+      "buttonText": "View Range",
+      "order": 1
+    }
+  ]
+}

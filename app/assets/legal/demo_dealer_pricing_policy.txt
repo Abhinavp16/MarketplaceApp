@@ -1,0 +1,18 @@
+Dealer Pricing Policy - TradeHub Demo
+Effective date: 17 August 2026
+
+DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
+
+DEALER PRICING POLICY
+
+This is a placeholder pricing policy for demonstration.
+
+Sample rules shown in this demo:
+- advertised prices should follow the guidelines set by the platform
+- negotiated prices are agreed inside the app negotiation flow
+- price changes may be announced to dealers in advance
+
+All prices in this demo environment are synthetic.
+
+Contact: demo@tradehub.example
+Company: TradeHub Distribution Pvt Ltd (Demo)

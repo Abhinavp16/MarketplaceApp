@@ -1,0 +1,69 @@
+{
+  "name": "tradehub-demo-backend",
+  "version": "1.0.0",
+  "description": "TradeHub Demo API (synthetic data only)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "migrate:negotiation-order-index": "node scripts/ensureNegotiationOrderUniqueIndex.js",
+    "test": "node tests/runAll.js",
+    "test:auth-phone": "node tests/authPhoneValidation.test.js",
+    "test:critical": "node tests/productionCritical.test.js",
+    "test:search": "node tests/productSearchService.test.js",
+    "test:price-snapshot": "node tests/priceSnapshotWorkbook.test.js",
+    "test:mobile-app-settings": "node tests/mobileAppSettings.test.js",
+    "test:order-approval": "node tests/orderApproval.test.js",
+    "test:product-discount": "node tests/productDiscount.test.js",
+    "test:role-labels": "node tests/roleLabels.test.js",
+    "test:lead-interest": "node tests/leadInterest.test.js",
+    "test:hindi-names": "node tests/hindiNames.test.js",
+    "test:notification-templates": "node tests/notificationTemplates.test.js",
+    "test:search-query": "node tests/searchQuery.test.js",
+    "test:demo-guard": "node tests/demoGuard.test.js",
+    "demo:seed": "node scripts/demo/seed.js",
+    "demo:reset": "node scripts/demo/seed.js --wipe",
+    "demo:e2e": "node scripts/demo/e2e-flow.js",
+    "demo:mongo": "bash scripts/dev/start-mongo.sh",
+    "demo:mongo:stop": "bash scripts/dev/stop-mongo.sh",
+    "test:unit": "SKIP_DB_TESTS=1 node tests/runAll.js"
+  },
+  "keywords": [
+    "distribution",
+    "wholesale",
+    "demo",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.4",
+    "bcryptjs": "^2.4.3",
+    "blurhash": "^2.0.5",
+    "cloudinary": "^1.41.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "firebase-admin": "^12.0.0",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^9.0.3",
+    "sharp": "^0.34.5",
+    "slugify": "^1.6.6",
+    "socket.io": "^4.8.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

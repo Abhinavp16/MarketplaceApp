@@ -1,0 +1,6 @@
+{
+  "version": "2026.1",
+  "name": "TradeHub Demo dataset",
+  "description": "Synthetic industrial-supply distribution data. All names, phones, emails and addresses are fictional.",
+  "demoPassword": "Demo@12345"
+}

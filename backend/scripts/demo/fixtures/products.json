@@ -1,0 +1,655 @@
+[
+  {
+    "sku": "KW-DRL-18V",
+    "name": "Cordless Drill 18V",
+    "nameHindi": "कॉर्डलेस ड्रिल 18V",
+    "category": "drills-drivers",
+    "mrp": 7499,
+    "retailPrice": 6499,
+    "wholesalePrice": 5200,
+    "minWholesaleQuantity": 5,
+    "stock": 1200,
+    "priceUnit": "piece",
+    "packing": "1 kit (2 batteries + charger)",
+    "shortDescription": "18V brushless cordless drill with 13mm chuck.",
+    "description": "18V brushless cordless drill with 13mm chuck. Demo catalogue item.",
+    "tags": [
+      "drill",
+      "cordless",
+      "18v"
+    ],
+    "isFeatured": true,
+    "isHot": true,
+    "specifications": [
+      {
+        "key": "Voltage",
+        "value": "18 V"
+      },
+      {
+        "key": "Chuck",
+        "value": "13 mm keyless"
+      },
+      {
+        "key": "Torque",
+        "value": "55 Nm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-drl-18v.png"
+  },
+  {
+    "sku": "KW-IMP-20V",
+    "name": "Impact Driver 20V",
+    "nameHindi": "इम्पैक्ट ड्राइवर 20V",
+    "category": "drills-drivers",
+    "mrp": 8999,
+    "retailPrice": 7899,
+    "wholesalePrice": 6400,
+    "minWholesaleQuantity": 5,
+    "stock": 900,
+    "priceUnit": "piece",
+    "packing": "1 kit (2 batteries + charger)",
+    "shortDescription": "Compact 20V impact driver for fastening jobs.",
+    "description": "Compact 20V impact driver for fastening jobs. Demo catalogue item.",
+    "tags": [
+      "driver",
+      "impact",
+      "20v"
+    ],
+    "isFeatured": true,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Voltage",
+        "value": "20 V"
+      },
+      {
+        "key": "Max torque",
+        "value": "180 Nm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-imp-20v.png"
+  },
+  {
+    "sku": "KW-RHD-800",
+    "name": "Rotary Hammer Drill 800W",
+    "nameHindi": "रोटरी हैमर ड्रिल 800W",
+    "category": "drills-drivers",
+    "mrp": 9499,
+    "retailPrice": 8299,
+    "wholesalePrice": 6900,
+    "minWholesaleQuantity": 3,
+    "stock": 700,
+    "priceUnit": "piece",
+    "packing": "1 case",
+    "shortDescription": "SDS-plus rotary hammer for concrete and masonry.",
+    "description": "SDS-plus rotary hammer for concrete and masonry. Demo catalogue item.",
+    "tags": [
+      "hammer",
+      "sds",
+      "drill"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Power",
+        "value": "800 W"
+      },
+      {
+        "key": "Impact energy",
+        "value": "2.7 J"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-rhd-800.png"
+  },
+  {
+    "sku": "KW-AGR-850",
+    "name": "Angle Grinder 850W 100mm",
+    "nameHindi": "एंगल ग्राइंडर 850W 100mm",
+    "category": "grinders-sanders",
+    "mrp": 3299,
+    "retailPrice": 2799,
+    "wholesalePrice": 2250,
+    "minWholesaleQuantity": 10,
+    "stock": 2400,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "850W angle grinder with side handle and guard.",
+    "description": "850W angle grinder with side handle and guard. Demo catalogue item.",
+    "tags": [
+      "grinder",
+      "angle",
+      "850w"
+    ],
+    "isFeatured": true,
+    "isHot": true,
+    "specifications": [
+      {
+        "key": "Power",
+        "value": "850 W"
+      },
+      {
+        "key": "Disc",
+        "value": "100 mm"
+      },
+      {
+        "key": "Speed",
+        "value": "11000 rpm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-agr-850.png"
+  },
+  {
+    "sku": "KW-SND-300",
+    "name": "Orbital Sander 300W",
+    "nameHindi": "ऑर्बिटल सैंडर 300W",
+    "category": "grinders-sanders",
+    "mrp": 2599,
+    "retailPrice": 2199,
+    "wholesalePrice": 1750,
+    "minWholesaleQuantity": 10,
+    "stock": 1500,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "Lightweight orbital sander with dust bag.",
+    "description": "Lightweight orbital sander with dust bag. Demo catalogue item.",
+    "tags": [
+      "sander",
+      "orbital"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Power",
+        "value": "300 W"
+      },
+      {
+        "key": "Pad",
+        "value": "125 mm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-snd-300.png"
+  },
+  {
+    "sku": "KW-JSW-650",
+    "name": "Jigsaw 650W",
+    "nameHindi": "जिगसॉ 650W",
+    "category": "saws",
+    "mrp": 3899,
+    "retailPrice": 3299,
+    "wholesalePrice": 2650,
+    "minWholesaleQuantity": 5,
+    "stock": 1100,
+    "priceUnit": "piece",
+    "packing": "1 piece + 3 blades",
+    "shortDescription": "Variable-speed jigsaw with orbital action.",
+    "description": "Variable-speed jigsaw with orbital action. Demo catalogue item.",
+    "tags": [
+      "jigsaw",
+      "saw"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Power",
+        "value": "650 W"
+      },
+      {
+        "key": "Cut depth",
+        "value": "65 mm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-jsw-650.png"
+  },
+  {
+    "sku": "KW-CSW-1200",
+    "name": "Circular Saw 1200W 185mm",
+    "nameHindi": "सर्कुलर सॉ 1200W 185mm",
+    "category": "saws",
+    "mrp": 6999,
+    "retailPrice": 5999,
+    "wholesalePrice": 4900,
+    "minWholesaleQuantity": 5,
+    "stock": 800,
+    "priceUnit": "piece",
+    "packing": "1 piece + blade",
+    "shortDescription": "1200W circular saw with laser guide.",
+    "description": "1200W circular saw with laser guide. Demo catalogue item.",
+    "tags": [
+      "circular",
+      "saw"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Power",
+        "value": "1200 W"
+      },
+      {
+        "key": "Blade",
+        "value": "185 mm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-csw-1200.png"
+  },
+  {
+    "sku": "AP-CSS-12",
+    "name": "Combination Spanner Set 12pc",
+    "nameHindi": "कॉम्बिनेशन स्पैनर सेट 12पीस",
+    "category": "wrenches-pliers",
+    "mrp": 2199,
+    "retailPrice": 1799,
+    "wholesalePrice": 1350,
+    "minWholesaleQuantity": 10,
+    "stock": 3000,
+    "priceUnit": "set",
+    "packing": "1 set (6-22mm)",
+    "shortDescription": "Chrome vanadium combination spanners, 6 to 22 mm.",
+    "description": "Chrome vanadium combination spanners, 6 to 22 mm. Demo catalogue item.",
+    "tags": [
+      "spanner",
+      "wrench",
+      "set"
+    ],
+    "isFeatured": true,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Material",
+        "value": "Chrome vanadium"
+      },
+      {
+        "key": "Sizes",
+        "value": "6-22 mm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-css-12.png"
+  },
+  {
+    "sku": "AP-ADJ-10",
+    "name": "Adjustable Wrench 10-inch",
+    "nameHindi": "एडजस्टेबल रिंच 10 इंच",
+    "category": "wrenches-pliers",
+    "mrp": 549,
+    "retailPrice": 449,
+    "wholesalePrice": 340,
+    "minWholesaleQuantity": 20,
+    "stock": 4200,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "Forged 10-inch adjustable wrench.",
+    "description": "Forged 10-inch adjustable wrench. Demo catalogue item.",
+    "tags": [
+      "wrench",
+      "adjustable"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Length",
+        "value": "10 inch"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-adj-10.png"
+  },
+  {
+    "sku": "AP-PLR-8",
+    "name": "Slip Joint Pliers 8-inch",
+    "nameHindi": "स्लिप जॉइंट प्लायर 8 इंच",
+    "category": "wrenches-pliers",
+    "mrp": 399,
+    "retailPrice": 329,
+    "wholesalePrice": 245,
+    "minWholesaleQuantity": 20,
+    "stock": 3800,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "Insulated-grip slip joint pliers.",
+    "description": "Insulated-grip slip joint pliers. Demo catalogue item.",
+    "tags": [
+      "pliers"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Length",
+        "value": "8 inch"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-plr-8.png"
+  },
+  {
+    "sku": "AP-TPE-5M",
+    "name": "Steel Measuring Tape 5m",
+    "nameHindi": "स्टील मेजरिंग टेप 5 मीटर",
+    "category": "measuring-marking",
+    "mrp": 249,
+    "retailPrice": 199,
+    "wholesalePrice": 145,
+    "minWholesaleQuantity": 50,
+    "stock": 5000,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "5 metre steel tape with auto-lock.",
+    "description": "5 metre steel tape with auto-lock. Demo catalogue item.",
+    "tags": [
+      "tape",
+      "measuring"
+    ],
+    "isFeatured": false,
+    "isHot": true,
+    "specifications": [
+      {
+        "key": "Length",
+        "value": "5 m"
+      },
+      {
+        "key": "Width",
+        "value": "19 mm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-tpe-5m.png"
+  },
+  {
+    "sku": "AP-HXB-M10",
+    "name": "Hex Bolt M10 x 50 (Box of 100)",
+    "nameHindi": "हेक्स बोल्ट M10 x 50 (100 का डिब्बा)",
+    "category": "bolts-nuts",
+    "mrp": 1299,
+    "retailPrice": 1049,
+    "wholesalePrice": 780,
+    "minWholesaleQuantity": 10,
+    "stock": 2600,
+    "priceUnit": "box",
+    "packing": "Box of 100",
+    "shortDescription": "Zinc-plated grade 8.8 hex bolts.",
+    "description": "Zinc-plated grade 8.8 hex bolts. Demo catalogue item.",
+    "tags": [
+      "bolt",
+      "hex",
+      "m10"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "M10 x 50 mm"
+      },
+      {
+        "key": "Grade",
+        "value": "8.8"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-hxb-m10.png"
+  },
+  {
+    "sku": "AP-HXN-M10",
+    "name": "Hex Nut M10 (Box of 200)",
+    "nameHindi": "हेक्स नट M10 (200 का डिब्बा)",
+    "category": "bolts-nuts",
+    "mrp": 899,
+    "retailPrice": 729,
+    "wholesalePrice": 540,
+    "minWholesaleQuantity": 10,
+    "stock": 2800,
+    "priceUnit": "box",
+    "packing": "Box of 200",
+    "shortDescription": "Zinc-plated hex nuts to match M10 bolts.",
+    "description": "Zinc-plated hex nuts to match M10 bolts. Demo catalogue item.",
+    "tags": [
+      "nut",
+      "hex",
+      "m10"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "M10"
+      },
+      {
+        "key": "Grade",
+        "value": "8"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-hxn-m10.png"
+  },
+  {
+    "sku": "AP-SDS-48",
+    "name": "Self-Drilling Screw 4.8 x 38 (Box of 500)",
+    "nameHindi": "सेल्फ ड्रिलिंग स्क्रू 4.8 x 38 (500 का डिब्बा)",
+    "category": "screws-anchors",
+    "mrp": 1099,
+    "retailPrice": 899,
+    "wholesalePrice": 660,
+    "minWholesaleQuantity": 10,
+    "stock": 2200,
+    "priceUnit": "box",
+    "packing": "Box of 500",
+    "shortDescription": "Hex-head self-drilling roofing screws.",
+    "description": "Hex-head self-drilling roofing screws. Demo catalogue item.",
+    "tags": [
+      "screw",
+      "self-drilling"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "4.8 x 38 mm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-sds-48.png"
+  },
+  {
+    "sku": "AP-WAN-M12",
+    "name": "Wedge Anchor M12 x 100 (Pack of 50)",
+    "nameHindi": "वेज एंकर M12 x 100 (50 का पैक)",
+    "category": "screws-anchors",
+    "mrp": 1499,
+    "retailPrice": 1249,
+    "wholesalePrice": 930,
+    "minWholesaleQuantity": 10,
+    "stock": 1900,
+    "priceUnit": "pack",
+    "packing": "Pack of 50",
+    "shortDescription": "Heavy-duty wedge anchors for concrete.",
+    "description": "Heavy-duty wedge anchors for concrete. Demo catalogue item.",
+    "tags": [
+      "anchor",
+      "wedge"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "M12 x 100 mm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-wan-m12.png"
+  },
+  {
+    "sku": "AP-BBV-1IN",
+    "name": "Brass Ball Valve 1-inch",
+    "nameHindi": "ब्रास बॉल वाल्व 1 इंच",
+    "category": "pipe-fittings",
+    "mrp": 899,
+    "retailPrice": 749,
+    "wholesalePrice": 560,
+    "minWholesaleQuantity": 20,
+    "stock": 1800,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "Full-bore brass ball valve with lever handle.",
+    "description": "Full-bore brass ball valve with lever handle. Demo catalogue item.",
+    "tags": [
+      "valve",
+      "brass",
+      "ball"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "1 inch"
+      },
+      {
+        "key": "Material",
+        "value": "Brass"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-bbv-1in.png"
+  },
+  {
+    "sku": "BG-HLM-RT",
+    "name": "Safety Helmet with Ratchet",
+    "nameHindi": "सेफ्टी हेलमेट (रैचेट)",
+    "category": "head-eye-protection",
+    "mrp": 599,
+    "retailPrice": 499,
+    "wholesalePrice": 360,
+    "minWholesaleQuantity": 25,
+    "stock": 4500,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "Ventilated safety helmet with ratchet adjustment.",
+    "description": "Ventilated safety helmet with ratchet adjustment. Demo catalogue item.",
+    "tags": [
+      "helmet",
+      "safety"
+    ],
+    "isFeatured": true,
+    "isHot": true,
+    "specifications": [
+      {
+        "key": "Material",
+        "value": "HDPE"
+      },
+      {
+        "key": "Adjustment",
+        "value": "Ratchet"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/bg-hlm-rt.png"
+  },
+  {
+    "sku": "BG-GGL-AF",
+    "name": "Clear Safety Goggles Anti-fog",
+    "nameHindi": "क्लियर सेफ्टी गॉगल्स (एंटी-फॉग)",
+    "category": "head-eye-protection",
+    "mrp": 249,
+    "retailPrice": 199,
+    "wholesalePrice": 140,
+    "minWholesaleQuantity": 50,
+    "stock": 5200,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "Anti-fog, scratch-resistant clear goggles.",
+    "description": "Anti-fog, scratch-resistant clear goggles. Demo catalogue item.",
+    "tags": [
+      "goggles",
+      "safety"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Lens",
+        "value": "Polycarbonate"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/bg-ggl-af.png"
+  },
+  {
+    "sku": "BG-GLV-C5",
+    "name": "Cut-Resistant Gloves Level 5 (Pair)",
+    "nameHindi": "कट-रेज़िस्टेंट दस्ताने लेवल 5 (जोड़ी)",
+    "category": "hand-foot-protection",
+    "mrp": 349,
+    "retailPrice": 279,
+    "wholesalePrice": 195,
+    "minWholesaleQuantity": 50,
+    "stock": 4800,
+    "priceUnit": "pair",
+    "packing": "1 pair",
+    "shortDescription": "Level 5 cut-resistant work gloves.",
+    "description": "Level 5 cut-resistant work gloves. Demo catalogue item.",
+    "tags": [
+      "gloves",
+      "cut",
+      "safety"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Cut level",
+        "value": "5"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/bg-glv-c5.png"
+  },
+  {
+    "sku": "BG-BTS-ST",
+    "name": "Steel-Toe Safety Boots",
+    "nameHindi": "स्टील-टो सेफ्टी बूट",
+    "category": "hand-foot-protection",
+    "mrp": 2499,
+    "retailPrice": 2099,
+    "wholesalePrice": 1600,
+    "minWholesaleQuantity": 10,
+    "stock": 1300,
+    "priceUnit": "pair",
+    "packing": "1 pair",
+    "shortDescription": "Steel-toe boots with slip-resistant sole.",
+    "description": "Steel-toe boots with slip-resistant sole. Demo catalogue item.",
+    "tags": [
+      "boots",
+      "safety",
+      "steel-toe"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Toe cap",
+        "value": "Steel"
+      },
+      {
+        "key": "Sole",
+        "value": "Slip-resistant"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/bg-bts-st.png"
+  }
+]

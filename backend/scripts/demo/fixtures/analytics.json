@@ -1,0 +1,67 @@
+{
+  "windowDays": 28,
+  "seed": 20260101,
+  "defaultProfile": {
+    "views": 24,
+    "cartAdds": 3,
+    "wishlistAdds": 1,
+    "shares": 1
+  },
+  "profiles": {
+    "KW-DRL-18V": {
+      "views": 96,
+      "cartAdds": 16,
+      "wishlistAdds": 7,
+      "shares": 5
+    },
+    "KW-AGR-850": {
+      "views": 84,
+      "cartAdds": 14,
+      "wishlistAdds": 5,
+      "shares": 3
+    },
+    "BG-HLM-RT": {
+      "views": 72,
+      "cartAdds": 11,
+      "wishlistAdds": 3,
+      "shares": 2
+    },
+    "AP-CSS-12": {
+      "views": 60,
+      "cartAdds": 9,
+      "wishlistAdds": 4,
+      "shares": 2
+    },
+    "KW-IMP-20V": {
+      "views": 58,
+      "cartAdds": 8,
+      "wishlistAdds": 4,
+      "shares": 2
+    },
+    "AP-TPE-5M": {
+      "views": 40,
+      "cartAdds": 6,
+      "wishlistAdds": 2,
+      "shares": 1
+    },
+    "BG-GLV-C5": {
+      "views": 38,
+      "cartAdds": 6,
+      "wishlistAdds": 2,
+      "shares": 1
+    },
+    "KW-JSW-650": {
+      "views": 34,
+      "cartAdds": 5,
+      "wishlistAdds": 2,
+      "shares": 1
+    }
+  },
+  "sources": {
+    "home": 0.35,
+    "category": 0.25,
+    "search": 0.2,
+    "featured": 0.15,
+    "direct": 0.05
+  }
+}
