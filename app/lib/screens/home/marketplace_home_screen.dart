@@ -2781,13 +2781,19 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
                                     (cat['image']?.toString() ?? '').isNotEmpty
                                     ? Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: AppImage(
-                                          imageUrl: cat['image']!.toString(),
-                                          blurHash: cat['blurHash']?.toString(),
-                                          category:
-                                              cat['name']?.toString() ?? '',
-                                          name: cat['name']?.toString() ?? '',
-                                          fit: BoxFit.contain,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: AppImage(
+                                            imageUrl: cat['image']!.toString(),
+                                            blurHash: cat['blurHash']
+                                                ?.toString(),
+                                            category:
+                                                cat['name']?.toString() ?? '',
+                                            name: cat['name']?.toString() ?? '',
+                                            fit: BoxFit.contain,
+                                          ),
                                         ),
                                       )
                                     : Container(
@@ -2923,12 +2929,14 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
     if (query.isEmpty) return _searchCategoryData;
     return _searchCategoryData.where((category) {
       // Match English and Hindi names whatever the app language is.
-      final searchableText = latinDigits([
-        category['name'],
-        category['nameHindi'],
-        category['queryName'],
-        category['brandName'],
-      ].whereType<Object>().join(' ')).toLowerCase();
+      final searchableText = latinDigits(
+        [
+          category['name'],
+          category['nameHindi'],
+          category['queryName'],
+          category['brandName'],
+        ].whereType<Object>().join(' '),
+      ).toLowerCase();
       return searchableText.contains(query);
     }).toList();
   }
@@ -7346,20 +7354,26 @@ class _MarketplaceHomeScreenState extends ConsumerState<MarketplaceHomeScreen> {
                         child:
                             product['image'] != null &&
                                 product['image'].toString().isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: product['image'],
-                                fit: BoxFit.contain,
-                                placeholder: (_, __) => ProductImagePlaceholder(
-                                  category:
-                                      product['category']?.toString() ?? '',
-                                  name: product['name']?.toString() ?? '',
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: CachedNetworkImage(
+                                  imageUrl: product['image'],
+                                  fit: BoxFit.contain,
+                                  placeholder: (_, __) =>
+                                      ProductImagePlaceholder(
+                                        category:
+                                            product['category']?.toString() ??
+                                            '',
+                                        name: product['name']?.toString() ?? '',
+                                      ),
+                                  errorWidget: (_, __, ___) =>
+                                      ProductImagePlaceholder(
+                                        category:
+                                            product['category']?.toString() ??
+                                            '',
+                                        name: product['name']?.toString() ?? '',
+                                      ),
                                 ),
-                                errorWidget: (_, __, ___) =>
-                                    ProductImagePlaceholder(
-                                      category:
-                                          product['category']?.toString() ?? '',
-                                      name: product['name']?.toString() ?? '',
-                                    ),
                               )
                             : ProductImagePlaceholder(
                                 category: product['category']?.toString() ?? '',

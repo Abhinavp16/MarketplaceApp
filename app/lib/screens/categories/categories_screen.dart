@@ -1905,19 +1905,22 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                   children: [
                     product['image'] != null &&
                             product['image'].toString().isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: product['image'],
-                            fit: BoxFit.contain,
-                            placeholder: (_, __) => ProductImagePlaceholder(
-                              category: product['category']?.toString() ?? '',
-                              name: product['name']?.toString() ?? '',
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: CachedNetworkImage(
+                              imageUrl: product['image'],
+                              fit: BoxFit.contain,
+                              placeholder: (_, __) => ProductImagePlaceholder(
+                                category: product['category']?.toString() ?? '',
+                                name: product['name']?.toString() ?? '',
+                              ),
+                              errorWidget: (_, __, ___) =>
+                                  ProductImagePlaceholder(
+                                    category:
+                                        product['category']?.toString() ?? '',
+                                    name: product['name']?.toString() ?? '',
+                                  ),
                             ),
-                            errorWidget: (_, __, ___) =>
-                                ProductImagePlaceholder(
-                                  category:
-                                      product['category']?.toString() ?? '',
-                                  name: product['name']?.toString() ?? '',
-                                ),
                           )
                         : ProductImagePlaceholder(
                             category: product['category']?.toString() ?? '',

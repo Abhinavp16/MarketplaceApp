@@ -1073,12 +1073,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
                   onPageChanged: (i) => setState(() => _imgIndex = i),
                   itemBuilder: (_, i) {
                     final data = _imagesData[i];
-                    final img = AppImage(
-                      imageUrl: data['url']!,
-                      blurHash: data['blurHash'],
-                      category: _product?['category']?.toString() ?? '',
-                      name: name, // assuming name is available in scope
-                      fit: BoxFit.contain,
+                    final img = ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: AppImage(
+                        imageUrl: data['url']!,
+                        blurHash: data['blurHash'],
+                        category: _product?['category']?.toString() ?? '',
+                        name: name, // assuming name is available in scope
+                        fit: BoxFit.contain,
+                      ),
                     );
                     if (i == 0 && widget.heroTag != null) {
                       return Hero(
@@ -2725,18 +2728,22 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
                                               8,
                                               4,
                                             ),
-                                            child: AppImage(
-                                              imageUrl: image,
-                                              blurHash:
-                                                  (item['primaryBlurHash'] ??
-                                                          item['blurHash'])
-                                                      ?.toString(),
-                                              category:
-                                                  item['category']
-                                                      ?.toString() ??
-                                                  '',
-                                              name: nameEnglish,
-                                              fit: BoxFit.contain,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: AppImage(
+                                                imageUrl: image,
+                                                blurHash:
+                                                    (item['primaryBlurHash'] ??
+                                                            item['blurHash'])
+                                                        ?.toString(),
+                                                category:
+                                                    item['category']
+                                                        ?.toString() ??
+                                                    '',
+                                                name: nameEnglish,
+                                                fit: BoxFit.contain,
+                                              ),
                                             ),
                                           ),
                                           if (!inStock)
