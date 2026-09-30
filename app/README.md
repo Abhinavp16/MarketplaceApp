@@ -1,9 +1,9 @@
 # TradeHub Demo - Flutter customer app (Android)
 
 A generic, sanitized demo of a distribution / wholesale marketplace app. It talks
-to the TradeHub Demo backend and shows **synthetic data only**. A persistent
-"Demonstration Environment - synthetic data" strip is shown on every screen
-(including login), enriched from `GET {API_BASE_URL}/demo/info` when reachable.
+to the TradeHub Demo backend and shows **synthetic data only**. The app itself
+shows no demo strip; the admin panel and site still carry the
+"Demonstration Environment" notice.
 
 - Brand: TradeHub Demo - "Distribution made simple"
 - Android application id / namespace: `com.demo.tradehub`
@@ -64,8 +64,7 @@ this app.
   reference, client contact details, client brand sorting rules, partner-brand
   list and city entries, and all client legal text.
 - Added: central brand constants (`lib/core/config/brand_config.dart`), the
-  configuration-required screen, the demo banner (`lib/widgets/demo_banner.dart`),
-  generic launcher icons / logo / launch image (generated), placeholder legal
+  configuration-required screen, generic launcher icons / logo / launch image (generated), placeholder legal
   texts (`assets/legal/demo_*.txt`, all marked "Demo placeholder"), a new
   optional **Message / delivery requirement** field on the wholesaler
   "Send Requirement" sheet (sent as `message`, capped at 500 characters and shown

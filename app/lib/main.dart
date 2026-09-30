@@ -18,7 +18,6 @@ import 'core/services/notification_navigation_service.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/app_lifecycle_service.dart';
 import 'widgets/config_required_screen.dart';
-import 'widgets/demo_banner.dart';
 
 final GlobalKey<ScaffoldMessengerState> scafoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -144,8 +143,6 @@ class _NotificationBootstrapState extends ConsumerState<_NotificationBootstrap>
         GlobalCupertinoLocalizations.delegate,
       ],
       routerConfig: appRouter,
-      builder: (context, child) =>
-          DemoBannerShell(child: child ?? const SizedBox.shrink()),
     );
   }
 }
