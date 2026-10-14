@@ -76,7 +76,7 @@ export function ReceiptMenu({ apiBase, orderId, orderNumber, size = "sm" }: Rece
                     variant="outline"
                     size="sm"
                     aria-label={`Receipt${orderNumber ? ` for ${orderNumber}` : ""}`}
-                    className={`gap-1.5 rounded-full border-[#bfc0e0] bg-[#eaebf7] font-semibold text-[#171835] hover:bg-[#d6d7ef] ${size === "sm" ? "h-8 px-3 text-xs" : "h-9 px-4 text-sm"}`}
+                    className={`gap-1.5 rounded-full border-[#cfe0bf] bg-[#f1f7ea] font-semibold text-[#17351d] hover:bg-[#e3efd6] ${size === "sm" ? "h-8 px-3 text-xs" : "h-9 px-4 text-sm"}`}
                 >
                     {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <HugeiconsIcon icon={Invoice03Icon} size={15} color="currentColor" />}
                     Receipt

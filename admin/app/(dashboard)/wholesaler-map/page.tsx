@@ -281,7 +281,7 @@ export default function WholesalerMapPage() {
                     onClick={() => setSelectedId(item.id)}
                     className={`w-full rounded-xl border p-4 text-left transition ${
                       selected?.id === item.id
-                        ? "border-[#818cf8] bg-[#818cf8]/10"
+                        ? "border-[#86efac] bg-[#86efac]/10"
                         : "border-[#333] bg-[#0D0D0D] hover:border-[#555]"
                     }`}
                   >
@@ -320,7 +320,7 @@ export default function WholesalerMapPage() {
                   <div className="space-y-4 text-sm">
                     <div className="space-y-3">
                       <div className="flex items-start gap-3">
-                        <MapPinned className="mt-0.5 h-4 w-4 text-[#818cf8]" />
+                        <MapPinned className="mt-0.5 h-4 w-4 text-[#86efac]" />
                         <div>
                           <div className="font-semibold text-white">{selected.businessName}</div>
                           <div className="text-gray-400">{selected.contactPerson}</div>
@@ -341,7 +341,7 @@ export default function WholesalerMapPage() {
                     <div className="flex flex-col gap-2">
                       <Button
                         type="button"
-                        className="w-full bg-[#818cf8] text-black hover:bg-[#797cd6]"
+                        className="w-full bg-[#86efac] text-black hover:bg-[#74db98]"
                         onClick={() => {
                           setPanelMode("history")
                           void fetchShopOrders(selected.id)
@@ -370,7 +370,7 @@ export default function WholesalerMapPage() {
 
                     <Link
                       href={`/orders?userId=${encodeURIComponent(selected.id)}&customerName=${encodeURIComponent(selected.businessName)}`}
-                      className="inline-flex items-center gap-2 text-sm text-[#818cf8] hover:underline"
+                      className="inline-flex items-center gap-2 text-sm text-[#86efac] hover:underline"
                     >
                       <ExternalLink className="h-4 w-4" />
                       Open full order management
@@ -409,7 +409,7 @@ export default function WholesalerMapPage() {
                                     <div className="text-sm font-semibold text-white">
                                       ₹{Number(order.total || 0).toLocaleString("en-IN")}
                                     </div>
-                                    <div className="mt-1 text-xs uppercase text-[#818cf8]">
+                                    <div className="mt-1 text-xs uppercase text-[#86efac]">
                                       {order.status.replace(/_/g, " ")}
                                     </div>
                                   </div>
@@ -451,7 +451,7 @@ export default function WholesalerMapPage() {
 
                                   <Link
                                     href={`/orders?userId=${encodeURIComponent(selected.id)}&customerName=${encodeURIComponent(selected.businessName)}&search=${encodeURIComponent(order.orderNumber)}`}
-                                    className="inline-flex items-center gap-2 text-[#818cf8] hover:underline"
+                                    className="inline-flex items-center gap-2 text-[#86efac] hover:underline"
                                   >
                                     <ExternalLink className="h-3.5 w-3.5" />
                                     Open this order in Orders

@@ -890,7 +890,7 @@ export default function AddProductPage() {
   if (isInitialLoading) {
     return (
       <div className="flex justify-center items-center h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
       </div>
     );
   }
@@ -1110,7 +1110,7 @@ export default function AddProductPage() {
                                           </p>
                                         </div>
                                         <Check
-                                          className={`h-4 w-4 ${field.value === category._id ? "text-[#818cf8]" : "text-transparent"}`}
+                                          className={`h-4 w-4 ${field.value === category._id ? "text-[#86efac]" : "text-transparent"}`}
                                         />
                                       </CommandItem>
                                     ))}
@@ -1250,7 +1250,7 @@ export default function AddProductPage() {
                     <label
                         className={`flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg transition-colors ${
                           isUploadingImage
-                            ? "border-[#818cf8]/50 bg-[#818cf8]/5 cursor-wait"
+                            ? "border-[#86efac]/50 bg-[#86efac]/5 cursor-wait"
                             : "border-[#333] bg-[#0D0D0D] hover:bg-[#1a1a1a] cursor-pointer"
                         } ${isUploadingImage ? "h-24" : "h-20"}`}
                       >
@@ -1335,7 +1335,7 @@ export default function AddProductPage() {
                             <>
                               <Upload className="h-6 w-6 text-gray-400 mb-2" />
                               <p className="text-sm text-gray-400">
-                                <span className="text-[#818cf8]">
+                                <span className="text-[#86efac]">
                                   Click to upload
                                 </span>{" "}
                                 or drag and drop
@@ -1365,7 +1365,7 @@ export default function AddProductPage() {
                         <div
                           key={index}
                           className={`relative h-24 w-24 group rounded-lg overflow-hidden border-2 ${
-                            img.isPrimary ? "border-[#818cf8]" : "border-[#333]"
+                            img.isPrimary ? "border-[#86efac]" : "border-[#333]"
                           }`}
                         >
                           <img
@@ -1401,7 +1401,7 @@ export default function AddProductPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setFeaturedImage(index)}
-                                className="h-7 text-xs border-[#818cf8] text-[#818cf8] hover:bg-[#818cf8]/20"
+                                className="h-7 text-xs border-[#86efac] text-[#86efac] hover:bg-[#86efac]/20"
                               >
                                 <Crown className="h-3 w-3 mr-1" />
                                 Set Featured
@@ -1459,7 +1459,7 @@ export default function AddProductPage() {
                   <div className="space-y-2">
                     {bulletPoints.map((point, index) => (
                       <div key={index} className="flex gap-2 items-center">
-                        <span className="text-[#818cf8] text-sm">•</span>
+                        <span className="text-[#86efac] text-sm">•</span>
                         <Input
                           placeholder={`Feature ${index + 1}...`}
                           value={point}
@@ -2074,7 +2074,7 @@ export default function AddProductPage() {
 
                   <div className="rounded-lg border border-[#333] bg-[#0D0D0D] p-3">
                     <div className="flex items-center gap-2 text-sm font-medium text-white">
-                      <Building2 className="h-4 w-4 text-[#818cf8]" />
+                      <Building2 className="h-4 w-4 text-[#86efac]" />
                       Brand is assigned by category
                     </div>
                     <p className="mt-1 text-sm text-gray-400">
@@ -2125,7 +2125,7 @@ export default function AddProductPage() {
                       return (
                         <FormItem className="product-floating-exempt">
                           <FormLabel className="text-white flex items-center gap-2">
-                            <Tags className="h-4 w-4 text-[#818cf8]" />
+                            <Tags className="h-4 w-4 text-[#86efac]" />
                             Product Labels
                           </FormLabel>
                           <Popover>
@@ -2180,7 +2180,7 @@ export default function AddProductPage() {
                                               checked === true,
                                             )
                                           }
-                                          className="mt-0.5 border-[#4d4d4d] data-[state=checked]:border-[#818cf8] data-[state=checked]:bg-[#818cf8] data-[state=checked]:text-black"
+                                          className="mt-0.5 border-[#4d4d4d] data-[state=checked]:border-[#86efac] data-[state=checked]:bg-[#86efac] data-[state=checked]:text-black"
                                         />
                                         <div className="min-w-0">
                                           <p className="truncate text-sm font-medium text-white">

@@ -354,7 +354,7 @@ export default function BrandsPage() {
                 style={style}
                 onClick={() => !isDragging && openBrandCategories(company)}
                 className={`cursor-pointer border-[#333] transition-colors ${
-                    isDragging ? 'bg-[#818cf8]/10 ring-2 ring-[#818cf8]' : 'hover:bg-[#1A1A1A]'
+                    isDragging ? 'bg-[#86efac]/10 ring-2 ring-[#86efac]' : 'hover:bg-[#1A1A1A]'
                 }`}
             >
                 <TableCell
@@ -365,7 +365,7 @@ export default function BrandsPage() {
                 >
                     <div className="flex items-center gap-2">
                         <GripVertical className="h-4 w-4" />
-                        <span className="font-bold text-[#818cf8]">#{index + 1}</span>
+                        <span className="font-bold text-[#86efac]">#{index + 1}</span>
                     </div>
                 </TableCell>
                 <TableCell>
@@ -415,7 +415,7 @@ export default function BrandsPage() {
                 style={style}
                 onClick={() => !isDragging && openBrandCategories(company)}
                 className={`relative cursor-pointer overflow-hidden rounded-xl border border-[#333] bg-[#161616] transition-all ${
-                    isDragging ? 'opacity-50 ring-2 ring-[#818cf8]' : 'hover:border-[#818cf8]/50'
+                    isDragging ? 'opacity-50 ring-2 ring-[#86efac]' : 'hover:border-[#86efac]/50'
                 }`}
             >
                 <div className="flex h-12 items-center justify-between border-b border-blue-500/50 bg-blue-600/20 px-4 transition-colors hover:bg-blue-600/30">
@@ -452,7 +452,7 @@ export default function BrandsPage() {
                     <DiscountBadge summary={formatDiscountSummary(company)} />
                     <HiddenFromCustomersBadge hidden={company.hideFromCustomers} />
                     {company.description && <p className="line-clamp-2 text-sm text-gray-400">{company.description}</p>}
-                    <div className="flex items-center gap-2 border-t border-[#333] pt-3 text-xs font-medium text-[#818cf8]">
+                    <div className="flex items-center gap-2 border-t border-[#333] pt-3 text-xs font-medium text-[#86efac]">
                         <FolderTree className="h-4 w-4" />
                         View categories
                     </div>
@@ -466,7 +466,7 @@ export default function BrandsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <Tag className="h-8 w-8 text-[#818cf8]" />
+                    <Tag className="h-8 w-8 text-[#86efac]" />
                     <div>
                         <h1 className="text-3xl font-bold text-white">Brands</h1>
                         <p className="text-gray-400 text-sm">{totalBrands > 0 && `(${totalBrands} brands)`}</p>
@@ -490,7 +490,7 @@ export default function BrandsPage() {
                     </div>
                     <Button 
                         onClick={openCreateDialog}
-                        className="is-active hover:bg-[#818cf8]/90"
+                        className="is-active hover:bg-[#86efac]/90"
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Brand
@@ -507,7 +507,7 @@ export default function BrandsPage() {
                         placeholder="Search brands by name..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-[#161616] border-[#333] text-white placeholder:text-gray-500 focus-visible:ring-[#818cf8]"
+                        className="pl-10 bg-[#161616] border-[#333] text-white placeholder:text-gray-500 focus-visible:ring-[#86efac]"
                     />
                 </div>
                 <Button
@@ -535,7 +535,7 @@ export default function BrandsPage() {
             {/* Brands Content */}
             {isLoading ? (
                 <div className="bg-[#161616] rounded-xl border border-[#333] flex justify-center items-center h-48">
-                    <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                    <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
                 </div>
             ) : companies.length === 0 ? (
                 <div className="bg-[#161616] rounded-xl border border-[#333] flex flex-col items-center justify-center h-48 text-gray-400">
@@ -622,14 +622,14 @@ export default function BrandsPage() {
                                     <div className="flex flex-col items-center justify-center">
                                         {isUploadingLogo ? (
                                             <>
-                                                <Loader2 className="mb-1 h-5 w-5 animate-spin text-[#818cf8]" />
+                                                <Loader2 className="mb-1 h-5 w-5 animate-spin text-[#86efac]" />
                                                 <p className="text-xs text-gray-400">Uploading...</p>
                                             </>
                                         ) : (
                                             <>
                                                 <Upload className="mb-1 h-5 w-5 text-gray-400" />
                                                 <p className="text-xs text-gray-400">
-                                                    <span className="text-[#818cf8]">Click to upload</span>
+                                                    <span className="text-[#86efac]">Click to upload</span>
                                                 </p>
                                             </>
                                         )}
@@ -646,7 +646,7 @@ export default function BrandsPage() {
                                     <button
                                         type="button"
                                         onClick={() => setPreviewImageUrl(logoUrl)}
-                                        className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#333] bg-[#0D0D0D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818cf8]"
+                                        className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#333] bg-[#0D0D0D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#86efac]"
                                         aria-label="Enlarge brand logo"
                                     >
                                         <img
@@ -696,7 +696,7 @@ export default function BrandsPage() {
                         <Button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="is-active hover:bg-[#818cf8]/90"
+                            className="is-active hover:bg-[#86efac]/90"
                         >
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {editingCompany ? "Update Brand" : "Create Brand"}

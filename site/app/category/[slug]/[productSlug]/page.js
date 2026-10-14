@@ -40,7 +40,7 @@ export default async function ProductDetailPage({ params }) {
                 <p className="text-text-secondary text-lg mb-8">We could not find the product you were looking for.</p>
                 <Link
                     href={category ? `/category/${resolvedParams.slug}` : '/products'}
-                    className="px-8 py-3 bg-brand-primary text-white font-bold rounded-full hover:bg-brand-secondary transition-colors shadow-cta"
+                    className="px-8 py-3 bg-brand-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors shadow-cta"
                 >
                     Back to Products
                 </Link>
@@ -71,7 +71,7 @@ export default async function ProductDetailPage({ params }) {
                                 productKey={productKey}
                             />
                             {product.badge && (
-                                <div className={`absolute left-10 top-10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] shadow-sm z-20 bg-white text-brand-primary border border-teal-100`}>
+                                <div className={`absolute left-10 top-10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] shadow-sm z-20 bg-white text-brand-primary border border-orange-100`}>
                                     {product.badge}
                                 </div>
                             )}
@@ -128,7 +128,7 @@ export default async function ProductDetailPage({ params }) {
                                     productName={product.name}
                                     price={displayPrice}
                                     details={inquiryDetails}
-                                    className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-4 text-center text-sm font-bold text-white shadow-[0_14px_30px_rgba(13,148,136,0.26)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(13,148,136,0.34)]"
+                                    className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-4 text-center text-sm font-bold text-white shadow-[0_14px_30px_rgba(249,115,22,0.26)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(249,115,22,0.34)]"
                                 >
                                     Request Quote
                                 </VariantAwareInquiryButton>

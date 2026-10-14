@@ -55,7 +55,7 @@ function plural(count: number, one: string, many = `${one}s`) {
 
 function ActionBadge({ action }: { action: ImportRow["action"] }) {
   if (action === "create") return <Badge className="border-transparent bg-emerald-100 text-emerald-800">Create</Badge>
-  if (action === "update") return <Badge className="border-transparent bg-indigo-100 text-indigo-800">Update</Badge>
+  if (action === "update") return <Badge className="border-transparent bg-sky-100 text-sky-800">Update</Badge>
   return <Badge className="border-transparent bg-slate-100 text-slate-600">Unchanged</Badge>
 }
 
@@ -65,17 +65,17 @@ function StatusBadge({ status }: { status: ImportRow["status"] }) {
   return <Badge className="border-transparent bg-slate-100 text-slate-600">OK</Badge>
 }
 
-function Tile({ id, label, value, tone }: { id: string; label: string; value: number; tone?: "red" | "amber" | "indigo" | "green" }) {
+function Tile({ id, label, value, tone }: { id: string; label: string; value: number; tone?: "red" | "amber" | "sky" | "green" }) {
   const toneClass =
     tone === "red" && value > 0
       ? "border-red-200 bg-red-50 text-red-800"
       : tone === "amber" && value > 0
         ? "border-amber-200 bg-amber-50 text-amber-800"
-        : tone === "indigo"
-          ? "border-indigo-200 bg-indigo-50 text-indigo-800"
+        : tone === "sky"
+          ? "border-sky-200 bg-sky-50 text-sky-800"
           : tone === "green"
             ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-            : "border-[#d0d1e3] bg-white text-slate-900"
+            : "border-[#dde3d0] bg-white text-slate-900"
   return (
     <div data-testid={`import-tile-${id}`} className={`rounded-xl border px-3 py-2 ${toneClass}`}>
       <p className="text-xs font-medium opacity-80">{label}</p>
@@ -274,7 +274,7 @@ export function ImportProductsDialog({
         className="flex max-h-[92vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-5xl"
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="border-b border-[#e2e2f0] px-6 py-4 pr-12">
+        <DialogHeader className="border-b border-[#edf0e2] px-6 py-4 pr-12">
           <DialogTitle className="text-xl text-slate-900">Import products</DialogTitle>
           <DialogDescription>
             {step === "upload" && "Step 1 of 3. Upload a spreadsheet to add or update products in bulk."}
@@ -311,19 +311,19 @@ export function ImportProductsDialog({
                   chooseFile(e.dataTransfer.files?.[0])
                 }}
                 className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors ${
-                  dragActive ? "border-indigo-500 bg-indigo-50" : "border-[#cacbdf] bg-[#f8f8fd]"
+                  dragActive ? "border-emerald-500 bg-emerald-50" : "border-[#d8dfca] bg-[#fcfdf8]"
                 }`}
               >
                 {busy === "preview" ? (
                   <>
-                    <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+                    <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
                     <p className="text-sm font-medium text-slate-700" data-testid="import-checking">
                       Checking {file?.name ?? "file"}…
                     </p>
                   </>
                 ) : (
                   <>
-                    <Upload className="h-8 w-8 text-indigo-500" />
+                    <Upload className="h-8 w-8 text-emerald-600" />
                     <p className="text-sm font-medium text-slate-800">Drag a file here, or choose one</p>
                     <p className="text-xs text-slate-500">.xlsx or .csv, up to 5 MB and 5,000 rows</p>
                     <input
@@ -339,7 +339,7 @@ export function ImportProductsDialog({
                         e.target.value = ""
                       }}
                     />
-                    <Button type="button" variant="outline" className="border-indigo-300 bg-white text-indigo-700 hover:bg-indigo-50" onClick={() => inputRef.current?.click()}>
+                    <Button type="button" variant="outline" className="border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-50" onClick={() => inputRef.current?.click()}>
                       Choose file
                     </Button>
                     {file ? (
@@ -347,7 +347,7 @@ export function ImportProductsDialog({
                         <span data-testid="import-selected-file">
                           Selected: <strong>{file.name}</strong> ({formatSize(file.size)})
                         </span>
-                        <Button type="button" size="sm" className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={() => runPreview(file, { createMissing, priceMode })}>
+                        <Button type="button" size="sm" className="bg-[#86efac] text-black hover:bg-[#74e39c]" onClick={() => runPreview(file, { createMissing, priceMode })}>
                           Check file again
                         </Button>
                       </div>
@@ -356,7 +356,7 @@ export function ImportProductsDialog({
                 )}
               </div>
 
-              <div className="flex items-start gap-3 rounded-xl border border-[#d0d1e3] bg-white p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-[#dde3d0] bg-white p-4">
                 <Checkbox
                   id={`${ids}-create-missing`}
                   data-testid="import-create-missing"
@@ -375,7 +375,7 @@ export function ImportProductsDialog({
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#d0d1e3] bg-white">
+              <div className="rounded-xl border border-[#dde3d0] bg-white">
                 <button
                   type="button"
                   aria-expanded={advancedOpen}
@@ -387,7 +387,7 @@ export function ImportProductsDialog({
                   Advanced
                 </button>
                 {advancedOpen ? (
-                  <div id={`${ids}-advanced`} className="space-y-1 border-t border-[#e2e2f0] px-4 py-3">
+                  <div id={`${ids}-advanced`} className="space-y-1 border-t border-[#edf0e2] px-4 py-3">
                     <Label htmlFor={`${ids}-price-mode`} className="text-sm font-medium text-slate-900">
                       When price changes take effect
                     </Label>
@@ -397,7 +397,7 @@ export function ImportProductsDialog({
                       value={priceMode}
                       disabled={busy !== null}
                       onChange={(e) => setPriceMode(e.target.value as PriceChangeMode)}
-                      className="h-9 w-full rounded-md border border-[#cacbdf] bg-white px-3 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 sm:max-w-xs"
+                      className="h-9 w-full rounded-md border border-[#d8dfca] bg-white px-3 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#86efac] sm:max-w-xs"
                     >
                       <option value="immediate">Apply immediately</option>
                       <option value="schedule_24h">Schedule in 24 hours</option>
@@ -412,7 +412,7 @@ export function ImportProductsDialog({
                 data-testid="import-template-link"
                 onClick={handleTemplate}
                 disabled={downloading}
-                className="inline-flex items-center gap-2 text-sm font-medium text-indigo-700 underline-offset-2 hover:underline disabled:opacity-60"
+                className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700 underline-offset-2 hover:underline disabled:opacity-60"
               >
                 {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 Download template
@@ -425,13 +425,13 @@ export function ImportProductsDialog({
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
                 <Tile id="rows" label="Rows" value={summary.totalRows} />
                 <Tile id="new" label="New" value={summary.created} tone="green" />
-                <Tile id="updated" label="Updated" value={summary.updated} tone="indigo" />
+                <Tile id="updated" label="Updated" value={summary.updated} tone="sky" />
                 <Tile id="unchanged" label="Unchanged" value={summary.skipped} />
                 <Tile id="errors" label="Errors" value={errorRows} tone="red" />
                 <Tile id="warnings" label="Warnings" value={summary.warnings} tone="amber" />
               </div>
 
-              <div className="flex items-start gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm text-indigo-900" data-testid="import-preview-banner">
+              <div className="flex items-start gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900" data-testid="import-preview-banner">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>
                   This is a preview. <strong>Nothing has been saved yet.</strong> Review the rows below, then confirm to import.
@@ -439,7 +439,7 @@ export function ImportProductsDialog({
               </div>
 
               {report.newBrands.length > 0 || report.newCategories.length > 0 ? (
-                <div className="rounded-lg border border-[#d0d1e3] bg-white px-3 py-2 text-sm" data-testid="import-new-items">
+                <div className="rounded-lg border border-[#dde3d0] bg-white px-3 py-2 text-sm" data-testid="import-new-items">
                   <p className="font-medium text-slate-900">Will be created on import</p>
                   {report.newBrands.length > 0 ? (
                     <p className="text-slate-700">
@@ -478,7 +478,7 @@ export function ImportProductsDialog({
                         setVisible(PAGE_SIZE)
                       }}
                       className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                        filter === f.id ? "border-indigo-600 bg-indigo-600 text-white" : "border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8]"
+                        filter === f.id ? "border-[#86efac] bg-[#86efac] text-black" : "border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef]"
                       }`}
                     >
                       {f.label} ({f.count})
@@ -496,15 +496,15 @@ export function ImportProductsDialog({
                       setQuery(e.target.value)
                       setVisible(PAGE_SIZE)
                     }}
-                    className="h-9 border-[#cacbdf] bg-white pl-9"
+                    className="h-9 border-[#d8dfca] bg-white pl-9"
                   />
                 </div>
               </div>
 
-              <div className="overflow-x-auto rounded-xl border border-[#d0d1e3] bg-white">
+              <div className="overflow-x-auto rounded-xl border border-[#dde3d0] bg-white">
                 <table className="w-full text-sm" data-testid="import-rows-table">
                   <thead>
-                    <tr className="border-b border-[#e2e2f0] bg-[#f3f3fa] text-left text-xs text-slate-500">
+                    <tr className="border-b border-[#edf0e2] bg-[#f3f6ea] text-left text-xs text-slate-500">
                       <th className="w-14 px-3 py-2 font-medium">Row</th>
                       <th className="px-3 py-2 font-medium">SKU</th>
                       <th className="px-3 py-2 font-medium">Action</th>
@@ -568,7 +568,7 @@ export function ImportProductsDialog({
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <Tile id="result-created" label="Created" value={summary.created} tone="green" />
-                <Tile id="result-updated" label="Updated" value={summary.updated} tone="indigo" />
+                <Tile id="result-updated" label="Updated" value={summary.updated} tone="sky" />
                 <Tile id="result-skipped" label="Unchanged (skipped)" value={summary.skipped} />
               </div>
               {summary.newBrands > 0 || summary.newCategories > 0 ? (
@@ -585,7 +585,7 @@ export function ImportProductsDialog({
           )}
         </div>
 
-        <DialogFooter className="items-center border-t border-[#e2e2f0] bg-white px-6 py-3 sm:justify-between">
+        <DialogFooter className="items-center border-t border-[#edf0e2] bg-white px-6 py-3 sm:justify-between">
           {step === "upload" && (
             <>
               <p className="text-xs text-slate-500">Your file is checked first. Nothing is saved until you confirm.</p>
@@ -639,7 +639,7 @@ export function ImportProductsDialog({
                 <Button
                   type="button"
                   data-testid="import-confirm"
-                  className="bg-indigo-600 text-white hover:bg-indigo-700"
+                  className="bg-[#86efac] text-black hover:bg-[#74e39c]"
                   disabled={busy !== null || errorRows > 0 || importCount === 0}
                   onClick={confirmImport}
                 >
@@ -656,7 +656,7 @@ export function ImportProductsDialog({
               <Button
                 type="button"
                 data-testid="import-close-refresh"
-                className="bg-indigo-600 text-white hover:bg-indigo-700"
+                className="bg-[#86efac] text-black hover:bg-[#74e39c]"
                 onClick={() => handleOpenChange(false)}
               >
                 Close and refresh list
@@ -689,7 +689,7 @@ function RowItem({
         data-testid={`import-row-${r.row}`}
         data-status={r.status}
         data-action={r.action}
-        className={`border-b border-[#eeeef7] align-top ${r.status === "error" ? "bg-red-50/60" : ""}`}
+        className={`border-b border-[#edf0e2] align-top ${r.status === "error" ? "bg-red-50/60" : ""}`}
       >
         <td className="px-3 py-2 tabular-nums text-slate-500">{r.row}</td>
         <td className="px-3 py-2 font-medium text-slate-900">{r.sku || <span className="text-slate-400">(no SKU)</span>}</td>
@@ -706,7 +706,7 @@ function RowItem({
               aria-expanded={isOpen}
               aria-controls={detailsId}
               onClick={onToggle}
-              className="inline-flex items-center gap-1 text-xs font-medium text-indigo-700 hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:underline"
             >
               {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
               {isOpen ? "Hide" : "Show"} details
@@ -718,7 +718,7 @@ function RowItem({
         </td>
       </tr>
       {isOpen ? (
-        <tr id={detailsId} data-testid={`import-row-${r.row}-details`} className="border-b border-[#eeeef7] bg-[#f8f8fd]">
+        <tr id={detailsId} data-testid={`import-row-${r.row}-details`} className="border-b border-[#edf0e2] bg-[#fcfdf8]">
           <td />
           <td colSpan={4} className="space-y-2 px-3 py-2 text-xs">
             {r.errors.length > 0 ? (

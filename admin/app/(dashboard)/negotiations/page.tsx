@@ -164,24 +164,24 @@ function acceptNote(entry: HistoryEntry): string | null {
 function AcceptCard({ name, pricePerUnit, timestamp, note, orderCreated }: { name: string; pricePerUnit?: number | null; timestamp?: string; note?: string | null; orderCreated: boolean }) {
     return (
         <div className="flex justify-end">
-            <div className="w-full max-w-[85%] rounded-2xl rounded-br-md border border-indigo-200 bg-indigo-50 px-4 py-3 shadow-sm">
+            <div className="w-full max-w-[85%] rounded-2xl rounded-br-md border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-sm">
                 <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-indigo-600" />
-                    <span className="text-[11px] font-bold uppercase tracking-wide text-indigo-800">
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
+                    <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-800">
                         Accepted by {name}
                     </span>
                     {pricePerUnit != null && (
-                        <span className="ml-auto rounded-full bg-indigo-600 px-2 py-0.5 font-mono text-[11px] font-bold text-white">
+                        <span className="ml-auto rounded-full bg-emerald-600 px-2 py-0.5 font-mono text-[11px] font-bold text-white">
                             ₹{pricePerUnit}
                         </span>
                     )}
                 </div>
-                <p className="mt-1 text-sm font-medium text-indigo-900">
+                <p className="mt-1 text-sm font-medium text-emerald-900">
                     {orderCreated ? 'Deal confirmed · order created.' : 'Deal accepted · order pending.'}
                 </p>
-                {note && <p className="mt-0.5 whitespace-pre-wrap text-sm text-indigo-800">{note}</p>}
+                {note && <p className="mt-0.5 whitespace-pre-wrap text-sm text-emerald-800">{note}</p>}
                 {timestamp && (
-                    <span className="mt-1 block text-right text-[10px] text-indigo-700/70">
+                    <span className="mt-1 block text-right text-[10px] text-emerald-700/70">
                         {new Date(timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </span>
                 )}
@@ -321,7 +321,7 @@ export default function NegotiationsPage() {
         switch (status) {
             case 'pending': return <Badge variant="outline" className="text-yellow-500 border-yellow-500">Requirement Sent</Badge>
             case 'accepted': return <Badge variant="outline" className="text-amber-400 border-amber-400">Accepted · Order Pending</Badge>
-            case 'converted': return <Badge variant="outline" className="text-indigo-400 border-indigo-400">Order Created</Badge>
+            case 'converted': return <Badge variant="outline" className="text-emerald-400 border-emerald-400">Order Created</Badge>
             case 'rejected': return <Badge variant="outline" className="text-red-500 border-red-500">Requirement Declined</Badge>
             case 'countered': return <Badge variant="outline" className="text-blue-500 border-blue-500">New Price Sent</Badge>
             case 'expired': return <Badge variant="outline" className="text-gray-500 border-gray-500">Requirement Expired</Badge>
@@ -347,7 +347,7 @@ export default function NegotiationsPage() {
                         placeholder="Search requirements..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-[#161616] border-[#333] text-white placeholder:text-gray-500 focus-visible:ring-[#818cf8]"
+                        className="pl-10 bg-[#161616] border-[#333] text-white placeholder:text-gray-500 focus-visible:ring-[#86efac]"
                     />
                 </div>
                 <Button
@@ -390,7 +390,7 @@ export default function NegotiationsPage() {
                 <CardContent>
                     {isLoading ? (
                         <div className="flex justify-center p-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
                         </div>
                     ) : negotiations.length === 0 ? (
                         <div className="text-center text-gray-500 py-10">No requirements found</div>
@@ -915,8 +915,8 @@ function NegotiationChatPanel({ negotiationId, onChanged }: { negotiationId: str
                             Accepted by {detail.approvedBy.name}
                         </span>
                     )}
-                    <span className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-medium ${isConnected ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-500'}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-indigo-500' : 'bg-slate-400'}`} />
+                    <span className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-medium ${isConnected ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-slate-400'}`} />
                         {isConnected ? 'Live' : 'Offline'}
                     </span>
                 </div>
@@ -954,14 +954,14 @@ function NegotiationChatPanel({ negotiationId, onChanged }: { negotiationId: str
                     <button
                         type="button"
                         onClick={() => router.push(`/orders?orderId=${encodeURIComponent(orderReference)}`)}
-                        className="flex items-center gap-3 rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-left transition-colors hover:bg-indigo-100"
+                        className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-left transition-colors hover:bg-emerald-100"
                     >
-                        <Package className="h-5 w-5 shrink-0 text-indigo-600" />
+                        <Package className="h-5 w-5 shrink-0 text-emerald-600" />
                         <span>
-                            <span className="block text-sm font-semibold text-indigo-800">Order Created{orderObj?.orderNumber ? ` · ${orderObj.orderNumber}` : ''}</span>
-                            {orderObj ? <span className="block text-xs text-indigo-700 capitalize">
+                            <span className="block text-sm font-semibold text-emerald-800">Order Created{orderObj?.orderNumber ? ` · ${orderObj.orderNumber}` : ''}</span>
+                            {orderObj ? <span className="block text-xs text-emerald-700 capitalize">
                                 {(orderObj.status ?? 'pending_payment')?.replace(/_/g, ' ')} · ₹{(orderObj.total ?? orderTotal).toLocaleString()} · {(orderObj.trackingNumber ?? '') ? `LR ${orderObj.trackingNumber}${orderObj.courierName ? ` · ${orderObj.courierName}` : ''} · ` : ''}tap to open order
-                            </span> : <span className="block text-xs text-indigo-700">Tap to open order</span>}
+                            </span> : <span className="block text-xs text-emerald-700">Tap to open order</span>}
                         </span>
                     </button>
                 )}
@@ -1001,15 +1001,15 @@ function NegotiationChatPanel({ negotiationId, onChanged }: { negotiationId: str
                                     : entry.action
                                 return (
                                 <div key={idx} className={`flex flex-col gap-0.5 ${isAdmin ? 'items-end' : 'items-start'}`}>
-                                    <div className={`max-w-[85%] px-3 py-2 shadow-sm ${isAdmin ? 'rounded-2xl rounded-br-md bg-indigo-600 text-white' : 'rounded-2xl rounded-bl-md border border-slate-200 bg-white text-slate-800'}`}>
+                                    <div className={`max-w-[85%] px-3 py-2 shadow-sm ${isAdmin ? 'rounded-2xl rounded-br-md bg-emerald-600 text-white' : 'rounded-2xl rounded-bl-md border border-slate-200 bg-white text-slate-800'}`}>
                                         <div className="mb-0.5 flex items-center justify-between gap-3">
-                                            <span className={`text-[11px] font-bold uppercase tracking-wide ${isAdmin ? 'text-indigo-100' : 'text-blue-600'}`}>
+                                            <span className={`text-[11px] font-bold uppercase tracking-wide ${isAdmin ? 'text-emerald-100' : 'text-blue-600'}`}>
                                                 {actionLabel}
                                             </span>
                                             {entry.pricePerUnit != null && <span className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-bold ${isAdmin ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-700'}`}>₹{entry.pricePerUnit}</span>}
                                         </div>
                                         {entry.message && <p className="whitespace-pre-wrap text-sm leading-snug">{entry.message}</p>}
-                                        <span className={`mt-1 block text-right text-[10px] ${isAdmin ? 'text-indigo-100/70' : 'text-slate-400'}`}>
+                                        <span className={`mt-1 block text-right text-[10px] ${isAdmin ? 'text-emerald-100/70' : 'text-slate-400'}`}>
                                             {entry.timestamp ? new Date(entry.timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
                                         </span>
                                     </div>
@@ -1198,8 +1198,8 @@ function NegotiationChatPanel({ negotiationId, onChanged }: { negotiationId: str
 function statusColor(status: string): string {
     switch (status) {
         case 'pending': return 'bg-amber-50 text-amber-700 border-amber-200'
-        case 'accepted': return 'bg-indigo-50 text-indigo-700 border-indigo-200'
-        case 'converted': return 'bg-indigo-50 text-indigo-700 border-indigo-200'
+        case 'accepted': return 'bg-emerald-50 text-emerald-700 border-emerald-200'
+        case 'converted': return 'bg-emerald-50 text-emerald-700 border-emerald-200'
         case 'rejected': return 'bg-red-50 text-red-700 border-red-200'
         case 'countered': return 'bg-blue-50 text-blue-700 border-blue-200'
         case 'expired': return 'bg-slate-100 text-slate-500 border-slate-200'

@@ -271,7 +271,7 @@ export default function AccountUpgradesPage() {
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="h-8 px-3 text-[#818cf8] hover:text-white hover:bg-[#818cf8]/10 border border-transparent hover:border-[#818cf8]/20"
+                                                className="h-8 px-3 text-[#86efac] hover:text-white hover:bg-[#86efac]/10 border border-transparent hover:border-[#86efac]/20"
                                                 onClick={() => {
                                                     openCustomerDetails(cust)
                                                 }}
@@ -403,7 +403,7 @@ export default function AccountUpgradesPage() {
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => setShowFullHistory(!showFullHistory)}
-                                        className="text-gray-400 hover:text-[#818cf8] text-xs h-8"
+                                        className="text-gray-400 hover:text-[#86efac] text-xs h-8"
                                     >
                                         {showFullHistory ? (
                                             <>Show Less <ChevronUp className="w-3.5 h-3.5 ml-1" /></>

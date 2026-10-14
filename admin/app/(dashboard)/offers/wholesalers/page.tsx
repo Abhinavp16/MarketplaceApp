@@ -94,7 +94,7 @@ export default function WholesalerOffersPage() {
                         setEditingOffer(null)
                         setIsModalOpen(true)
                     }}
-                    className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90"
+                    className="bg-[#86efac] text-black hover:bg-[#86efac]/90"
                 >
                     <Plus className="h-4 w-4 mr-2" /> Add Offer
                 </Button>
@@ -107,7 +107,7 @@ export default function WholesalerOffersPage() {
                 <CardContent>
                     {isLoading ? (
                         <div className="flex justify-center p-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
                         </div>
                     ) : offers.length === 0 ? (
                         <div className="text-center text-gray-500 py-10">No offers found for wholesalers</div>
@@ -131,7 +131,7 @@ export default function WholesalerOffersPage() {
                                             <div className="text-xs text-gray-500 line-clamp-1">{offer.description}</div>
                                         </TableCell>
                                         <TableCell>
-                                            <code className="bg-[#0D0D0D] px-2 py-1 rounded text-[#818cf8] text-xs font-mono">
+                                            <code className="bg-[#0D0D0D] px-2 py-1 rounded text-[#86efac] text-xs font-mono">
                                                 {offer.code || 'NO CODE'}
                                             </code>
                                         </TableCell>

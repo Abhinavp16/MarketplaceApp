@@ -103,13 +103,14 @@ Firebase code runs or is loaded. To turn it on, follow `../docs/FIREBASE_SETUP.m
 ## What was removed or replaced
 
 - The third-party hosting analytics package and its import.
-- Magic-link request UI on the login page (the `/login/verify` page is kept but unused).
+- Magic-link request UI on the login page (replaced by an email and password form; the `/login/verify` page is kept but unused).
 - `public/sw.js` is generated (see "Browser alerts") and registered only in production builds.
 - All original-client branding, hard-coded production hosts, map centre (now India centre 20.5937, 78.9629),
   store links (now placeholders), and the original Mongo/JWT Playwright login helper.
-- Brand colour: green replaced by indigo/teal (`app/globals.css`, `styles/globals.css`, and
-  hard-coded hex/`emerald-*` utilities across the app).
-- Generated assets in `public/`: `icon.svg`, `icon.png`, `icon-192.png`, `icon-maskable-512.png`,
+- Visual design is identical to the original panel (green primary, same Tailwind/CSS tokens, fonts and
+  class names in every shared file); only the branding text and logo were replaced. Demo-only components
+  (`DemoBanner`, `ResetDemoCard`, password login form, catalog import dialog) use the same green tokens.
+- Generated assets in `public/` (green DemoMart "D." mark): `icon.svg`, `icon.png`, `icon-192.png`, `icon-maskable-512.png`,
   `apple-touch-icon.png`, `favicon.ico`, `images/Banner/1-5.jpg` (real royalty-free photos, see `../backend/assets/demo-images/CREDITS.md`).
 
 ## Tests

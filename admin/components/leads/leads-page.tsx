@@ -271,7 +271,7 @@ export default function LeadsPage({ apiBase = "/admin" }: LeadsPageProps) {
                 <select
                     value={period}
                     onChange={(e) => setPeriod(e.target.value)}
-                    className="bg-[#161616] border border-[#333] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#818cf8] cursor-pointer"
+                    className="bg-[#161616] border border-[#333] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#86efac] cursor-pointer"
                 >
                     {periods.map((p) => (
                         <option key={p.value} value={p.value}>{p.label}</option>
@@ -292,7 +292,7 @@ export default function LeadsPage({ apiBase = "/admin" }: LeadsPageProps) {
                 </div>
                 <div className="bg-[#0D0D0D] rounded-2xl p-5 flex items-center gap-4">
                     <div className="p-2.5 rounded-xl bg-green-500/10">
-                        <TrendingUp className="h-5 w-5 text-[#818cf8]" />
+                        <TrendingUp className="h-5 w-5 text-[#86efac]" />
                     </div>
                     <div>
                         <p className="text-3xl font-bold text-white">{summary.hot + summary.warm}</p>
@@ -328,12 +328,12 @@ export default function LeadsPage({ apiBase = "/admin" }: LeadsPageProps) {
                             type="datetime-local"
                             value={scheduleTime}
                             onChange={(e) => setScheduleTime(e.target.value)}
-                            className="bg-[#0D0D0D] border border-[#333] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#818cf8]"
+                            className="bg-[#0D0D0D] border border-[#333] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#86efac]"
                         />
                         <Button
                             size="sm"
                             variant="outline"
-                            className="border-[#818cf8] text-[#818cf8] hover:bg-[#818cf8]/10"
+                            className="border-[#86efac] text-[#86efac] hover:bg-[#86efac]/10"
                             onClick={scheduleMessageToAll}
                             disabled={isLoading || leads.length === 0}
                         >
@@ -351,7 +351,7 @@ export default function LeadsPage({ apiBase = "/admin" }: LeadsPageProps) {
                         )}
                         <Button
                             size="sm"
-                            className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90"
+                            className="bg-[#86efac] text-black hover:bg-[#86efac]/90"
                             onClick={sendMessageToAll}
                             disabled={isLoading || leads.length === 0}
                         >
@@ -361,14 +361,14 @@ export default function LeadsPage({ apiBase = "/admin" }: LeadsPageProps) {
                     </div>
                 </div>
                 {scheduledAt && (
-                    <div className="px-6 py-2 border-b border-[#333] text-xs text-[#818cf8]">
+                    <div className="px-6 py-2 border-b border-[#333] text-xs text-[#86efac]">
                         Scheduled bulk message: {scheduledAt.toLocaleString()}
                     </div>
                 )}
                 <div className="p-6">
                     {isLoading ? (
                         <div className="flex justify-center py-16">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
                         </div>
                     ) : leads.length === 0 ? (
                         <div className="text-center py-16">
@@ -487,7 +487,7 @@ export default function LeadsPage({ apiBase = "/admin" }: LeadsPageProps) {
                                             <TableCell className="text-right">
                                                 <Button
                                                     size="sm"
-                                                    className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90"
+                                                    className="bg-[#86efac] text-black hover:bg-[#86efac]/90"
                                                     onClick={() => sendInterestMessage(lead)}
                                                 >
                                                     <MessageCircle className="h-4 w-4 mr-1" />

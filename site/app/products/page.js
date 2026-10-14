@@ -34,16 +34,16 @@ export default async function ProductsPage() {
             {partnerLogos.length > 0 && (
             <section className="hidden px-6 pt-4 sm:block sm:pt-10">
                 <ScrollReveal className="mx-auto max-w-7xl">
-                    <div className="relative overflow-hidden text-[#16143a] [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
+                    <div className="relative overflow-hidden text-[#122516] [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
                         <div className="brand-marquee-track flex w-max items-center gap-10 sm:gap-14 lg:gap-18">
                             {[...partnerLogos, ...partnerLogos].map((partner, index) => (
-                                <div key={`${partner.label}-${index}`} className="shrink-0 rounded-full border border-[#1e1b4b]/18 bg-[#eef2ff]/60 px-6 py-3 text-[#1e1b4b]/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+                                <div key={`${partner.label}-${index}`} className="shrink-0 rounded-full border border-[#17351d]/18 bg-[#edf3e6]/60 px-6 py-3 text-[#17351d]/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
                                     <span className="whitespace-nowrap text-xl font-black tracking-[-0.018em] sm:text-2xl">{partner.label}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <p className="mt-4 text-center text-lg font-medium tracking-[-0.018em] text-[#1e1b4b] sm:mt-7 sm:text-2xl">
+                    <p className="mt-4 text-center text-lg font-medium tracking-[-0.018em] text-[#17351d] sm:mt-7 sm:text-2xl">
                         Demo Brands
                     </p>
                 </ScrollReveal>
@@ -72,7 +72,7 @@ export default async function ProductsPage() {
                         ))}
                     </div>
                     <ScrollReveal className="mt-10 flex justify-center">
-                        <Link href="/products/all" className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#312e81]/15 bg-white px-7 text-sm font-bold text-brand-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-[#17153b] hover:text-white">
+                        <Link href="/products/all" className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#0b3b1f]/15 bg-white px-7 text-sm font-bold text-brand-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-[#062712] hover:text-white">
                             View All Products
                         </Link>
                     </ScrollReveal>
@@ -99,11 +99,11 @@ export default async function ProductsPage() {
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6 lg:gap-4">
                     {productCategories.map((cat, i) => (
                         <ScrollReveal key={i} delay={i * 80}>
-                            <div className="group flex h-full flex-col overflow-hidden rounded-[1.35rem] border border-[#312e81]/10 bg-[#eef2ff]/85 p-2 shadow-[0_16px_40px_rgba(30,27,75,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(30,27,75,0.14)]">
-                                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.2rem] bg-[#c7d2fe]">
+                            <div className="group flex h-full flex-col overflow-hidden rounded-[1.35rem] border border-[#0b3b1f]/10 bg-[#edf3e6]/85 p-2 shadow-[0_16px_40px_rgba(8,36,18,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(8,36,18,0.14)]">
+                                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.2rem] bg-[#d6e0c9]">
                                     <img src={cat.image || fallbackCategoryImage} className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" alt={cat.name} />
                                     <div className="absolute inset-x-3 top-3 flex justify-end">
-                                        <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-[#1e1b4b] shadow-sm backdrop-blur-sm">
+                                        <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-[#17351d] shadow-sm backdrop-blur-sm">
                                             {Number.isFinite(cat.productCount) && cat.productCount > 0 ? `${cat.productCount} Items` : (Array.isArray(cat.products) && cat.products.length > 0 ? `${cat.products.length} Items` : 'Category')}
                                         </span>
                                     </div>
@@ -111,9 +111,9 @@ export default async function ProductsPage() {
                                 <div className="flex min-h-[100px] flex-grow flex-col px-1.5 py-3">
                                     <h4 className="text-text-primary text-sm font-semibold leading-tight tracking-[-0.018em] sm:text-base">{cat.name}</h4>
                                     <p className="mt-2 line-clamp-2 text-xs leading-5 text-text-secondary">{cat.description}</p>
-                                    <Link href={cat.href || `/category/${slugifyCategoryName(cat.name)}`} className="mt-auto flex items-center justify-between border-t border-[#312e81]/10 pt-2.5 text-[11px] font-semibold text-brand-primary">
+                                    <Link href={cat.href || `/category/${slugifyCategoryName(cat.name)}`} className="mt-auto flex items-center justify-between border-t border-[#0b3b1f]/10 pt-2.5 text-[11px] font-semibold text-brand-primary">
                                         <span>{categoriesSection.buttonText || 'View Products'}</span>
-                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-[#1e1b4b] transition-colors group-hover:bg-[#1e1b4b] group-hover:text-white"><Icon icon={ArrowRight02Icon} size={14} /></span>
+                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-[#17351d] transition-colors group-hover:bg-[#17351d] group-hover:text-white"><Icon icon={ArrowRight02Icon} size={14} /></span>
                                     </Link>
                                 </div>
                             </div>

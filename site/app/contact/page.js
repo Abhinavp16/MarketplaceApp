@@ -5,7 +5,7 @@ import PageHero from '@/components/PageHero';
 import ScrollReveal from '@/components/ScrollReveal';
 import Icon from '@/components/Icon';
 import { Call02Icon, Location01Icon, Mail01Icon } from '@hugeicons/core-free-icons';
-import { ADDRESS, CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF } from '@/lib/site-config';
+import { ADDRESS, CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF, CONTACT_PHONE_ALT, CONTACT_PHONE_ALT_HREF } from '@/lib/site-config';
 
 export default function ContactPage() {
     const [submitted, setSubmitted] = useState(false);
@@ -32,53 +32,57 @@ export default function ContactPage() {
                 </ScrollReveal>
 
                 <div className="mb-10 grid grid-cols-1 gap-4 md:grid-cols-3 sm:mb-16 sm:gap-5">
-                    <div className="group relative overflow-hidden rounded-[2rem] border border-[#1e1b4b]/10 bg-[#f5f6ff] p-5 text-[#1e1b4b] shadow-[0_20px_55px_rgba(30,27,75,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(30,27,75,0.14)] sm:p-7">
-                        <div className="absolute inset-x-0 top-0 h-1 bg-[#14b8a6]" />
+                    <div className="group relative overflow-hidden rounded-[2rem] border border-[#17351d]/10 bg-[#f5f8ef] p-5 text-[#17351d] shadow-[0_20px_55px_rgba(8,36,18,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(8,36,18,0.14)] sm:p-7">
+                        <div className="absolute inset-x-0 top-0 h-1 bg-[#d9842f]" />
                         <div className="mb-5 flex items-start justify-between gap-5 sm:mb-7">
                             <div>
-                                <p className="mb-3 text-[11px] font-black uppercase tracking-[0.26em] text-[#6b7194]">Direct Connect</p>
-                                <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#16143a]">Call Us</h4>
+                                <p className="mb-3 text-[11px] font-black uppercase tracking-[0.26em] text-[#6e7f62]">Direct Connect</p>
+                                <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#122316]">Call Us</h4>
                             </div>
-                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#14b8a6] shadow-sm ring-1 ring-[#1e1b4b]/8">
+                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#d9842f] shadow-sm ring-1 ring-[#17351d]/8">
                                 <Icon icon={Call02Icon} size={23} />
                             </span>
                         </div>
-                        <div className="space-y-3 rounded-[1.35rem] border border-[#1e1b4b]/8 bg-[#ffffff] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
+                        <div className="space-y-3 rounded-[1.35rem] border border-[#17351d]/8 bg-[#fffdf7] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-wide text-[#6b7194]">Support calls &amp; product enquiries (placeholder)</p>
-                                <a href={CONTACT_PHONE_HREF} className="mt-1 block text-xl font-semibold tracking-tight text-[#1e1b4b]">{CONTACT_PHONE}</a>
+                                <p className="text-xs font-bold uppercase tracking-wide text-[#6e7f62]">Support calls &amp; product enquiries (placeholder)</p>
+                                <a href={CONTACT_PHONE_HREF} className="mt-1 block text-xl font-semibold tracking-tight text-[#17351d]">{CONTACT_PHONE}</a>
+                            </div>
+                            <div className="border-t border-[#17351d]/8 pt-3">
+                                <p className="text-xs font-bold uppercase tracking-wide text-[#6e7f62]">Secondary office (placeholder)</p>
+                                <a href={CONTACT_PHONE_ALT_HREF} className="mt-1 block text-xl font-semibold tracking-tight text-[#17351d]">{CONTACT_PHONE_ALT}</a>
                             </div>
                         </div>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[2rem] border border-[#1e1b4b]/10 bg-[#f5f6ff] p-5 text-[#1e1b4b] shadow-[0_20px_55px_rgba(30,27,75,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(30,27,75,0.14)] sm:p-7">
-                        <div className="absolute inset-x-0 top-0 h-1 bg-[#0f766e]" />
+                    <div className="group relative overflow-hidden rounded-[2rem] border border-[#17351d]/10 bg-[#f5f8ef] p-5 text-[#17351d] shadow-[0_20px_55px_rgba(8,36,18,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(8,36,18,0.14)] sm:p-7">
+                        <div className="absolute inset-x-0 top-0 h-1 bg-[#2f765d]" />
                         <div className="mb-5 flex items-start justify-between gap-5 sm:mb-7">
                             <div>
-                                <p className="mb-3 text-[11px] font-black uppercase tracking-[0.26em] text-[#6b7194]">Official Desk</p>
-                                <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#16143a]">Email Us</h4>
+                                <p className="mb-3 text-[11px] font-black uppercase tracking-[0.26em] text-[#6e7f62]">Official Desk</p>
+                                <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#122316]">Email Us</h4>
                             </div>
-                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#0f766e] shadow-sm ring-1 ring-[#1e1b4b]/8">
+                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#2f765d] shadow-sm ring-1 ring-[#17351d]/8">
                                 <Icon icon={Mail01Icon} size={23} />
                             </span>
                         </div>
-                        <a href={`mailto:${CONTACT_EMAIL}`} className="block rounded-[1.35rem] border border-[#1e1b4b]/8 bg-[#ffffff] p-4 text-base font-semibold leading-6 text-[#1e1b4b] underline-offset-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] hover:underline sm:text-lg break-all">
+                        <a href={`mailto:${CONTACT_EMAIL}`} className="block rounded-[1.35rem] border border-[#17351d]/8 bg-[#fffdf7] p-4 text-base font-semibold leading-6 text-[#17351d] underline-offset-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] hover:underline sm:text-lg break-all">
                             {CONTACT_EMAIL}
                         </a>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[2rem] border border-[#1e1b4b]/10 bg-[#f5f6ff] p-5 text-[#1e1b4b] shadow-[0_20px_55px_rgba(30,27,75,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(30,27,75,0.14)] sm:p-7">
+                    <div className="group relative overflow-hidden rounded-[2rem] border border-[#17351d]/10 bg-[#f5f8ef] p-5 text-[#17351d] shadow-[0_20px_55px_rgba(8,36,18,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(8,36,18,0.14)] sm:p-7">
                         <div className="absolute inset-x-0 top-0 h-1 bg-[#4b5f9c]" />
                         <div className="mb-5 flex items-start justify-between gap-5 sm:mb-7">
                             <div>
-                                <p className="mb-3 text-[11px] font-black uppercase tracking-[0.26em] text-[#6b7194]">Visit Point</p>
-                                <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#16143a]">Demo Address</h4>
+                                <p className="mb-3 text-[11px] font-black uppercase tracking-[0.26em] text-[#6e7f62]">Visit Point</p>
+                                <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#122316]">Demo Address</h4>
                             </div>
-                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#4b5f9c] shadow-sm ring-1 ring-[#1e1b4b]/8">
+                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#4b5f9c] shadow-sm ring-1 ring-[#17351d]/8">
                                 <Icon icon={Location01Icon} size={23} />
                             </span>
                         </div>
-                        <p className="rounded-[1.35rem] border border-[#1e1b4b]/8 bg-[#ffffff] p-4 text-base font-medium leading-relaxed text-[#3b4266] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
+                        <p className="rounded-[1.35rem] border border-[#17351d]/8 bg-[#fffdf7] p-4 text-base font-medium leading-relaxed text-[#3f533a] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
                             {ADDRESS}
                         </p>
                     </div>
@@ -118,17 +122,17 @@ export default function ContactPage() {
 
                     <ScrollReveal>
                         <div className="sticky top-28 space-y-8">
-                            <div className="overflow-hidden rounded-3xl border border-[#1e1b4b]/10 bg-[#f5f6ff] shadow-[0_20px_55px_rgba(30,27,75,0.08)]">
-                                <div className="flex h-[400px] w-full flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#e0e7ff,#c9e8e4)] px-6 text-center">
-                                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#0d9488] shadow-sm">
+                            <div className="overflow-hidden rounded-3xl border border-[#17351d]/10 bg-[#f5f8ef] shadow-[0_20px_55px_rgba(8,36,18,0.08)]">
+                                <div className="flex h-[400px] w-full flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#dfe8d3,#cbdab8)] px-6 text-center">
+                                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#2f765d] shadow-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                             <path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" />
                                             <path d="M12 12.5A2.5 2.5 0 1 0 12 7a2.5 2.5 0 0 0 0 5.5Z" />
                                         </svg>
                                     </span>
-                                    <p className="text-lg font-semibold text-[#1e1b4b]">Map placeholder</p>
-                                    <p className="text-sm text-[#4b5578]">{ADDRESS}</p>
-                                    <p className="text-xs text-[#6b7194]">No third-party map is embedded in this demo.</p>
+                                    <p className="text-lg font-semibold text-[#122316]">Map placeholder</p>
+                                    <p className="text-sm text-[#3f533a]">{ADDRESS}</p>
+                                    <p className="text-xs text-[#6e7f62]">No third-party map is embedded in this demo.</p>
                                 </div>
                             </div>
                             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">

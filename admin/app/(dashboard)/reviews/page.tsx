@@ -89,7 +89,7 @@ export default function ReviewsPage() {
         <div className="flex flex-col gap-6">
             <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                    <Star className="h-8 w-8 text-[#818cf8]" />
+                    <Star className="h-8 w-8 text-[#86efac]" />
                     <h1 className="text-3xl font-bold text-white">Customer Reviews</h1>
                 </div>
                 <Button
@@ -97,7 +97,7 @@ export default function ReviewsPage() {
                         setEditingReview(null)
                         setIsModalOpen(true)
                     }}
-                    className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90"
+                    className="bg-[#86efac] text-black hover:bg-[#86efac]/90"
                 >
                     <Plus className="h-4 w-4 mr-2" /> Add Review
                 </Button>
@@ -110,7 +110,7 @@ export default function ReviewsPage() {
                 <CardContent>
                     {isLoading ? (
                         <div className="flex justify-center p-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
                         </div>
                     ) : reviews.length === 0 ? (
                         <div className="text-center text-gray-500 py-10">No reviews found. Click &quot;Add Review&quot; to create one.</div>
@@ -130,7 +130,7 @@ export default function ReviewsPage() {
                                     <TableRow key={review._id} className="border-[#333] hover:bg-[#1A1A1A]">
                                         <TableCell className="text-white">
                                             <div className="font-semibold">{review.name}</div>
-                                            <div className="text-xs text-[#818cf8]">{review.role}</div>
+                                            <div className="text-xs text-[#86efac]">{review.role}</div>
                                         </TableCell>
                                         <TableCell className="text-gray-400">
                                             <p className="line-clamp-2 italic text-sm">&quot;{review.review}&quot;</p>

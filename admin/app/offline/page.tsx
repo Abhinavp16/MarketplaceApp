@@ -16,7 +16,7 @@ export default function OfflinePage() {
             <button
                 type="button"
                 onClick={() => router.refresh()}
-                className="rounded-lg bg-[#1a1e7b] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1a1c61]"
+                className="rounded-lg bg-[#15803d] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#166534]"
             >
                 Retry
             </button>

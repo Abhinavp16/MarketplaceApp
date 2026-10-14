@@ -348,7 +348,7 @@ export default function SettingsPage() {
                     <Card className="border-[#333] bg-[#161616]">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-white">
-                                <User className="h-5 w-5 text-[#818cf8]" /> Admin Profile
+                                <User className="h-5 w-5 text-[#86efac]" /> Admin Profile
                             </CardTitle>
                             <CardDescription>Profile image and account-facing identity.</CardDescription>
                         </CardHeader>
@@ -356,7 +356,7 @@ export default function SettingsPage() {
                             <div className="flex items-center gap-6 pb-4">
                                 <Avatar className="h-24 w-24 border-2 border-[#333]">
                                     <AvatarImage src={form.watch("avatar")} />
-                                    <AvatarFallback className="bg-gradient-to-br from-[#818cf8]/20 to-[#818cf8]/5 text-2xl font-bold text-[#818cf8]">
+                                    <AvatarFallback className="bg-gradient-to-br from-[#86efac]/20 to-[#86efac]/5 text-2xl font-bold text-[#86efac]">
                                         {getUser()?.name?.charAt(0).toUpperCase() || "A"}
                                     </AvatarFallback>
                                 </Avatar>
@@ -402,7 +402,7 @@ export default function SettingsPage() {
                     <Card className="border-[#333] bg-[#161616]">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-white">
-                                <Building2 className="h-5 w-5 text-[#818cf8]" /> Business Information
+                                <Building2 className="h-5 w-5 text-[#86efac]" /> Business Information
                             </CardTitle>
                             <CardDescription>Core business identity and support contact details used across the app.</CardDescription>
                         </CardHeader>
@@ -454,7 +454,7 @@ export default function SettingsPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="flex items-center gap-2 text-white">
-                                            <MapPin className="h-4 w-4 text-[#818cf8]" />
+                                            <MapPin className="h-4 w-4 text-[#86efac]" />
                                             Business Address
                                         </FormLabel>
                                         <FormControl>
@@ -470,12 +470,12 @@ export default function SettingsPage() {
                     <Card className="border-[#333] bg-[#161616]">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-white">
-                                <MessageCircle className="h-5 w-5 text-[#818cf8]" /> WhatsApp Checkout
+                                <MessageCircle className="h-5 w-5 text-[#86efac]" /> WhatsApp Checkout
                             </CardTitle>
                             <CardDescription>These settings control the live order flow used by cart checkout, buy now, and requirement orders.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="rounded-lg border border-[#2f304f] bg-[#131321] p-4 text-sm text-[#cbcdf4]">
+                            <div className="rounded-lg border border-[#2f4f39] bg-[#132117] p-4 text-sm text-[#c9f6d8]">
                                 Checkout mode is fixed to <span className="font-semibold">WhatsApp</span> for this client. Online and bank-transfer payment setup is intentionally de-emphasized here.
                             </div>
 
@@ -521,7 +521,7 @@ export default function SettingsPage() {
                     <Card className="border-[#333] bg-[#161616]">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-white">
-                                <Phone className="h-5 w-5 text-[#818cf8]" /> Mobile App Updates
+                                <Phone className="h-5 w-5 text-[#86efac]" /> Mobile App Updates
                             </CardTitle>
                             <CardDescription>Require Android or iOS users on an older build to install the latest app version.</CardDescription>
                         </CardHeader>
@@ -645,7 +645,7 @@ export default function SettingsPage() {
                     <Card className="border-[#333] bg-[#161616]">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-white">
-                                <Settings2 className="h-5 w-5 text-[#818cf8]" /> App Rules
+                                <Settings2 className="h-5 w-5 text-[#86efac]" /> App Rules
                             </CardTitle>
                             <CardDescription>Business rules and feature flags that still actively affect the app and backend.</CardDescription>
                         </CardHeader>

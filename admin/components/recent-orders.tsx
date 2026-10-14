@@ -138,7 +138,7 @@ export function RecentOrders() {
                     <div className="mt-3 text-sm text-slate-700">{order.customerSnapshot?.name || "-"}</div>
                     <div className="mt-3 flex items-center justify-between text-xs">
                       {payStatus === "verified" ? (
-                        <div className="flex items-center gap-1 text-indigo-600"><CheckCircle2 className="h-4 w-4" /> Verified</div>
+                        <div className="flex items-center gap-1 text-emerald-600"><CheckCircle2 className="h-4 w-4" /> Verified</div>
                       ) : (
                         <div className="flex items-center gap-1 text-amber-600"><Clock className="h-4 w-4" /> {formatStatus(payStatus)}</div>
                       )}

@@ -56,18 +56,18 @@ const stats = [
 
 export default function StatsSection() {
     return (
-        <section className="relative overflow-hidden bg-[#e0e7ff] px-4 py-10 sm:px-6 sm:py-16 lg:px-7">
+        <section className="relative overflow-hidden bg-[#dfe8d3] px-4 py-10 sm:px-6 sm:py-16 lg:px-7">
             <div className="absolute left-0 top-0 h-96 w-96 rounded-full bg-white/25 blur-[120px]" />
-            <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-[#312e81]/10 blur-[100px]" />
+            <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-[#0b3b1f]/10 blur-[100px]" />
 
-            <div className="relative z-10 mx-auto max-w-7xl overflow-hidden rounded-[2.3rem] bg-[#17153b] px-5 py-8 text-white shadow-[0_28px_80px_rgba(30,27,75,0.18)] sm:px-8 sm:py-10 lg:px-12 lg:py-12">
-                <div className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[#e0e7ff]/10 blur-2xl" />
+            <div className="relative z-10 mx-auto max-w-7xl overflow-hidden rounded-[2.3rem] bg-[#062712] px-5 py-8 text-white shadow-[0_28px_80px_rgba(8,36,18,0.18)] sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+                <div className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[#dfe8d3]/10 blur-2xl" />
                 <div className="absolute bottom-0 left-1/2 h-px w-3/4 -translate-x-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
                 <ScrollReveal className="relative mb-8 grid grid-cols-1 gap-5 lg:mb-10 lg:grid-cols-[0.75fr_1fr] lg:items-end">
                     <div>
                         <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-                            <span className="h-2 w-2 rounded-full bg-[#e0e7ff]" />
+                            <span className="h-2 w-2 rounded-full bg-[#dfe8d3]" />
                             Demo Statistics
                         </div>
                         <h3 className="mt-4 max-w-xl text-4xl font-semibold leading-[1.02] tracking-[-0.024em] text-white md:text-6xl">
@@ -86,7 +86,7 @@ export default function StatsSection() {
                                 {/* Dithered glow from the top-right corner. */}
                                 <DitherField reach={0.72} alpha={0.3} className="opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
                                 <div className="relative mb-6 flex items-center justify-between">
-                                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e0e7ff]/12 text-[#e0e7ff] ring-1 ring-white/10">
+                                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#dfe8d3]/12 text-[#dfe8d3] ring-1 ring-white/10">
                                         <Icon icon={stat.icon} size={23} />
                                     </span>
                                     <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/32">0{i + 1}</span>

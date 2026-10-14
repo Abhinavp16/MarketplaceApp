@@ -66,8 +66,10 @@ Bundled tiles in `public/demo/categories` are used only as image fallbacks for t
   License from Pexels); every source is listed in `../backend/assets/demo-images/CREDITS.md`.
 - `scripts/generate_assets.py` (Pillow, `npm run assets`) only generates the synthetic brand graphics:
   logo, favicon, OG image, brand tiles (copies of the backend wordmark logos), neutral placeholders and the
-  phone-frame `app-preview.png` (built from `../docs/screenshots/app-home.png`). The palette is teal
-  (see `app/globals.css` `@theme`).
+  phone-frame `app-preview.png` (built from `../docs/screenshots/app-home.png`). All generated graphics
+  use the leaf-green palette shared with the website theme (`app/globals.css` `@theme`) and the DemoMart "D." mark.
+- The website's styling (tokens in `app/globals.css`, Tailwind classes, fonts, layout and components) is kept
+  identical to the reference platform site; only brand text, logo, photos and catalogue content are generic.
 - A "Demonstration Environment - synthetic data" strip is rendered on every page (`components/DemoNoticeStrip.js`).
 
 ## Limitations
@@ -75,8 +77,10 @@ Bundled tiles in `public/demo/categories` are used only as image fallbacks for t
 - No form sends anything. Contact, dealership, inquiry popup and account deletion forms only show
   "Inquiry received (demo - no message sent)" (no WhatsApp, email or API calls, nothing stored).
 - Social links in the footer/quick-contact panel are dummy links to `/contact`.
-- The contact page shows a map placeholder, not an embedded map. No analytics, tracking scripts or
-  third-party fonts are loaded.
+- The contact page shows a map placeholder, not an embedded map. No analytics or tracking scripts
+  are loaded. The only third-party request is the body font (Outfit, Google Fonts `@import` in
+  `app/globals.css`, allowed in the CSP); offline it falls back to `sans-serif`. Headings use the bundled
+  Cabinet Grotesk files in `public/fonts/`.
 - Robots: `<meta name="robots" content="noindex,nofollow">` and `robots.txt` disallow all. There is no
   sitemap or structured data.
 - No mobile app is published, so product pages show a "Demo only" note instead of store buttons.

@@ -27,7 +27,7 @@ export default function InsightArticle({ image, imageAlt, category, date = 'Demo
 
                         <h1 className="text-3xl md:text-5xl font-bold text-text-primary mb-8 leading-tight">{title}</h1>
 
-                        <p className="mb-8 rounded-2xl bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800">
+                        <p className="mb-8 rounded-2xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
                             Demo placeholder article. The content below is generic and synthetic.
                         </p>
 

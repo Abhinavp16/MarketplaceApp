@@ -85,10 +85,17 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-transparent p-4">
-      <Card className="w-full max-w-md border-[#cacbdf] bg-white/92 shadow-[0_32px_90px_rgba(50,58,110,0.12)]">
+      <Card className="w-full max-w-md border-[#dde3d0] bg-white/92 shadow-[0_32px_90px_rgba(60,80,40,0.12)]">
         <CardHeader className="space-y-2">
           <div className="flex justify-center"><Image src="/icon.svg" alt="DemoMart logo" width={56} height={56} className="h-14 w-14 rounded-xl object-cover" /></div>
           <CardTitle className="text-center text-2xl font-bold text-slate-900">DemoMart</CardTitle>
+          <div className="grid grid-cols-2 rounded-lg bg-slate-100 p-1">
+            {(["admin", "member"] as LoginMode[]).map((value) => (
+              <button key={value} type="button" onClick={() => setMode(value)} className={`rounded-md px-3 py-2 text-sm font-semibold capitalize ${mode === value ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>
+                {value === "member" ? "staff" : value} login
+              </button>
+            ))}
+          </div>
           <CardDescription className="text-center text-slate-500">
             {mode === "member" ? "Staff login: use the username and password supplied by your administrator." : "Distribution made simple. Sign in with your admin email and password."}
           </CardDescription>
@@ -98,29 +105,23 @@ export default function LoginPage() {
             <form className="space-y-4" onSubmit={submitMemberLogin}>
               <Input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Username" autoComplete="username" required />
               <Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" type="password" autoComplete="current-password" required />
-              <Button type="submit" className="w-full bg-[#818cf8] text-black hover:bg-[#7a7ddd]" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-[#86efac] text-black hover:bg-[#74e39c]" disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Sign in as staff
               </Button>
-              <button type="button" onClick={() => setMode("admin")} className="block w-full text-center text-sm font-medium text-indigo-700 hover:underline">
-                Admin login
-              </button>
             </form>
           ) : (
             <form className="space-y-4" onSubmit={submitAdminLogin}>
               <Input name="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email" autoComplete="username" required />
               <Input name="password" type="password" value={adminPassword} onChange={(event) => setAdminPassword(event.target.value)} placeholder="Password" autoComplete="current-password" required />
-              <Button type="submit" className="w-full bg-[#818cf8] text-black hover:bg-[#7a7ddd]" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-[#86efac] text-black hover:bg-[#74e39c]" disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Sign in
               </Button>
-              <div className="rounded-lg border border-[#cacbdf] bg-[#f3f3fa] p-3 text-center text-xs text-slate-600">
+              <div className="rounded-lg border border-[#d8dfca] bg-[#f9fbf4] p-3 text-center text-xs text-slate-600">
                 <div>Demo: {DEMO_ADMIN_EMAIL} / {DEMO_ADMIN_PASSWORD}</div>
-                <button type="button" onClick={() => { setEmail(DEMO_ADMIN_EMAIL); setAdminPassword(DEMO_ADMIN_PASSWORD) }} className="mt-1 font-medium text-indigo-700 hover:underline">
+                <button type="button" onClick={() => { setEmail(DEMO_ADMIN_EMAIL); setAdminPassword(DEMO_ADMIN_PASSWORD) }} className="mt-1 font-medium text-slate-700 hover:underline">
                   Fill demo credentials
                 </button>
               </div>
-              <button type="button" onClick={() => setMode("member")} className="block w-full text-center text-sm font-medium text-indigo-700 hover:underline">
-                Staff login
-              </button>
             </form>
           )}
         </CardContent>

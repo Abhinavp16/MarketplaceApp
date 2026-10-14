@@ -1019,12 +1019,12 @@ export default function ManageWebsitePage() {
         }
     }
 
-    if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" /></div>
+    if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-[#86efac]" /></div>
 
     function renderVisibilityBadge(showOnWebsite?: boolean) {
         return showOnWebsite === false
             ? <span className="rounded-full bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700">Hidden</span>
-            : <span className="rounded-full bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700">Visible</span>
+            : <span className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700">Visible</span>
     }
 
     function renderVisibilityStateBadge(state: boolean | "indeterminate") {
@@ -1043,7 +1043,7 @@ export default function ManageWebsitePage() {
     function renderProductVisibilityRow(product: WebsiteCatalogProduct) {
         const hidden = isCatalogHidden("product", product._id)
         return (
-            <label key={product._id} className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#cacbdf] bg-white p-3">
+            <label key={product._id} className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#d8dfca] bg-white p-3">
                 <Checkbox checked={hidden} onCheckedChange={() => toggleCatalogHidden("product", product._id)} />
                 <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-slate-900">{product.name}</p>
@@ -1058,7 +1058,7 @@ export default function ManageWebsitePage() {
         const hasChanges = hasCatalogVisibilityChanges()
         const totalProducts = catalogTree.reduce((sum, brand) => sum + brand.categories.reduce((inner, category) => inner + category.products.length, 0) + brand.uncategorizedProducts.length, 0)
         return (
-            <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)]">
+            <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)]">
                 <CardHeader>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -1080,17 +1080,17 @@ export default function ManageWebsitePage() {
                         value={catalogSearch}
                         onChange={(e) => setCatalogSearch(e.target.value)}
                         placeholder="Search brand, category, product, or SKU..."
-                        className="max-w-2xl border-[#cacbdf] bg-white text-slate-900 placeholder:text-slate-400"
+                        className="max-w-2xl border-[#d8dfca] bg-white text-slate-900 placeholder:text-slate-400"
                     />
                     {filteredCatalogTree.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-[#cacbdf] bg-[#f3f3fa] p-4 text-sm text-slate-500">No matching catalog items found.</div>
+                        <div className="rounded-2xl border border-dashed border-[#d8dfca] bg-[#f8faf3] p-4 text-sm text-slate-500">No matching catalog items found.</div>
                     ) : filteredCatalogTree.map((brand) => {
                         const brandExpanded = expandedCatalogBrands.includes(brand._id) || Boolean(catalogSearch.trim())
                         const brandState = getBrandHiddenState(brand)
                         const brandProductCount = brand.categories.reduce((sum, category) => sum + category.products.length, 0) + brand.uncategorizedProducts.length
                         return (
-                            <div key={brand._id} className="overflow-hidden rounded-2xl border border-[#cacbdf] bg-[#f3f3fa]">
-                                <div className="flex items-center gap-3 border-b border-[#cacbdf] bg-white p-4">
+                            <div key={brand._id} className="overflow-hidden rounded-2xl border border-[#d8dfca] bg-[#f8faf3]">
+                                <div className="flex items-center gap-3 border-b border-[#d8dfca] bg-white p-4">
                                     <Checkbox checked={brandState} onCheckedChange={() => toggleBrandVisibility(brand)} />
                                     <button type="button" onClick={() => toggleCatalogBrandExpanded(brand._id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
                                         {brandExpanded ? <ChevronDown className="h-4 w-4 text-slate-500" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
@@ -1104,14 +1104,14 @@ export default function ManageWebsitePage() {
                                 {brandExpanded ? (
                                     <div className="space-y-3 p-3">
                                         {brand.categories.length === 0 && brand.uncategorizedProducts.length === 0 ? (
-                                            <div className="rounded-xl border border-dashed border-[#cacbdf] bg-white p-3 text-sm text-slate-500">No categories or products found for this brand.</div>
+                                            <div className="rounded-xl border border-dashed border-[#d8dfca] bg-white p-3 text-sm text-slate-500">No categories or products found for this brand.</div>
                                         ) : null}
                                         {brand.categories.map((category) => {
                                             const categoryExpanded = expandedCatalogCategories.includes(category._id) || Boolean(catalogSearch.trim())
                                             const categoryState = getCategoryHiddenState(category)
                                             return (
-                                                <div key={category._id} className="overflow-hidden rounded-xl border border-[#cacbdf] bg-white">
-                                                    <div className="flex items-center gap-3 bg-[#f7f7fc] p-3">
+                                                <div key={category._id} className="overflow-hidden rounded-xl border border-[#d8dfca] bg-white">
+                                                    <div className="flex items-center gap-3 bg-[#fbfcf7] p-3">
                                                         <Checkbox checked={categoryState} onCheckedChange={() => toggleCategoryVisibility(category)} />
                                                         <button type="button" onClick={() => toggleCatalogCategoryExpanded(category._id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
                                                             {categoryExpanded ? <ChevronDown className="h-4 w-4 text-slate-500" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
@@ -1123,9 +1123,9 @@ export default function ManageWebsitePage() {
                                                         {renderVisibilityStateBadge(categoryState)}
                                                     </div>
                                                     {categoryExpanded ? (
-                                                        <div className="space-y-2 border-t border-[#cacbdf] bg-[#f3f3fa] p-3">
+                                                        <div className="space-y-2 border-t border-[#d8dfca] bg-[#f8faf3] p-3">
                                                             {category.products.length === 0 ? (
-                                                                <div className="rounded-xl border border-dashed border-[#cacbdf] bg-white p-3 text-sm text-slate-500">No products found in this category.</div>
+                                                                <div className="rounded-xl border border-dashed border-[#d8dfca] bg-white p-3 text-sm text-slate-500">No products found in this category.</div>
                                                             ) : category.products.map(renderProductVisibilityRow)}
                                                         </div>
                                                     ) : null}
@@ -1133,7 +1133,7 @@ export default function ManageWebsitePage() {
                                             )
                                         })}
                                         {brand.uncategorizedProducts.length > 0 ? (
-                                            <div className="space-y-2 rounded-xl border border-[#cacbdf] bg-[#f3f3fa] p-3">
+                                            <div className="space-y-2 rounded-xl border border-[#d8dfca] bg-[#f8faf3] p-3">
                                                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Products without category</p>
                                                 {brand.uncategorizedProducts.map(renderProductVisibilityRow)}
                                             </div>
@@ -1151,38 +1151,38 @@ export default function ManageWebsitePage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900"><Globe className="h-7 w-7 text-[#818cf8]" />Manage Website</h1>
+                <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900"><Globe className="h-7 w-7 text-[#86efac]" />Manage Website</h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Each hero card controls one page banner. Admin can only update image.</p>
             </div>
 
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "hero" | "labels" | "categories" | "featured" | "catalog")} className="w-full">
-                <TabsList className="flex h-auto w-full flex-wrap items-center justify-start gap-1 border border-[#d0d1e3] bg-white/90 p-1">
-                    <TabsTrigger value="hero" className="min-h-10 flex-1 basis-[150px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#eaeaf6] data-[state=active]:text-slate-900">Hero Section</TabsTrigger>
-                    <TabsTrigger value="labels" className="min-h-10 flex-1 basis-[110px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#eaeaf6] data-[state=active]:text-slate-900">Labels</TabsTrigger>
-                    <TabsTrigger value="catalog" className="min-h-10 flex-1 basis-[170px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#eaeaf6] data-[state=active]:text-slate-900">Catalog Visibility</TabsTrigger>
-                    <TabsTrigger value="categories" className="min-h-10 flex-1 basis-[210px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#eaeaf6] data-[state=active]:text-slate-900">Category Section Text</TabsTrigger>
-                    <TabsTrigger value="featured" className="min-h-10 flex-1 basis-[210px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#eaeaf6] data-[state=active]:text-slate-900">Featured Section Text</TabsTrigger>
+                <TabsList className="flex h-auto w-full flex-wrap items-center justify-start gap-1 border border-[#dde3d0] bg-white/90 p-1">
+                    <TabsTrigger value="hero" className="min-h-10 flex-1 basis-[150px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#f3f6ea] data-[state=active]:text-slate-900">Hero Section</TabsTrigger>
+                    <TabsTrigger value="labels" className="min-h-10 flex-1 basis-[110px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#f3f6ea] data-[state=active]:text-slate-900">Labels</TabsTrigger>
+                    <TabsTrigger value="catalog" className="min-h-10 flex-1 basis-[170px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#f3f6ea] data-[state=active]:text-slate-900">Catalog Visibility</TabsTrigger>
+                    <TabsTrigger value="categories" className="min-h-10 flex-1 basis-[210px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#f3f6ea] data-[state=active]:text-slate-900">Category Section Text</TabsTrigger>
+                    <TabsTrigger value="featured" className="min-h-10 flex-1 basis-[210px] whitespace-nowrap px-3 text-center text-slate-500 data-[state=active]:bg-[#f3f6ea] data-[state=active]:text-slate-900">Featured Section Text</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="hero" className="mt-4">
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-                        <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] xl:col-span-8">
+                        <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] xl:col-span-8">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-slate-900">
-                                    <span className="inline-block w-2 h-2 rounded-full bg-[#818cf8]" />
+                                    <span className="inline-block w-2 h-2 rounded-full bg-[#86efac]" />
                                     Page Hero Banners
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {heroCards.map((item, index) => (
-                                    <div key={index} className="space-y-3 rounded-2xl border border-[#d0d1e3] bg-[#f3f3fa] p-4">
+                                    <div key={index} className="space-y-3 rounded-2xl border border-[#dde3d0] bg-[#f8faf3] p-4">
                                         <div className="flex items-center justify-between">
                                             <p className="text-sm font-semibold text-slate-900">Card {index + 1} - {HERO_CARD_PAGE_LABELS[index]}</p>
-                                            <span className="rounded-full border border-[#cacbdf] bg-white px-2 py-1 text-[11px] text-slate-600">{HERO_CARD_PAGE_LABELS[index]}</span>
+                                            <span className="rounded-full border border-[#d8dfca] bg-white px-2 py-1 text-[11px] text-slate-600">{HERO_CARD_PAGE_LABELS[index]}</span>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-[1fr_170px] gap-3 items-start">
-                                            <Input value={item.image} onChange={(e) => setHeroCards((prev) => prev.map((h, i) => i === index ? { ...h, image: e.target.value } : h))} className="border-[#cacbdf] bg-white text-slate-900" />
-                                            <div className="h-24 overflow-hidden rounded-xl border border-[#cacbdf] bg-white">
+                                            <Input value={item.image} onChange={(e) => setHeroCards((prev) => prev.map((h, i) => i === index ? { ...h, image: e.target.value } : h))} className="border-[#d8dfca] bg-white text-slate-900" />
+                                            <div className="h-24 overflow-hidden rounded-xl border border-[#d8dfca] bg-white">
                                                 {item.image ? (
                                                     <img
                                                         src={previewSrc(item.image)}
@@ -1199,16 +1199,16 @@ export default function ManageWebsitePage() {
                                         </div>
                                         <div className="flex justify-end">
                                             <input id={`hero-upload-${index}`} type="file" className="hidden" accept="image/*" onChange={(e) => uploadImage(e, "hero", index)} />
-                                            <Button type="button" variant="outline" className="border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900" onClick={() => document.getElementById(`hero-upload-${index}`)?.click()} disabled={uploading === `hero-${index}`}>
+                                            <Button type="button" variant="outline" className="border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef] hover:text-slate-900" onClick={() => document.getElementById(`hero-upload-${index}`)?.click()} disabled={uploading === `hero-${index}`}>
                                                 {uploading === `hero-${index}` ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}Upload Image
                                             </Button>
                                         </div>
                                     </div>
                                 ))}
-                                <Button onClick={saveHeroCards} disabled={isSavingHero} className="w-full bg-gradient-to-r from-[#818cf8] to-[#5d61ca] text-black hover:opacity-95">{isSavingHero ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}Save Page Hero Images</Button>
+                                <Button onClick={saveHeroCards} disabled={isSavingHero} className="w-full bg-gradient-to-r from-[#86efac] to-[#57d08f] text-black hover:opacity-95">{isSavingHero ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}Save Page Hero Images</Button>
                             </CardContent>
                         </Card>
-                        <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] xl:col-span-4 xl:sticky xl:top-24">
+                        <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] xl:col-span-4 xl:sticky xl:top-24">
                             <CardHeader>
                                 <CardTitle className="text-lg text-slate-900">Page Banner Preview</CardTitle>
                                 <CardDescription className="text-slate-500">Preview of each page-specific hero banner.</CardDescription>
@@ -1216,7 +1216,7 @@ export default function ManageWebsitePage() {
                             <CardContent>
                                 <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
                                     {heroCards.map((item, i) => (
-                                        <div key={i} className="overflow-hidden rounded-2xl border border-[#d0d1e3] bg-[#f3f3fa]">
+                                        <div key={i} className="overflow-hidden rounded-2xl border border-[#dde3d0] bg-[#f8faf3]">
                                             <div className="relative h-28">
                                                 {item.image ? (
                                                     <img
@@ -1235,7 +1235,7 @@ export default function ManageWebsitePage() {
                                             </div>
                                             <div className="p-2 flex items-center justify-between">
                                                 <p className="truncate text-xs text-slate-500">Card {i + 1} - {HERO_CARD_PAGE_LABELS[i]}</p>
-                                                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#818cf8]">Fixed</span>
+                                                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#86efac]">Fixed</span>
                                             </div>
                                         </div>
                                     ))}
@@ -1247,7 +1247,7 @@ export default function ManageWebsitePage() {
 
                 <TabsContent value="labels" className="mt-4">
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-                        <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] xl:col-span-8">
+                        <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] xl:col-span-8">
                             <CardHeader>
                                 <CardTitle className="text-slate-900">Product Labels</CardTitle>
                                 <CardDescription className="text-slate-500">
@@ -1261,13 +1261,13 @@ export default function ManageWebsitePage() {
                                         value={draftLabel.title}
                                         onChange={(event) => setDraftLabel((prev) => ({ ...prev, title: event.target.value }))}
                                         placeholder="e.g. Verified Seller"
-                                        className="border-[#cacbdf] bg-white text-slate-900"
+                                        className="border-[#d8dfca] bg-white text-slate-900"
                                     />
                                 </div>
 
                                 <div className="space-y-3">
                                     <label className="block text-sm font-medium text-slate-900">Visual Type</label>
-                                    <div className="flex rounded-2xl border border-[#d0d1e3] bg-[#eaeaf6] p-1">
+                                    <div className="flex rounded-2xl border border-[#dde3d0] bg-[#f3f6ea] p-1">
                                         <button
                                             type="button"
                                             className={`flex-1 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${draftLabel.sourceType === "icon" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
@@ -1293,7 +1293,7 @@ export default function ManageWebsitePage() {
                                                 value={draftLabel.image}
                                                 onChange={(event) => setDraftLabel((prev) => ({ ...prev, image: event.target.value }))}
                                                 placeholder="https://example.com/label-logo.png"
-                                                className="border-[#cacbdf] bg-white text-slate-900"
+                                                className="border-[#d8dfca] bg-white text-slate-900"
                                             />
                                         </div>
                                         <div className="flex flex-wrap items-center gap-3">
@@ -1308,7 +1308,7 @@ export default function ManageWebsitePage() {
                                                 <Button
                                                     type="button"
                                                     variant="outline"
-                                                    className="border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900"
+                                                    className="border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef] hover:text-slate-900"
                                                     disabled={uploading === "label-draft"}
                                                     asChild
                                                 >
@@ -1334,9 +1334,9 @@ export default function ManageWebsitePage() {
                                                         key={option.value}
                                                         type="button"
                                                         onClick={() => setDraftLabel((prev) => ({ ...prev, icon: option.value }))}
-                                                        className={`min-h-[132px] rounded-[24px] border px-4 py-5 text-center transition-colors ${isSelected ? "is-active" : "border-[#d0d1e3] bg-white text-slate-500 hover:border-[#adaed1] hover:text-slate-900"}`}
+                                                        className={`min-h-[132px] rounded-[24px] border px-4 py-5 text-center transition-colors ${isSelected ? "is-active" : "border-[#dde3d0] bg-white text-slate-500 hover:border-[#bfd1ad] hover:text-slate-900"}`}
                                                     >
-                                                        <SelectedIcon className={`mx-auto mb-4 h-11 w-11 ${isSelected ? "text-[#5a5daa]" : "text-slate-400"}`} />
+                                                        <SelectedIcon className={`mx-auto mb-4 h-11 w-11 ${isSelected ? "text-[#5aaa73]" : "text-slate-400"}`} />
                                                         <div className="text-sm font-medium leading-snug">{option.label}</div>
                                                     </button>
                                                 )
@@ -1351,7 +1351,7 @@ export default function ManageWebsitePage() {
                                             type="button"
                                             variant="outline"
                                             onClick={resetDraftLabel}
-                                            className="border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900"
+                                            className="border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef] hover:text-slate-900"
                                         >
                                             Cancel Edit
                                         </Button>
@@ -1359,7 +1359,7 @@ export default function ManageWebsitePage() {
                                     <Button
                                         type="button"
                                         onClick={() => { void saveDraftLabel() }}
-                                        className="is-active hover:bg-[#818cf8]/90"
+                                        className="is-active hover:bg-[#86efac]/90"
                                         disabled={isSavingLabels}
                                     >
                                         {isSavingLabels && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -1369,14 +1369,14 @@ export default function ManageWebsitePage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] xl:col-span-4 xl:sticky xl:top-24">
+                        <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] xl:col-span-4 xl:sticky xl:top-24">
                             <CardHeader>
                                 <CardTitle className="text-lg text-slate-900">Labels Preview</CardTitle>
                                 <CardDescription className="text-slate-500">Saved website labels from the same schema document.</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {labels.length === 0 ? (
-                                    <div className="rounded-2xl border border-dashed border-[#d0d1e3] p-8 text-center text-sm text-slate-500">
+                                    <div className="rounded-2xl border border-dashed border-[#dde3d0] p-8 text-center text-sm text-slate-500">
                                         No labels saved yet.
                                     </div>
                                 ) : (
@@ -1387,7 +1387,7 @@ export default function ManageWebsitePage() {
                                                 const IconComponent = iconMap[label.icon] || BadgeCheck
 
                                                 return (
-                                                    <div key={`${label.title}-${index}`} className="rounded-2xl border border-[#d0d1e3] bg-[#f3f3fa] p-3">
+                                                    <div key={`${label.title}-${index}`} className="rounded-2xl border border-[#dde3d0] bg-[#f8faf3] p-3">
                                                         <div className="mb-2 rounded-[16px] bg-[#eef8fb] p-3">
                                                             <div className="rounded-[12px] bg-[#dff1f4] p-3">
                                                                 <div className="flex aspect-square flex-col items-center justify-center text-center">
@@ -1433,7 +1433,7 @@ export default function ManageWebsitePage() {
                 </TabsContent>
 
                 <TabsContent value="catalog" className="mt-4">
-                    <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#d0d1e3] bg-[#f3f3fa] p-4">
+                    <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#dde3d0] bg-[#f8faf3] p-4">
                         <div>
                             <h2 className="text-lg font-semibold text-slate-900">Website Catalog Visibility</h2>
                             <p className="text-sm text-slate-500">Hide brands, categories, or products from the website only. The app and admin catalog remain unchanged.</p>
@@ -1447,7 +1447,7 @@ export default function ManageWebsitePage() {
 
                 <TabsContent value="categories" className="mt-4">
                     <div className="grid grid-cols-1 gap-6 xl:grid-cols-12 xl:items-start">
-                        <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] xl:col-span-8">
+                        <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] xl:col-span-8">
                             <CardHeader>
                                 <CardTitle className="text-slate-900">Category Section Text</CardTitle>
                                 <CardDescription className="text-slate-500">
@@ -1455,16 +1455,16 @@ export default function ManageWebsitePage() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="space-y-3 rounded-lg border border-[#d0d1e3] bg-[#f3f3fa] p-4">
+                                <div className="space-y-3 rounded-lg border border-[#dde3d0] bg-[#f8faf3] p-4">
                                     <p className="text-sm font-semibold text-slate-900">Section Content</p>
                                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                                        <Input value={categoriesSection.eyebrow || ""} onChange={(e) => setCategoriesSection((prev) => ({ ...prev, eyebrow: e.target.value }))} placeholder="Eyebrow text" className="border-[#cacbdf] bg-white text-slate-900" />
-                                        <Input value={categoriesSection.title || ""} onChange={(e) => setCategoriesSection((prev) => ({ ...prev, title: e.target.value }))} placeholder="Section title" className="border-[#cacbdf] bg-white text-slate-900" />
+                                        <Input value={categoriesSection.eyebrow || ""} onChange={(e) => setCategoriesSection((prev) => ({ ...prev, eyebrow: e.target.value }))} placeholder="Eyebrow text" className="border-[#d8dfca] bg-white text-slate-900" />
+                                        <Input value={categoriesSection.title || ""} onChange={(e) => setCategoriesSection((prev) => ({ ...prev, title: e.target.value }))} placeholder="Section title" className="border-[#d8dfca] bg-white text-slate-900" />
                                     </div>
-                                    <Textarea value={categoriesSection.description || ""} onChange={(e) => setCategoriesSection((prev) => ({ ...prev, description: e.target.value }))} placeholder="Section description" className="min-h-[90px] border-[#cacbdf] bg-white text-slate-900" />
-                                    <Input value={categoriesSection.buttonText || ""} onChange={(e) => setCategoriesSection((prev) => ({ ...prev, buttonText: e.target.value }))} placeholder="Card button text" className="border-[#cacbdf] bg-white text-slate-900" />
+                                    <Textarea value={categoriesSection.description || ""} onChange={(e) => setCategoriesSection((prev) => ({ ...prev, description: e.target.value }))} placeholder="Section description" className="min-h-[90px] border-[#d8dfca] bg-white text-slate-900" />
+                                    <Input value={categoriesSection.buttonText || ""} onChange={(e) => setCategoriesSection((prev) => ({ ...prev, buttonText: e.target.value }))} placeholder="Card button text" className="border-[#d8dfca] bg-white text-slate-900" />
                                 </div>
-                                <div className="rounded-2xl border border-[#cacbdf] bg-white p-4 text-sm leading-6 text-slate-600">
+                                <div className="rounded-2xl border border-[#d8dfca] bg-white p-4 text-sm leading-6 text-slate-600">
                                     Cards are generated automatically from visible brands and general product categories. Use <span className="font-semibold text-slate-900">Catalog Visibility</span> to hide or show brands, categories, and products.
                                 </div>
                                 <Button onClick={saveCategories} disabled={isSavingCategories} className="w-full">
@@ -1473,17 +1473,17 @@ export default function ManageWebsitePage() {
                                 </Button>
                             </CardContent>
                         </Card>
-                        <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] xl:col-span-4 xl:sticky xl:top-24">
+                        <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] xl:col-span-4 xl:sticky xl:top-24">
                             <CardHeader>
                                 <CardTitle className="text-lg text-slate-900">Live Preview</CardTitle>
                                 <CardDescription className="text-slate-500">Preview of the section text only.</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="rounded-2xl border border-[#d0d1e3] bg-[#f3f3fa] p-4">
+                                <div className="rounded-2xl border border-[#dde3d0] bg-[#f8faf3] p-4">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#ff8a32]">{categoriesSection.eyebrow || "PRODUCT CATEGORIES"}</p>
                                     <p className="mt-2 text-xl font-bold text-slate-900">{categoriesSection.title || "The Heart of Modern Farming"}</p>
                                     <p className="mt-2 text-xs leading-5 text-slate-500">{categoriesSection.description || "Section description"}</p>
-                                    <button className="mt-4 rounded-lg border border-[#cacbdf] bg-white px-4 py-2 text-xs font-semibold text-slate-700">
+                                    <button className="mt-4 rounded-lg border border-[#d8dfca] bg-white px-4 py-2 text-xs font-semibold text-slate-700">
                                         {categoriesSection.buttonText || "View Products"}
                                     </button>
                                 </div>
@@ -1494,7 +1494,7 @@ export default function ManageWebsitePage() {
 
                 <TabsContent value="featured" className="mt-4">
                     <div className="grid grid-cols-1 gap-6 xl:grid-cols-12 xl:items-start">
-                        <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] xl:col-span-8">
+                        <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] xl:col-span-8">
                             <CardHeader>
                                 <CardTitle className="text-slate-900">Featured Section Text</CardTitle>
                                 <CardDescription className="text-slate-500">
@@ -1502,16 +1502,16 @@ export default function ManageWebsitePage() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="space-y-3 rounded-lg border border-[#d0d1e3] bg-[#f3f3fa] p-4">
+                                <div className="space-y-3 rounded-lg border border-[#dde3d0] bg-[#f8faf3] p-4">
                                     <p className="text-sm font-semibold text-slate-900">Section Content</p>
                                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                                        <Input value={featuredSection.eyebrow || ""} onChange={(e) => setFeaturedSection((prev) => ({ ...prev, eyebrow: e.target.value }))} placeholder="Eyebrow text" className="border-[#cacbdf] bg-white text-slate-900" />
-                                        <Input value={featuredSection.title || ""} onChange={(e) => setFeaturedSection((prev) => ({ ...prev, title: e.target.value }))} placeholder="Section title" className="border-[#cacbdf] bg-white text-slate-900" />
+                                        <Input value={featuredSection.eyebrow || ""} onChange={(e) => setFeaturedSection((prev) => ({ ...prev, eyebrow: e.target.value }))} placeholder="Eyebrow text" className="border-[#d8dfca] bg-white text-slate-900" />
+                                        <Input value={featuredSection.title || ""} onChange={(e) => setFeaturedSection((prev) => ({ ...prev, title: e.target.value }))} placeholder="Section title" className="border-[#d8dfca] bg-white text-slate-900" />
                                     </div>
-                                    <Textarea value={featuredSection.sideText || ""} onChange={(e) => setFeaturedSection((prev) => ({ ...prev, sideText: e.target.value }))} placeholder="Right side section text" className="min-h-[90px] border-[#cacbdf] bg-white text-slate-900" />
-                                    <Input value={featuredSection.buttonText || ""} onChange={(e) => setFeaturedSection((prev) => ({ ...prev, buttonText: e.target.value }))} placeholder="Card button text" className="border-[#cacbdf] bg-white text-slate-900" />
+                                    <Textarea value={featuredSection.sideText || ""} onChange={(e) => setFeaturedSection((prev) => ({ ...prev, sideText: e.target.value }))} placeholder="Right side section text" className="min-h-[90px] border-[#d8dfca] bg-white text-slate-900" />
+                                    <Input value={featuredSection.buttonText || ""} onChange={(e) => setFeaturedSection((prev) => ({ ...prev, buttonText: e.target.value }))} placeholder="Card button text" className="border-[#d8dfca] bg-white text-slate-900" />
                                 </div>
-                                <div className="rounded-2xl border border-[#cacbdf] bg-white p-4 text-sm leading-6 text-slate-600">
+                                <div className="rounded-2xl border border-[#d8dfca] bg-white p-4 text-sm leading-6 text-slate-600">
                                     Product cards are picked automatically from products that are visible on the website. Use <span className="font-semibold text-slate-900">Catalog Visibility</span> to control the pool.
                                 </div>
                                 <Button onClick={saveProducts} disabled={isSavingProducts} className="w-full">
@@ -1520,17 +1520,17 @@ export default function ManageWebsitePage() {
                                 </Button>
                             </CardContent>
                         </Card>
-                        <Card className="border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] xl:col-span-4 xl:sticky xl:top-24">
+                        <Card className="border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] xl:col-span-4 xl:sticky xl:top-24">
                             <CardHeader>
                                 <CardTitle className="text-lg text-slate-900">Live Preview</CardTitle>
                                 <CardDescription className="text-slate-500">Preview of the section text only.</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="rounded-2xl border border-[#d0d1e3] bg-[#f3f3fa] p-4">
+                                <div className="rounded-2xl border border-[#dde3d0] bg-[#f8faf3] p-4">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#ff8a32]">{featuredSection.eyebrow || "PRECISION ENGINEERING"}</p>
                                     <p className="mt-2 text-xl font-bold text-slate-900">{featuredSection.title || "Our Popular Product"}</p>
                                     <p className="mt-2 text-xs leading-5 text-slate-500">{featuredSection.sideText || "Section side description"}</p>
-                                    <button className="mt-4 rounded-lg border border-[#cacbdf] bg-white px-4 py-2 text-xs font-semibold text-slate-700">
+                                    <button className="mt-4 rounded-lg border border-[#d8dfca] bg-white px-4 py-2 text-xs font-semibold text-slate-700">
                                         {featuredSection.buttonText || "Get Quote"}
                                     </button>
                                 </div>

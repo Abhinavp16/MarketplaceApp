@@ -10,7 +10,7 @@ export function DemoBanner() {
   const seededLabel = seeded && !Number.isNaN(seeded.getTime()) ? ` (data seeded ${seeded.toLocaleString()})` : ""
 
   return (
-    <div role="status" className="shrink-0 bg-indigo-700 px-4 py-1.5 text-center text-xs font-semibold tracking-wide text-white">
+    <div role="status" className="shrink-0 bg-emerald-700 px-4 py-1.5 text-center text-xs font-semibold tracking-wide text-white">
       Demonstration Environment — synthetic data{seededLabel}
     </div>
   )

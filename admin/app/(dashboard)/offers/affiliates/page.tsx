@@ -181,7 +181,7 @@ export default function AffiliateCodesPage() {
             setEditingCode(null)
             setIsModalOpen(true)
           }}
-          className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90"
+          className="bg-[#86efac] text-black hover:bg-[#86efac]/90"
         >
           <Plus className="h-4 w-4 mr-2" /> Add Code
         </Button>
@@ -201,7 +201,7 @@ export default function AffiliateCodesPage() {
             <CardTitle className="text-sm text-gray-400">Total Commission (30%)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[#818cf8]">{formatInr(totals.commission)}</div>
+            <div className="text-2xl font-bold text-[#86efac]">{formatInr(totals.commission)}</div>
           </CardContent>
         </Card>
       </div>
@@ -213,7 +213,7 @@ export default function AffiliateCodesPage() {
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
             </div>
           ) : codes.length === 0 ? (
             <div className="text-center text-gray-500 py-10">No affiliate codes found</div>
@@ -243,7 +243,7 @@ export default function AffiliateCodesPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <code className="bg-[#0D0D0D] px-2 py-1 rounded text-[#818cf8] text-xs font-mono">
+                      <code className="bg-[#0D0D0D] px-2 py-1 rounded text-[#86efac] text-xs font-mono">
                         {code.code}
                       </code>
                     </TableCell>
@@ -255,7 +255,7 @@ export default function AffiliateCodesPage() {
                       <div>limit: {code.usageLimit || "∞"}</div>
                     </TableCell>
                     <TableCell className="text-white">{formatInr(code.totalDiscountGenerated || 0)}</TableCell>
-                    <TableCell className="text-[#818cf8]">{formatInr(code.totalCommissionAccrued || 0)}</TableCell>
+                    <TableCell className="text-[#86efac]">{formatInr(code.totalCommissionAccrued || 0)}</TableCell>
                     <TableCell>
                       <Badge
                         variant="outline"
@@ -269,7 +269,7 @@ export default function AffiliateCodesPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 px-3 text-[#818cf8] hover:bg-[#818cf8]/10 flex items-center gap-2 border border-[#818cf8]/20"
+                          className="h-8 px-3 text-[#86efac] hover:bg-[#86efac]/10 flex items-center gap-2 border border-[#86efac]/20"
                           onClick={() => fetchUsage(code)}
                         >
                           <History className="h-3.5 w-3.5" />
@@ -320,7 +320,7 @@ export default function AffiliateCodesPage() {
         <CardContent>
           {commissionsLoading ? (
             <div className="flex justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
             </div>
           ) : commissions.length === 0 ? (
             <div className="text-center text-gray-500 py-10">No commission records found</div>
@@ -343,10 +343,10 @@ export default function AffiliateCodesPage() {
                     <TableCell className="font-mono text-gray-300">{row.orderNumber}</TableCell>
                     <TableCell>
                       <div className="text-white">{row.personNameSnapshot}</div>
-                      <div className="text-xs text-[#818cf8] font-mono">{row.affiliateCode}</div>
+                      <div className="text-xs text-[#86efac] font-mono">{row.affiliateCode}</div>
                     </TableCell>
                     <TableCell className="text-white">{formatInr(row.discountAmount)}</TableCell>
-                    <TableCell className="text-[#818cf8]">{formatInr(row.commissionAmount)}</TableCell>
+                    <TableCell className="text-[#86efac]">{formatInr(row.commissionAmount)}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-yellow-300 border-yellow-300">
                         {row.status.toUpperCase()}
@@ -378,18 +378,18 @@ export default function AffiliateCodesPage() {
         <SheetContent side="right" className="bg-[#161616] border-l-[#333] text-white sm:max-w-md p-0 flex flex-col">
           <SheetHeader className="p-6 border-b border-[#333]">
             <SheetTitle className="text-white flex items-center gap-2">
-              <History className="h-5 w-5 text-[#818cf8]" />
+              <History className="h-5 w-5 text-[#86efac]" />
               Usage History
             </SheetTitle>
             <SheetDescription className="text-gray-400">
-              Orders that used code <span className="text-[#818cf8] font-mono">{selectedCode?.code}</span>
+              Orders that used code <span className="text-[#86efac] font-mono">{selectedCode?.code}</span>
             </SheetDescription>
           </SheetHeader>
 
           <div className="flex-1 overflow-hidden flex flex-col">
             {usageLoading ? (
               <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                <Loader2 className="h-10 w-10 animate-spin mb-4 text-[#818cf8]" />
+                <Loader2 className="h-10 w-10 animate-spin mb-4 text-[#86efac]" />
                 <p>Checking usage data...</p>
               </div>
             ) : usageData.length > 0 ? (
@@ -398,10 +398,10 @@ export default function AffiliateCodesPage() {
                   {usageData.map((usage) => (
                     <div
                       key={usage._id}
-                      className="bg-[#0D0D0D] border border-[#333] p-4 rounded-xl flex items-center justify-between group hover:border-[#818cf8]/50 transition-colors"
+                      className="bg-[#0D0D0D] border border-[#333] p-4 rounded-xl flex items-center justify-between group hover:border-[#86efac]/50 transition-colors"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-full bg-[#161616] flex items-center justify-center border border-[#333] group-hover:border-[#818cf8]/30">
+                        <div className="h-12 w-12 rounded-full bg-[#161616] flex items-center justify-center border border-[#333] group-hover:border-[#86efac]/30">
                           <User className="h-6 w-6 text-gray-500" />
                         </div>
                         <div>
@@ -416,7 +416,7 @@ export default function AffiliateCodesPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-[#818cf8] text-lg">{formatInr(usage.total || 0)}</p>
+                        <p className="font-bold text-[#86efac] text-lg">{formatInr(usage.total || 0)}</p>
                         <span
                           className={`text-[10px] px-2 py-0.5 rounded-full inline-block border ${
                             usage.status === "delivered"

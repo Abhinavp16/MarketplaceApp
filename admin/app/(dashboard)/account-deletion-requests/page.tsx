@@ -46,7 +46,7 @@ const statusLabel: Record<DeletionStatus, string> = {
 const statusClass: Record<DeletionStatus, string> = {
   pending: "border-amber-400/40 bg-amber-400/10 text-amber-300",
   in_review: "border-blue-400/40 bg-blue-400/10 text-blue-300",
-  completed: "border-indigo-400/40 bg-indigo-400/10 text-indigo-300",
+  completed: "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
   rejected: "border-red-400/40 bg-red-400/10 text-red-300",
   cancelled: "border-slate-400/40 bg-slate-400/10 text-slate-300",
 }
@@ -169,7 +169,7 @@ export default function AccountDeletionRequestsPage() {
             aria-label="Filter deletion requests by status"
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value as "all" | DeletionStatus)}
-            className="h-10 rounded-md border border-[#333] bg-[#111] px-3 text-sm text-white outline-none focus:border-[#818cf8]"
+            className="h-10 rounded-md border border-[#333] bg-[#111] px-3 text-sm text-white outline-none focus:border-[#86efac]"
           >
             <option value="all">All statuses</option>
             {Object.entries(statusLabel).map(([status, label]) => <option key={status} value={status}>{label}</option>)}
@@ -187,7 +187,7 @@ export default function AccountDeletionRequestsPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" /></div>
+            <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#86efac]" /></div>
           ) : requests.length === 0 ? (
             <p className="py-12 text-center text-sm text-gray-500">No deletion requests match this filter.</p>
           ) : (
@@ -202,7 +202,7 @@ export default function AccountDeletionRequestsPage() {
                     type="button"
                     key={request._id}
                     onClick={() => openRequest(request)}
-                    className="grid w-full gap-3 rounded-xl border border-[#333] bg-[#0D0D0D] p-4 text-left transition-colors hover:border-[#818cf8]/50 hover:bg-[#151515] md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center"
+                    className="grid w-full gap-3 rounded-xl border border-[#333] bg-[#0D0D0D] p-4 text-left transition-colors hover:border-[#86efac]/50 hover:bg-[#151515] md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center"
                   >
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-white">{request.userId?.name || "Account no longer available"}</p>
@@ -260,7 +260,7 @@ export default function AccountDeletionRequestsPage() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
                     {selectedRequest.status === "pending" ? <Button disabled={isSubmitting || (needsVerification && !identityVerified)} onClick={() => void updateStatus("in_review")} variant="outline" className="border-blue-400/30 bg-blue-400/10 text-blue-200 hover:bg-blue-400/20">Mark in review</Button> : null}
                     <Button disabled={isSubmitting} onClick={() => void updateStatus("rejected")} variant="outline" className="border-red-400/30 bg-red-400/10 text-red-200 hover:bg-red-400/20">Reject request</Button>
-                    <Button disabled={isSubmitting || (needsVerification && !identityVerified)} onClick={() => void updateStatus("completed")} className="bg-[#818cf8] text-black hover:bg-[#abadef]">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Complete deletion"}</Button>
+                    <Button disabled={isSubmitting || (needsVerification && !identityVerified)} onClick={() => void updateStatus("completed")} className="bg-[#86efac] text-black hover:bg-[#a7f3d0]">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Complete deletion"}</Button>
                   </div>
                 </>
               ) : (

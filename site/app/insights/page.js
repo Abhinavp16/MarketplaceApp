@@ -19,7 +19,7 @@ export default function InsightsPage() {
                 subtitle="Placeholder guides and tips on suppliers, inventory and bulk ordering. Demo content only."
             />
 
-            <section className="bg-[#e0e7ff] px-4 pb-16 pt-6 sm:px-6 sm:pb-24 lg:px-7">
+            <section className="bg-[#dfe8d3] px-4 pb-16 pt-6 sm:px-6 sm:pb-24 lg:px-7">
                 <div className="mx-auto max-w-7xl">
                     <ScrollReveal className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
                         <div>
@@ -29,11 +29,11 @@ export default function InsightsPage() {
                             </h2>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <span className="rounded-full bg-[#16143a] px-4 py-2 text-xs font-bold text-white">
+                            <span className="rounded-full bg-[#062712] px-4 py-2 text-xs font-bold text-white">
                                 {insightPosts.length} articles
                             </span>
                             {categories.map((category) => (
-                                <span key={category} className="rounded-full border border-[#312e81]/10 bg-white/60 px-4 py-2 text-xs font-bold text-brand-primary">
+                                <span key={category} className="rounded-full border border-[#0b3b1f]/10 bg-white/60 px-4 py-2 text-xs font-bold text-brand-primary">
                                     {category}
                                 </span>
                             ))}

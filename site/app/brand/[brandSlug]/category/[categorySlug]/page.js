@@ -21,7 +21,7 @@ export default async function BrandCategoryPage({ params }) {
             <div className="page-transition min-h-[60vh] flex flex-col items-center justify-center text-center px-6">
                 <h1 className="text-4xl md:text-5xl font-primary font-bold text-text-primary mb-6">Category Not Found</h1>
                 <p className="text-text-secondary text-lg mb-8">We could not find the category you were looking for.</p>
-                <Link href="/products" className="px-8 py-3 bg-brand-primary text-white font-bold rounded-full hover:bg-brand-secondary transition-colors shadow-cta">Back to Products</Link>
+                <Link href="/products" className="px-8 py-3 bg-brand-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors shadow-cta">Back to Products</Link>
             </div>
         );
     }
@@ -48,12 +48,12 @@ export default async function BrandCategoryPage({ params }) {
                                     <div className="flex flex-1 flex-col px-1 pb-1">
                                         <h3 className="break-words text-[0.74rem] font-bold leading-[1.12] text-text-primary line-clamp-2 sm:min-h-[3.25rem] sm:text-base sm:leading-tight">{product.name}</h3>
                                         <div className="mt-1 space-y-0.5 sm:mt-2 sm:space-y-1">
-                                            <div className="inline-flex max-w-full items-center rounded-full border border-brand-primary/15 bg-[#eef2ff] px-1.5 py-0.5 text-[7.5px] font-black uppercase tracking-[0.08em] text-brand-primary sm:px-2 sm:text-[9px] sm:tracking-[0.1em]">
+                                            <div className="inline-flex max-w-full items-center rounded-full border border-brand-primary/15 bg-[#edf3e6] px-1.5 py-0.5 text-[7.5px] font-black uppercase tracking-[0.08em] text-brand-primary sm:px-2 sm:text-[9px] sm:tracking-[0.1em]">
                                                 <span className="mr-1 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-primary" />
                                                 <span className="truncate">{brand.name}</span>
                                             </div>
-                                            <p className="line-clamp-1 text-[8px] font-semibold leading-3 text-[#4b5578] sm:text-[10px] sm:leading-4">
-                                                <span className="font-black uppercase tracking-[0.1em] text-[#1e1b4b]/55">Category: </span>
+                                            <p className="line-clamp-1 text-[8px] font-semibold leading-3 text-[#486352] sm:text-[10px] sm:leading-4">
+                                                <span className="font-black uppercase tracking-[0.1em] text-[#17351d]/55">Category: </span>
                                                 {category.name}
                                             </p>
                                         </div>

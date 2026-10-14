@@ -47,6 +47,8 @@ After the run, reset (see the README) before the next prospect.
 - **Admin quirks:** the wholesaler map loads tiles from OpenStreetMap and needs internet; type-check passes, but lint still reports older errors; a few Playwright specs time out on slow machines unless run with `--workers=1`.
 - **Unreachable app screens** (old mock screens not linked from navigation) still hold generic placeholder text and stock image links.
 - **Real push delivery** has not been tested; it needs your Firebase project.
+- **Public site font:** to match the original design the site loads the Outfit font from Google Fonts, its only third-party request.
+- **Admin look:** the admin panel intentionally matches the original design, including the original's blue accents in light mode.
 
 ## Technical review notes (for Adarsh)
 

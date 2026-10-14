@@ -84,14 +84,14 @@ export function TickerList() {
                     <AreaChart data={item.chartData}>
                       <defs>
                         <linearGradient id={`gradient-${item.id}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={item.trend === 'up' ? '#2a2fbd' : '#ef4444'} stopOpacity={0.3} />
-                          <stop offset="100%" stopColor={item.trend === 'up' ? '#2a2fbd' : '#ef4444'} stopOpacity={0} />
+                          <stop offset="0%" stopColor={item.trend === 'up' ? '#22c55e' : '#ef4444'} stopOpacity={0.3} />
+                          <stop offset="100%" stopColor={item.trend === 'up' ? '#22c55e' : '#ef4444'} stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <Area
                         type="monotone"
                         dataKey="value"
-                        stroke={item.trend === 'up' ? '#2a2fbd' : '#ef4444'}
+                        stroke={item.trend === 'up' ? '#22c55e' : '#ef4444'}
                         strokeWidth={2}
                         fill={`url(#gradient-${item.id})`}
                       />
@@ -102,10 +102,10 @@ export function TickerList() {
               <td className="py-4 text-right text-white font-medium">{item.qty}</td>
               <td className="py-4 text-right text-white font-medium">${item.price}</td>
               <td className="py-4 text-right text-white font-medium">${item.invested}</td>
-              <td className={`py-4 text-right font-medium ${item.trend === 'up' ? 'text-[#5156d7]' : 'text-[#F87171]'}`}>
+              <td className={`py-4 text-right font-medium ${item.trend === 'up' ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                 ${item.current}
               </td>
-              <td className={`py-4 text-right font-medium pr-2 rounded-r-xl ${item.trend === 'up' ? 'text-[#5156d7]' : 'text-[#F87171]'}`}>
+              <td className={`py-4 text-right font-medium pr-2 rounded-r-xl ${item.trend === 'up' ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                 <div className="flex items-center justify-end gap-1">
                   {item.trend === 'up' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
                   ${Math.abs(item.returns)}

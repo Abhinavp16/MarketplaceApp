@@ -167,7 +167,7 @@ export function OfferModal({ isOpen, onClose, onSuccess, offer, targetGroup }: O
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 placeholder="Festive Offer"
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                                 required
                             />
                         </div>
@@ -178,7 +178,7 @@ export function OfferModal({ isOpen, onClose, onSuccess, offer, targetGroup }: O
                                 value={formData.code}
                                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                                 placeholder="SAVE20"
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                             />
                         </div>
                     </div>
@@ -190,7 +190,7 @@ export function OfferModal({ isOpen, onClose, onSuccess, offer, targetGroup }: O
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             placeholder="Offer details..."
-                            className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8] min-h-[80px]"
+                            className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac] min-h-[80px]"
                         />
                     </div>
 
@@ -273,7 +273,7 @@ export function OfferModal({ isOpen, onClose, onSuccess, offer, targetGroup }: O
                                 type="date"
                                 value={formData.startDate}
                                 onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                                 required
                             />
                         </div>
@@ -284,7 +284,7 @@ export function OfferModal({ isOpen, onClose, onSuccess, offer, targetGroup }: O
                                 type="date"
                                 value={formData.endDate}
                                 onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                             />
                         </div>
                     </div>
@@ -295,7 +295,7 @@ export function OfferModal({ isOpen, onClose, onSuccess, offer, targetGroup }: O
                         <Button type="button" variant="ghost" onClick={onClose} className="text-gray-400 hover:text-white hover:bg-[#333]">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={loading} className="is-active hover:bg-[#818cf8]/90 px-8">
+                        <Button type="submit" disabled={loading} className="is-active hover:bg-[#86efac]/90 px-8">
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {offer ? "Update Offer" : "Create Offer"}
                         </Button>

@@ -795,7 +795,7 @@ export default function CategoriesPage() {
                 ref={setNodeRef}
                 style={style}
                 className={`cursor-pointer border-[#333] transition-colors ${
-                    isDragging ? 'bg-[#818cf8]/10 ring-2 ring-[#818cf8]' : 'hover:bg-[#1A1A1A]'
+                    isDragging ? 'bg-[#86efac]/10 ring-2 ring-[#86efac]' : 'hover:bg-[#1A1A1A]'
                 }`}
                 onClick={() => handleCategoryClick(category)}
             >
@@ -806,7 +806,7 @@ export default function CategoriesPage() {
                 >
                     <div className="flex items-center gap-2">
                         <GripVertical className="h-4 w-4" />
-                        <span className="font-bold text-[#818cf8]">#{index + 1}</span>
+                        <span className="font-bold text-[#86efac]">#{index + 1}</span>
                     </div>
                 </TableCell>
                 <TableCell>
@@ -901,7 +901,7 @@ export default function CategoriesPage() {
                 onClick={() => !isDragging && handleCategoryClick(category)}
                 title={category.isActive ? undefined : "Inactive: hidden from app & website, kept for records. Click to manage or reactivate."}
                 className={`relative bg-[#161616] rounded-xl overflow-hidden transition-all cursor-pointer border border-[#333] ${
-                    isDragging ? 'opacity-50 ring-2 ring-[#818cf8] shadow-lg shadow-[#818cf8]/20' : 'hover:border-[#818cf8]/50'
+                    isDragging ? 'opacity-50 ring-2 ring-[#86efac] shadow-lg shadow-[#86efac]/20' : 'hover:border-[#86efac]/50'
                 } ${category.isActive ? '' : 'opacity-60'}`}
             >
                 {/* Drag Handle - Top bar with card number and controls.
@@ -960,11 +960,11 @@ export default function CategoriesPage() {
                     <div>
                         <h3 className="font-semibold text-white text-sm leading-tight">{category.name}</h3>
                         {category.nameHindi ? (
-                            <p className="text-[#818cf8] text-xs mt-0.5">{category.nameHindi}</p>
+                            <p className="text-[#86efac] text-xs mt-0.5">{category.nameHindi}</p>
                         ) : null}
                     </div>
                     <p className="text-gray-500 text-xs">/{category.slug}</p>
-                    <p className="text-[#818cf8] text-xs font-medium">{getCategoryCompanyName(category)}</p>
+                    <p className="text-[#86efac] text-xs font-medium">{getCategoryCompanyName(category)}</p>
                     <div className="flex items-center gap-2 flex-wrap text-xs">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium ${
                             category.isActive 
@@ -1005,7 +1005,7 @@ export default function CategoriesPage() {
             {/* Header */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex min-w-0 items-center gap-3">
-                    <FolderTree className="h-7 w-7 shrink-0 text-[#818cf8] sm:h-8 sm:w-8" />
+                    <FolderTree className="h-7 w-7 shrink-0 text-[#86efac] sm:h-8 sm:w-8" />
                     <div>
                         <h1 className="text-2xl font-bold text-white sm:text-3xl">
                             {selectedParent
@@ -1027,7 +1027,7 @@ export default function CategoriesPage() {
                             <button
                                 type="button"
                                 onClick={() => setSelectedParentId(null)}
-                                className="mt-1 text-xs text-[#818cf8] hover:underline"
+                                className="mt-1 text-xs text-[#86efac] hover:underline"
                             >
                                 ← Back to all categories
                             </button>
@@ -1036,7 +1036,7 @@ export default function CategoriesPage() {
                             <button
                                 type="button"
                                 onClick={() => router.push('/brands')}
-                                className="mt-1 text-xs text-[#818cf8] hover:underline"
+                                className="mt-1 text-xs text-[#86efac] hover:underline"
                             >
                                 ← Back to brands
                             </button>
@@ -1067,7 +1067,7 @@ export default function CategoriesPage() {
                     </div>
                     <Button 
                         onClick={openCreateDialog}
-                        className="h-10 min-w-0 bg-[#818cf8] px-3 text-black hover:bg-[#818cf8]/90 sm:px-4"
+                        className="h-10 min-w-0 bg-[#86efac] px-3 text-black hover:bg-[#86efac]/90 sm:px-4"
                     >
                         <Plus className="mr-2 h-4 w-4 shrink-0" />
                         <span className="truncate">Add Category</span>
@@ -1084,7 +1084,7 @@ export default function CategoriesPage() {
                         placeholder="Search categories by name..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-[#161616] border-[#333] text-white placeholder:text-gray-500 focus-visible:ring-[#818cf8]"
+                        className="pl-10 bg-[#161616] border-[#333] text-white placeholder:text-gray-500 focus-visible:ring-[#86efac]"
                     />
                 </div>
                 <Button
@@ -1126,7 +1126,7 @@ export default function CategoriesPage() {
                             }}
                             className={`rounded-md px-3 py-1.5 transition-colors ${
                                 !selectedParentId && scope === tab.key
-                                    ? 'bg-[#818cf8] font-semibold text-black'
+                                    ? 'bg-[#86efac] font-semibold text-black'
                                     : 'text-gray-400 hover:text-white'
                             }`}
                         >
@@ -1146,7 +1146,7 @@ export default function CategoriesPage() {
                                 setEditingCategory(selectedParent)
                                 openAddSubcategoryDialog(selectedParent)
                             }}
-                            className="ml-2 h-8 bg-[#818cf8] text-black hover:bg-[#818cf8]/90"
+                            className="ml-2 h-8 bg-[#86efac] text-black hover:bg-[#86efac]/90"
                         >
                             <Plus className="mr-1 h-3.5 w-3.5" />
                             Add Subcategory
@@ -1160,7 +1160,7 @@ export default function CategoriesPage() {
             {/* Categories Content */}
             {isLoading ? (
                 <div className="bg-[#161616] rounded-xl border border-[#333] flex justify-center items-center h-48">
-                    <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                    <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
                 </div>
             ) : visibleCategories.length === 0 ? (
                 <div className="bg-[#161616] rounded-xl border border-[#333] flex flex-col items-center justify-center h-48 text-gray-400">
@@ -1174,7 +1174,7 @@ export default function CategoriesPage() {
                                 setEditingCategory(selectedParent)
                                 openAddSubcategoryDialog(selectedParent)
                             }}
-                            className="mt-4 bg-[#818cf8] text-black hover:bg-[#818cf8]/90"
+                            className="mt-4 bg-[#86efac] text-black hover:bg-[#86efac]/90"
                         >
                             <Plus className="mr-2 h-4 w-4" />
                             Add Subcategory
@@ -1315,7 +1315,7 @@ export default function CategoriesPage() {
                             <div className="flex items-center gap-3">
                                 <label className={`flex flex-1 flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
                                     isUploadingImage
-                                        ? 'h-24 cursor-wait border-[#818cf8]/50 bg-[#818cf8]/5'
+                                        ? 'h-24 cursor-wait border-[#86efac]/50 bg-[#86efac]/5'
                                         : 'h-20 cursor-pointer border-[#333] bg-[#0D0D0D] hover:bg-[#1a1a1a]'
                                 }`}>
                                     <div className="flex flex-col items-center justify-center py-3">
@@ -1352,7 +1352,7 @@ export default function CategoriesPage() {
                                             <>
                                                 <Upload className="mb-1 h-5 w-5 text-gray-400" />
                                                 <p className="text-xs text-gray-400">
-                                                    <span className="text-[#818cf8]">Click to upload</span> — auto WebP
+                                                    <span className="text-[#86efac]">Click to upload</span> — auto WebP
                                                 </p>
                                             </>
                                         )}
@@ -1369,7 +1369,7 @@ export default function CategoriesPage() {
                                     <button
                                         type="button"
                                         onClick={() => setPreviewImageUrl(imageUrl)}
-                                        className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#333] bg-[#0D0D0D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#818cf8]"
+                                        className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#333] bg-[#0D0D0D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#86efac]"
                                         aria-label="Enlarge category image"
                                     >
                                         <img
@@ -1490,7 +1490,7 @@ export default function CategoriesPage() {
                                         type="button"
                                         onClick={() => openAddSubcategoryDialog()}
                                         size="sm"
-                                        className="gap-1 is-active hover:bg-[#818cf8]/90"
+                                        className="gap-1 is-active hover:bg-[#86efac]/90"
                                     >
                                         <Plus className="h-3.5 w-3.5" />
                                         Add Subcategory
@@ -1577,7 +1577,7 @@ export default function CategoriesPage() {
                         <Button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="is-active hover:bg-[#818cf8]/90"
+                            className="is-active hover:bg-[#86efac]/90"
                         >
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {editingCategory ? "Update Category" : "Create Category"}
@@ -1674,7 +1674,7 @@ export default function CategoriesPage() {
                                             <>
                                                 <Upload className="mb-1 h-5 w-5 text-gray-400" />
                                                 <p className="text-xs text-gray-400">
-                                                    <span className="text-[#818cf8]">Click to upload</span> — auto WebP
+                                                    <span className="text-[#86efac]">Click to upload</span> — auto WebP
                                                 </p>
                                             </>
                                         )}
@@ -1742,7 +1742,7 @@ export default function CategoriesPage() {
                         <Button
                             onClick={handleAddSubcategory}
                             disabled={isSubmittingSubcategory}
-                            className="is-active hover:bg-[#818cf8]/90"
+                            className="is-active hover:bg-[#86efac]/90"
                         >
                             {isSubmittingSubcategory && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {editingSubcategory ? "Update Subcategory" : "Add Subcategory"}
@@ -1811,7 +1811,7 @@ export default function CategoriesPage() {
                                 setIsProductAssignmentOpen(false)
                                 setSelectedSubcategoryForProducts(null)
                             }}
-                            className="is-active hover:bg-[#818cf8]/90"
+                            className="is-active hover:bg-[#86efac]/90"
                         >
                             Done
                         </Button>

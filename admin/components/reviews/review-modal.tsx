@@ -193,7 +193,7 @@ export function ReviewModal({ isOpen, onClose, onSuccess, review }: ReviewModalP
                             <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-[#333] text-white">
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isLoading} className="is-active hover:bg-[#818cf8]/90">
+                            <Button type="submit" disabled={isLoading} className="is-active hover:bg-[#86efac]/90">
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 {review ? "Save Changes" : "Create Review"}
                             </Button>

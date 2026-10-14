@@ -7,9 +7,9 @@ export default function InsightCard({ post, featured = false }) {
     return (
         <Link href={post.href} className="block h-full">
             <article
-                className={`group flex h-full cursor-pointer overflow-hidden rounded-[2rem] border border-[#312e81]/10 bg-[#eef2ff]/80 p-3 shadow-[0_20px_55px_rgba(30,27,75,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(30,27,75,0.14)] ${featured ? 'flex-col lg:flex-row' : 'flex-col'}`}
+                className={`group flex h-full cursor-pointer overflow-hidden rounded-[2rem] border border-[#0b3b1f]/10 bg-[#edf3e6]/80 p-3 shadow-[0_20px_55px_rgba(8,36,18,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(8,36,18,0.14)] ${featured ? 'flex-col lg:flex-row' : 'flex-col'}`}
             >
-                <div className={`relative overflow-hidden rounded-[1.55rem] bg-[#c7d2fe] ${featured ? 'h-64 sm:h-80 lg:h-auto lg:min-h-[360px] lg:w-[58%] lg:shrink-0' : 'h-56'}`}>
+                <div className={`relative overflow-hidden rounded-[1.55rem] bg-[#d6e0c9] ${featured ? 'h-64 sm:h-80 lg:h-auto lg:min-h-[360px] lg:w-[58%] lg:shrink-0' : 'h-56'}`}>
                     <img
                         src={post.image}
                         alt={post.imageAlt || post.title}
@@ -32,7 +32,7 @@ export default function InsightCard({ post, featured = false }) {
                     <p className={`mb-5 mt-3 text-sm leading-6 text-text-secondary ${featured ? 'sm:text-base sm:leading-7' : 'line-clamp-2'}`}>
                         {post.excerpt}
                     </p>
-                    <div className="mt-auto flex items-center gap-2 border-t border-[#312e81]/10 pt-4 text-sm font-bold text-brand-primary">
+                    <div className="mt-auto flex items-center gap-2 border-t border-[#0b3b1f]/10 pt-4 text-sm font-bold text-brand-primary">
                         Read More
                         <Icon icon={ArrowRight02Icon} size={16} strokeWidth={2} className="transition-transform group-hover:translate-x-1" />
                     </div>

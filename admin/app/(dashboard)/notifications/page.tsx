@@ -67,7 +67,7 @@ export default function NotificationsPage() {
                         type="button"
                         onClick={markAllAsRead}
                         disabled={unreadCount === 0}
-                        className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90 disabled:opacity-40"
+                        className="bg-[#86efac] text-black hover:bg-[#86efac]/90 disabled:opacity-40"
                     >
                         Mark all read
                     </Button>
@@ -95,7 +95,7 @@ export default function NotificationsPage() {
                         type="button"
                         onClick={enablePush}
                         disabled={pushStatus === "not-configured" || pushStatus === "unsupported" || pushStatus === "denied" || pushStatus === "loading"}
-                        className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90 disabled:opacity-40"
+                        className="bg-[#86efac] text-black hover:bg-[#86efac]/90 disabled:opacity-40"
                     >
                         Enable alerts
                     </Button>
@@ -118,14 +118,14 @@ export default function NotificationsPage() {
                             key={item._id}
                             type="button"
                             onClick={() => openNotification(item)}
-                            className={`flex w-full items-start gap-3 border-b border-[#333] p-4 text-left transition-colors last:border-b-0 hover:bg-[#1A1A1A] ${item.isRead ? "" : "bg-[#818cf8]/5"}`}
+                            className={`flex w-full items-start gap-3 border-b border-[#333] p-4 text-left transition-colors last:border-b-0 hover:bg-[#1A1A1A] ${item.isRead ? "" : "bg-[#86efac]/5"}`}
                         >
                             <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${SEVERITY_STYLES[item.severity] || SEVERITY_STYLES.info}`} />
                             <span className="min-w-0 flex-1">
                                 <span className="flex flex-wrap items-center gap-2">
                                     <span className="font-semibold text-white">{item.title}</span>
                                     {!item.isRead && (
-                                        <span className="rounded-full bg-[#818cf8]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#818cf8]">
+                                        <span className="rounded-full bg-[#86efac]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#86efac]">
                                             New
                                         </span>
                                     )}

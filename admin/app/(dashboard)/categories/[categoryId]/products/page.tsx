@@ -194,7 +194,7 @@ export default function CategoryProductsPage() {
         <FolderTree className="mb-4 h-12 w-12 text-red-400" />
         <h1 className="text-2xl font-semibold text-white">Category unavailable</h1>
         <p className="mt-2 text-sm text-gray-400">{error}</p>
-        <Button onClick={() => router.push("/categories")} className="mt-5 bg-[#818cf8] text-black hover:bg-[#818cf8]/90">
+        <Button onClick={() => router.push("/categories")} className="mt-5 bg-[#86efac] text-black hover:bg-[#86efac]/90">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Categories
         </Button>
       </div>
@@ -235,7 +235,7 @@ export default function CategoryProductsPage() {
               )}
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold text-white">{category?.name}</h1>
-                {category?.nameHindi ? <p className="mt-0.5 text-sm text-[#818cf8]">{category.nameHindi}</p> : null}
+                {category?.nameHindi ? <p className="mt-0.5 text-sm text-[#86efac]">{category.nameHindi}</p> : null}
                 {categoryCompany ? <p className="mt-1 text-sm text-gray-400">{categoryCompany}</p> : null}
                 {category?.description ? <p className="mt-2 max-w-2xl text-sm text-gray-400">{category.description}</p> : null}
                 <p className="mt-3 text-sm text-gray-300">
@@ -263,23 +263,23 @@ export default function CategoryProductsPage() {
         </form>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="hidden rounded-lg border border-[#333] bg-[#161616] p-1 md:flex">
-            <button type="button" onClick={() => setViewMode("list")} aria-label="List view" className={`rounded-md p-2 ${viewMode === "list" ? "bg-[#818cf8] text-black" : "text-gray-400 hover:text-white"}`}><List className="h-4 w-4" /></button>
-            <button type="button" onClick={() => setViewMode("card")} aria-label="Card view" className={`rounded-md p-2 ${viewMode === "card" ? "bg-[#818cf8] text-black" : "text-gray-400 hover:text-white"}`}><LayoutGrid className="h-4 w-4" /></button>
+            <button type="button" onClick={() => setViewMode("list")} aria-label="List view" className={`rounded-md p-2 ${viewMode === "list" ? "bg-[#86efac] text-black" : "text-gray-400 hover:text-white"}`}><List className="h-4 w-4" /></button>
+            <button type="button" onClick={() => setViewMode("card")} aria-label="Card view" className={`rounded-md p-2 ${viewMode === "card" ? "bg-[#86efac] text-black" : "text-gray-400 hover:text-white"}`}><LayoutGrid className="h-4 w-4" /></button>
           </div>
           <Link href={addProductHref} className="inline-flex">
-            <Button className="w-full bg-[#818cf8] text-black hover:bg-[#818cf8]/90 sm:w-auto"><Plus className="mr-2 h-4 w-4" /> Add Product</Button>
+            <Button className="w-full bg-[#86efac] text-black hover:bg-[#86efac]/90 sm:w-auto"><Plus className="mr-2 h-4 w-4" /> Add Product</Button>
           </Link>
         </div>
       </div>
 
       {isProductsLoading ? (
-        <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-[#333] bg-[#161616]"><Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" /></div>
+        <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-[#333] bg-[#161616]"><Loader2 className="h-8 w-8 animate-spin text-[#86efac]" /></div>
       ) : products.length === 0 ? (
         <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-[#333] bg-[#161616] p-6 text-center">
           <Package className="mb-4 h-12 w-12 text-gray-600" />
           <h2 className="text-lg font-semibold text-white">No products found</h2>
           <p className="mt-1 text-sm text-gray-400">{activeSearch ? `No products match “${activeSearch}”.` : "Add the first product to this category."}</p>
-          <Link href={addProductHref} className="mt-5"><Button className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90"><Plus className="mr-2 h-4 w-4" /> Add Product</Button></Link>
+          <Link href={addProductHref} className="mt-5"><Button className="bg-[#86efac] text-black hover:bg-[#86efac]/90"><Plus className="mr-2 h-4 w-4" /> Add Product</Button></Link>
         </div>
       ) : viewMode === "list" ? (
         <div className="overflow-hidden rounded-xl border border-[#333] bg-[#161616]">
@@ -292,7 +292,7 @@ export default function CategoryProductsPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => {
             const image = productImage(product);
-            return <article key={product._id} className="flex min-h-64 flex-col rounded-xl border border-[#333] bg-[#161616] p-4"><div className="mb-4 flex items-start justify-between gap-3">{image ? <img src={image} alt="" className="h-12 w-12 rounded-lg object-cover" /> : <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#0D0D0D]"><Package className="h-6 w-6 text-gray-500" /></div>}<div className="flex gap-1"><Link href={`/products/add?edit=${product._id}&returnTo=${encodeURIComponent(returnTo)}`}><Button size="icon" variant="ghost" className="h-8 w-8 text-blue-400 hover:text-blue-300"><Pencil className="h-4 w-4" /></Button></Link><Button size="icon" variant="ghost" onClick={() => void deleteProduct(product._id)} className="h-8 w-8 text-red-400 hover:bg-red-400/10 hover:text-red-300"><Trash2 className="h-4 w-4" /></Button></div></div><h2 className="line-clamp-2 font-semibold text-white">{product.name}</h2>{product.nameHindi ? <p className="mt-1 line-clamp-1 text-xs text-gray-400">{product.nameHindi}</p> : null}<p className="mt-2 text-xs text-gray-500">SKU: {product.sku || "—"}</p><div className="mt-auto flex items-end justify-between border-t border-[#333] pt-4"><div><p className="text-xs text-gray-500">Price</p><p className="font-semibold text-[#818cf8]">{typeof product.retailPrice === "number" ? `₹${product.retailPrice.toLocaleString("en-IN")}` : "—"}</p></div><div className="text-right"><p className="text-xs text-gray-500">Stock</p><p className="font-medium text-white">{product.stock ?? 0}</p></div></div></article>;
+            return <article key={product._id} className="flex min-h-64 flex-col rounded-xl border border-[#333] bg-[#161616] p-4"><div className="mb-4 flex items-start justify-between gap-3">{image ? <img src={image} alt="" className="h-12 w-12 rounded-lg object-cover" /> : <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#0D0D0D]"><Package className="h-6 w-6 text-gray-500" /></div>}<div className="flex gap-1"><Link href={`/products/add?edit=${product._id}&returnTo=${encodeURIComponent(returnTo)}`}><Button size="icon" variant="ghost" className="h-8 w-8 text-blue-400 hover:text-blue-300"><Pencil className="h-4 w-4" /></Button></Link><Button size="icon" variant="ghost" onClick={() => void deleteProduct(product._id)} className="h-8 w-8 text-red-400 hover:bg-red-400/10 hover:text-red-300"><Trash2 className="h-4 w-4" /></Button></div></div><h2 className="line-clamp-2 font-semibold text-white">{product.name}</h2>{product.nameHindi ? <p className="mt-1 line-clamp-1 text-xs text-gray-400">{product.nameHindi}</p> : null}<p className="mt-2 text-xs text-gray-500">SKU: {product.sku || "—"}</p><div className="mt-auto flex items-end justify-between border-t border-[#333] pt-4"><div><p className="text-xs text-gray-500">Price</p><p className="font-semibold text-[#86efac]">{typeof product.retailPrice === "number" ? `₹${product.retailPrice.toLocaleString("en-IN")}` : "—"}</p></div><div className="text-right"><p className="text-xs text-gray-500">Stock</p><p className="font-medium text-white">{product.stock ?? 0}</p></div></div></article>;
           })}
         </div>
       )}

@@ -19,8 +19,8 @@ export default function FeaturedProductCard({
     const categoryName = normalizedProduct.categoryName;
 
     return (
-        <div className="group mx-auto flex h-full w-full max-w-[340px] flex-col overflow-hidden rounded-[2rem] border border-[#312e81]/10 bg-[#eef2ff]/80 shadow-[0_20px_55px_rgba(30,27,75,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(30,27,75,0.14)]">
-            <div className="relative aspect-[1.08] overflow-hidden rounded-[1.75rem] bg-[#c7d2fe] m-3 mb-0">
+        <div className="group mx-auto flex h-full w-full max-w-[340px] flex-col overflow-hidden rounded-[2rem] border border-[#0b3b1f]/10 bg-[#edf3e6]/80 shadow-[0_20px_55px_rgba(8,36,18,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(8,36,18,0.14)]">
+            <div className="relative aspect-[1.08] overflow-hidden rounded-[1.75rem] bg-[#d6e0c9] m-3 mb-0">
                 <img
                     src={normalizedProduct.image || featuredProductFallbackImage}
                     className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
@@ -47,26 +47,26 @@ export default function FeaturedProductCard({
                             </div>
                         )}
                         {categoryName && (
-                            <p className="line-clamp-2 text-[8px] font-semibold leading-3 text-[#4b5578] sm:text-[11px] sm:leading-4">
-                                <span className="font-black uppercase tracking-[0.12em] text-[#1e1b4b]/55">Category: </span>
+                            <p className="line-clamp-2 text-[8px] font-semibold leading-3 text-[#486352] sm:text-[11px] sm:leading-4">
+                                <span className="font-black uppercase tracking-[0.12em] text-[#17351d]/55">Category: </span>
                                 {categoryName}
                             </p>
                         )}
                     </div>
                 )}
 
-                <p className="mt-2 hidden text-sm leading-6 text-[#5b6079] sm:line-clamp-2">
+                <p className="mt-2 hidden text-sm leading-6 text-[#5d6a5f] sm:line-clamp-2">
                     {cardDescription}
                 </p>
 
-                <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#312e81]/10 pt-3 sm:pt-5">
+                <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#0b3b1f]/10 pt-3 sm:pt-5">
                     <p className="text-[0.7rem] font-black leading-tight text-brand-primary sm:text-[1rem]">
                         {normalizedProduct.price}
                     </p>
                     <Link
                         href={productHref}
                         aria-label={`View details for ${normalizedProduct.name}`}
-                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#312e81]/15 bg-white/60 text-brand-primary shadow-sm transition-colors hover:bg-brand-primary hover:text-white sm:h-11 sm:w-11"
+                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#0b3b1f]/15 bg-white/60 text-brand-primary shadow-sm transition-colors hover:bg-brand-primary hover:text-white sm:h-11 sm:w-11"
                     >
                         <Icon icon={ArrowRight02Icon} size={14} strokeWidth={2.5} className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Link>

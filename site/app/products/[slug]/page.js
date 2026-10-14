@@ -67,7 +67,7 @@ export default async function FeaturedProductDetailPage({ params }) {
                 </div>
                 <Link
                     href="/products"
-                    className="rounded-full bg-brand-primary px-8 py-3 font-bold text-white shadow-cta transition-colors hover:bg-brand-secondary"
+                    className="rounded-full bg-brand-primary px-8 py-3 font-bold text-white shadow-cta transition-colors hover:bg-orange-600"
                 >
                     Back to Products
                 </Link>
@@ -96,7 +96,7 @@ export default async function FeaturedProductDetailPage({ params }) {
                                 productKey={productKey}
                             />
                             {product.badge && (
-                                <div className={`absolute left-10 top-10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] shadow-sm z-20 ${product.badgeStyle || 'border border-teal-100 bg-white text-brand-primary'}`}>
+                                <div className={`absolute left-10 top-10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] shadow-sm z-20 ${product.badgeStyle || 'border border-orange-100 bg-white text-brand-primary'}`}>
                                     {product.badge}
                                 </div>
                             )}
@@ -105,7 +105,7 @@ export default async function FeaturedProductDetailPage({ params }) {
 
                     <ScrollReveal>
                         <div className="rounded-[2.3rem] border border-gray-100 bg-white p-8 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-                            <div className="inline-flex rounded-full border border-teal-100 bg-teal-50 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">
+                            <div className="inline-flex rounded-full border border-orange-100 bg-orange-50 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">
                                 Product Details
                             </div>
 
@@ -162,7 +162,7 @@ export default async function FeaturedProductDetailPage({ params }) {
                                 <VariantAwareInquiryButton
                                     productKey={productKey}
                                     {...inquiryProps}
-                                    className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-4 text-center text-sm font-bold text-white shadow-[0_14px_30px_rgba(13,148,136,0.26)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(13,148,136,0.34)]"
+                                    className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-4 text-center text-sm font-bold text-white shadow-[0_14px_30px_rgba(249,115,22,0.26)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(249,115,22,0.34)]"
                                 >
                                     Get Latest Price
                                 </VariantAwareInquiryButton>

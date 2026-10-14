@@ -133,14 +133,14 @@ function ProductCard({
       style={{ border: "none", boxShadow: "none" }}
     >
       <div className="mb-3 flex items-start justify-between gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#eaeaf6]">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#f3f6ea]">
           <Package className="h-6 w-6 text-slate-500" />
         </div>
         <div className="flex shrink-0 gap-1">
           <Button
             size="icon"
             variant="ghost"
-            className="h-7 w-7 text-slate-500 hover:bg-[#e8e8f5] hover:text-slate-900"
+            className="h-7 w-7 text-slate-500 hover:bg-[#f1f5e8] hover:text-slate-900"
           >
             <Eye className="h-3.5 w-3.5" />
           </Button>
@@ -181,7 +181,7 @@ function ProductCard({
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Badge
           variant="outline"
-          className="max-w-full border-[#cacbdf] bg-[#f3f3fa] text-xs text-slate-700"
+          className="max-w-full border-[#d8dfca] bg-[#f8faf3] text-xs text-slate-700"
         >
           <span className="truncate">{getCategoryLabel(product.category)}</span>
         </Badge>
@@ -221,9 +221,9 @@ function ProductCard({
         ) : null}
       </div>
 
-      <div className="mt-auto flex items-end justify-between gap-4 border-t border-[#e2e2f0] pt-3">
+      <div className="mt-auto flex items-end justify-between gap-4 border-t border-[#edf0e2] pt-3">
         <div className="min-w-0">
-          <p className="text-lg font-bold text-[#818cf8]">
+          <p className="text-lg font-bold text-[#86efac]">
             {displayPrice !== null
               ? `Rs ${displayPrice.toLocaleString()}`
               : "-"}
@@ -458,9 +458,9 @@ export default function ProductsPage() {
             endpoint="/admin/products/hindi-names/generate-missing"
             entityLabel="products"
             onDone={() => fetchProducts()}
-            buttonClassName="w-full border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900 sm:w-auto"
+            buttonClassName="w-full border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef] hover:text-slate-900 sm:w-auto"
           />
-          <div className="hidden items-center rounded-xl border border-[#cacbdf] bg-[#eaeaf6] p-1 md:flex">
+          <div className="hidden items-center rounded-xl border border-[#d8dfca] bg-[#f3f6ea] p-1 md:flex">
             <button
               onClick={() => setViewMode("list")}
               className={`rounded-lg p-2 transition-colors ${viewMode === "list" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
@@ -480,7 +480,7 @@ export default function ProductsPage() {
             data-testid="import-template-button"
             disabled={templateLoading}
             onClick={handleTemplateDownload}
-            className="w-full border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900 sm:w-auto"
+            className="w-full border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef] hover:text-slate-900 sm:w-auto"
           >
             {templateLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -494,7 +494,7 @@ export default function ProductsPage() {
             variant="outline"
             data-testid="import-products-button"
             onClick={() => setImportOpen(true)}
-            className="w-full border-indigo-300 bg-white text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 sm:w-auto"
+            className="w-full border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 sm:w-auto"
           >
             <Upload className="mr-2 h-4 w-4" /> Import products
           </Button>
@@ -518,13 +518,13 @@ export default function ProductsPage() {
             placeholder="Search products by name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border-[#cacbdf] bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-[#818cf8]"
+            className="border-[#d8dfca] bg-white pl-10 text-slate-900 placeholder:text-slate-400 focus-visible:ring-[#86efac]"
           />
         </div>
         <Button
           type="submit"
           variant="outline"
-          className="w-full border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900 sm:w-auto"
+          className="w-full border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef] hover:text-slate-900 sm:w-auto"
         >
           Search
         </Button>
@@ -537,7 +537,7 @@ export default function ProductsPage() {
             setComingSoonOnly(next);
             fetchProducts(1, true, next);
           }}
-          className={`w-full sm:w-auto ${comingSoonOnly ? "border-sky-400 bg-sky-50 text-sky-700" : "border-[#cacbdf] bg-white text-slate-700"}`}
+          className={`w-full sm:w-auto ${comingSoonOnly ? "border-sky-400 bg-sky-50 text-sky-700" : "border-[#d8dfca] bg-white text-slate-700"}`}
         >
           Coming Soon
         </Button>
@@ -549,7 +549,7 @@ export default function ProductsPage() {
               setSearchQuery("");
               fetchProducts(1, true);
             }}
-            className="w-full text-slate-500 hover:bg-[#efeff8] hover:text-slate-900 sm:w-auto"
+            className="w-full text-slate-500 hover:bg-[#f6f8ef] hover:text-slate-900 sm:w-auto"
           >
             Clear
           </Button>
@@ -557,11 +557,11 @@ export default function ProductsPage() {
       </form>
 
       {isLoading ? (
-        <div className="flex min-h-[400px] items-center justify-center rounded-[28px] border border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)]">
-          <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+        <div className="flex min-h-[400px] items-center justify-center rounded-[28px] border border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
         </div>
       ) : products.length === 0 ? (
-        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-[28px] border border-[#d0d1e3] bg-white/92 text-slate-500 shadow-[0_24px_60px_rgba(50,58,110,0.08)]">
+        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-[28px] border border-[#dde3d0] bg-white/92 text-slate-500 shadow-[0_24px_60px_rgba(60,80,40,0.08)]">
           <Package className="mb-4 h-12 w-12 opacity-50" />
           <p>No products found</p>
           <p className="text-sm">Add your first product to get started</p>
@@ -579,10 +579,10 @@ export default function ProductsPage() {
               );
             })}
           </div>
-          <div className="hidden overflow-hidden rounded-[28px] border border-[#d0d1e3] bg-white/92 shadow-[0_24px_60px_rgba(50,58,110,0.08)] md:block">
+          <div className="hidden overflow-hidden rounded-[28px] border border-[#dde3d0] bg-white/92 shadow-[0_24px_60px_rgba(60,80,40,0.08)] md:block">
             <Table>
               <TableHeader>
-                <TableRow className="border-[#e2e2f0] hover:bg-[#f3f3fa]">
+                <TableRow className="border-[#edf0e2] hover:bg-[#f8faf3]">
                   <TableHead className="text-slate-500">Name</TableHead>
                   <TableHead className="text-slate-500">SKU</TableHead>
                   <TableHead className="text-slate-500">Category</TableHead>
@@ -611,7 +611,7 @@ export default function ProductsPage() {
                   return (
                     <TableRow
                       key={product._id}
-                      className="border-[#e2e2f0] hover:bg-[#f3f3fa]"
+                      className="border-[#edf0e2] hover:bg-[#f8faf3]"
                     >
                       <TableCell>
                         <div>
@@ -631,7 +631,7 @@ export default function ProductsPage() {
                       <TableCell className="text-slate-900">
                         <Badge
                           variant="outline"
-                          className="border-[#cacbdf] bg-[#f3f3fa] text-slate-700"
+                          className="border-[#d8dfca] bg-[#f8faf3] text-slate-700"
                         >
                           {getCategoryLabel(product.category)}
                         </Badge>
@@ -674,7 +674,7 @@ export default function ProductsPage() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-slate-500 hover:bg-[#e8e8f5] hover:text-slate-900"
+                            className="h-8 w-8 text-slate-500 hover:bg-[#f1f5e8] hover:text-slate-900"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -724,7 +724,7 @@ export default function ProductsPage() {
             onClick={loadMore}
             disabled={isLoadingMore}
             variant="outline"
-            className="min-w-[200px] border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900"
+            className="min-w-[200px] border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef] hover:text-slate-900"
           >
             {isLoadingMore ? (
               <>

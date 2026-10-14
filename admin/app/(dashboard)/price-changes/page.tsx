@@ -128,7 +128,7 @@ export default function PriceChangesPage() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <div className="rounded-2xl border border-[#cacbdf] bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+          <div className="rounded-2xl border border-[#d8dfca] bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
             {pendingProducts} products | {totalRows} pending changes
           </div>
           <Button
@@ -136,7 +136,7 @@ export default function PriceChangesPage() {
             variant="outline"
             onClick={() => fetchPriceChanges(true)}
             disabled={isRefreshing}
-            className="border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900"
+            className="border-[#d8dfca] bg-white text-slate-700 hover:bg-[#f6f8ef] hover:text-slate-900"
           >
             {isRefreshing ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -155,7 +155,7 @@ export default function PriceChangesPage() {
             value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
           placeholder="Search by product, SKU, category"
-          className="border-[#cacbdf] bg-white pl-9 text-slate-900 placeholder:text-slate-400"
+          className="border-[#d8dfca] bg-white pl-9 text-slate-900 placeholder:text-slate-400"
         />
       </div>
       <Button
@@ -167,25 +167,25 @@ export default function PriceChangesPage() {
           }
           setAppliedSearchQuery(searchQuery)
         }}
-        className="bg-[#818cf8] text-slate-900 hover:bg-[#797cdd]"
+        className="bg-[#86efac] text-slate-900 hover:bg-[#73e39c]"
       >
         Search
       </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-[24px] border border-[#d0d1e3] bg-white px-5 py-4 shadow-[0_20px_45px_rgba(50,58,110,0.06)]">
+        <div className="rounded-[24px] border border-[#dde3d0] bg-white px-5 py-4 shadow-[0_20px_45px_rgba(60,80,40,0.06)]">
           <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Pending Rows</div>
           <div className="mt-2 text-3xl font-bold text-slate-900">{totalRows}</div>
         </div>
-        <div className="rounded-[24px] border border-[#d0d1e3] bg-white px-5 py-4 shadow-[0_20px_45px_rgba(50,58,110,0.06)]">
+        <div className="rounded-[24px] border border-[#dde3d0] bg-white px-5 py-4 shadow-[0_20px_45px_rgba(60,80,40,0.06)]">
           <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Products</div>
           <div className="mt-2 text-3xl font-bold text-slate-900">{pendingProducts}</div>
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-[#d0d1e3] bg-white shadow-[0_24px_60px_rgba(50,58,110,0.08)]">
-        <div className="flex items-center justify-between border-b border-[#e2e3f2] px-5 py-4">
+      <div className="rounded-[28px] border border-[#dde3d0] bg-white shadow-[0_24px_60px_rgba(60,80,40,0.08)]">
+        <div className="flex items-center justify-between border-b border-[#eef2e2] px-5 py-4">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">Scheduled Price Updates</h2>
             <p className="text-sm text-slate-500">
@@ -201,7 +201,7 @@ export default function PriceChangesPage() {
           </div>
         ) : rows.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-            <div className="rounded-full bg-[#efeff8] p-4 text-slate-500">
+            <div className="rounded-full bg-[#f6f8ef] p-4 text-slate-500">
               <Clock3 className="h-7 w-7" />
             </div>
             <div className="text-lg font-semibold text-slate-900">No pending price changes</div>
@@ -214,7 +214,7 @@ export default function PriceChangesPage() {
             <div className="hidden overflow-x-auto lg:block">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[#e2e3f2]">
+                  <TableRow className="border-[#eef2e2]">
                     <TableHead>Product</TableHead>
                     <TableHead>Old Customer</TableHead>
                     <TableHead>New Customer</TableHead>
@@ -226,7 +226,7 @@ export default function PriceChangesPage() {
                 </TableHeader>
                 <TableBody>
                   {rows.map((row) => (
-                    <TableRow key={row.id} className="border-[#e2e3f2]">
+                    <TableRow key={row.id} className="border-[#eef2e2]">
                       <TableCell>
                         <div className="min-w-[220px]">
                           <div className="font-semibold text-slate-900">{row.productName}</div>
@@ -236,9 +236,9 @@ export default function PriceChangesPage() {
                         </div>
                       </TableCell>
                       <TableCell>{formatPrice(row.oldRetailPrice)}</TableCell>
-                      <TableCell className="font-semibold text-indigo-700">{formatPrice(row.newRetailPrice)}</TableCell>
+                      <TableCell className="font-semibold text-emerald-700">{formatPrice(row.newRetailPrice)}</TableCell>
                       <TableCell>{formatPrice(row.oldWholesalePrice)}</TableCell>
-                      <TableCell className="font-semibold text-indigo-700">{formatPrice(row.newWholesalePrice)}</TableCell>
+                      <TableCell className="font-semibold text-emerald-700">{formatPrice(row.newWholesalePrice)}</TableCell>
                       <TableCell>{formatDateTime(row.scheduledAt)}</TableCell>
                       <TableCell>
                         <div className="font-medium text-slate-900">{formatDateTime(row.effectiveAt)}</div>
@@ -254,7 +254,7 @@ export default function PriceChangesPage() {
               {rows.map((row) => (
                 <div
                   key={row.id}
-                  className="rounded-[24px] border border-[#d8d9eb] bg-[#f7f7fc] p-4 shadow-sm"
+                  className="rounded-[24px] border border-[#e6ebd8] bg-[#fbfcf7] p-4 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -266,25 +266,25 @@ export default function PriceChangesPage() {
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <div className="rounded-2xl border border-[#d8d9eb] bg-white px-3 py-3">
+                    <div className="rounded-2xl border border-[#e6ebd8] bg-white px-3 py-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Old Customer</div>
                       <div className="mt-1 font-semibold text-slate-900">{formatPrice(row.oldRetailPrice)}</div>
                     </div>
-                    <div className="rounded-2xl border border-[#dadbf2] bg-[#f2f3fc] px-3 py-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">New Customer</div>
-                      <div className="mt-1 font-semibold text-indigo-700">{formatPrice(row.newRetailPrice)}</div>
+                    <div className="rounded-2xl border border-[#d9f3dd] bg-[#f2fcf4] px-3 py-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">New Customer</div>
+                      <div className="mt-1 font-semibold text-emerald-700">{formatPrice(row.newRetailPrice)}</div>
                     </div>
-                    <div className="rounded-2xl border border-[#d8d9eb] bg-white px-3 py-3">
+                    <div className="rounded-2xl border border-[#e6ebd8] bg-white px-3 py-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Old Wholesale</div>
                       <div className="mt-1 font-semibold text-slate-900">{formatPrice(row.oldWholesalePrice)}</div>
                     </div>
-                    <div className="rounded-2xl border border-[#dadbf2] bg-[#f2f3fc] px-3 py-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">New Wholesale</div>
-                      <div className="mt-1 font-semibold text-indigo-700">{formatPrice(row.newWholesalePrice)}</div>
+                    <div className="rounded-2xl border border-[#d9f3dd] bg-[#f2fcf4] px-3 py-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">New Wholesale</div>
+                      <div className="mt-1 font-semibold text-emerald-700">{formatPrice(row.newWholesalePrice)}</div>
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-[#d8d9eb] bg-white px-3 py-3 text-sm">
+                  <div className="mt-4 rounded-2xl border border-[#e6ebd8] bg-white px-3 py-3 text-sm">
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-slate-500">Scheduled On</span>
                       <span className="font-medium text-slate-900">{formatDateTime(row.scheduledAt)}</span>
@@ -301,7 +301,7 @@ export default function PriceChangesPage() {
                   <div className="mt-4">
                     <Link
                       href={`/products/add?edit=${row.productId}`}
-                      className="inline-flex items-center justify-center rounded-xl border border-[#cacbdf] bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-[#efeff8]"
+                      className="inline-flex items-center justify-center rounded-xl border border-[#d8dfca] bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-[#f6f8ef]"
                     >
                       Open Product
                     </Link>

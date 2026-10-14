@@ -17,7 +17,7 @@ export default function ProductsSection({
     section = defaultFeaturedSection,
 }) {
     return (
-        <section id="products" className="bg-[#e0e7ff] px-4 pb-14 pt-8 sm:px-6 sm:py-24 lg:px-7">
+        <section id="products" className="bg-[#dfe8d3] px-4 pb-14 pt-8 sm:px-6 sm:py-24 lg:px-7">
             <div className="mx-auto max-w-7xl">
                 <div className="mb-7 text-center sm:mb-12 lg:text-left">
                     <ScrollReveal>
@@ -28,7 +28,7 @@ export default function ProductsSection({
                 </div>
 
                 {products.length === 0 && (
-                    <div className="rounded-[2rem] border border-dashed border-[#312e81]/25 bg-white/60 p-10 text-center">
+                    <div className="rounded-[2rem] border border-dashed border-gray-300 bg-white/70 p-10 text-center">
                         <h4 className="text-2xl font-bold text-text-primary">No featured products yet</h4>
                         <p className="mt-3 text-text-secondary">Products load from the demo backend. Start it and refresh this page.</p>
                     </div>
@@ -43,7 +43,7 @@ export default function ProductsSection({
                 </div>
 
                 <ScrollReveal className="mt-10 flex justify-center">
-                    <Link href="/products/all" className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#312e81]/15 bg-white/70 px-7 text-sm font-bold text-brand-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-[#17153b] hover:text-white">
+                    <Link href="/products/all" className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#0b3b1f]/15 bg-white/70 px-7 text-sm font-bold text-brand-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-[#062712] hover:text-white">
                         View All Products
                     </Link>
                 </ScrollReveal>

@@ -60,7 +60,7 @@ export default function AccountDeletionRequestForm() {
                         onChange={updateField}
                         required
                         maxLength={100}
-                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-text-primary outline-none transition placeholder:text-gray-400 focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/20"
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-text-primary outline-none transition placeholder:text-gray-400 focus:border-[#1b7a3b] focus:ring-2 focus:ring-[#1b7a3b]/20"
                     />
                 </div>
                 <div>
@@ -76,7 +76,7 @@ export default function AccountDeletionRequestForm() {
                         onChange={updateField}
                         required
                         maxLength={10}
-                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-text-primary outline-none transition placeholder:text-gray-400 focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/20"
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-text-primary outline-none transition placeholder:text-gray-400 focus:border-[#1b7a3b] focus:ring-2 focus:ring-[#1b7a3b]/20"
                     />
                 </div>
             </div>
@@ -87,7 +87,7 @@ export default function AccountDeletionRequestForm() {
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="rounded-full bg-[#0d9488] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#0f766e] disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-[#1b7a3b] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#14642f] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 {isSubmitting ? 'Submitting request…' : 'Submit demo deletion request'}
             </button>

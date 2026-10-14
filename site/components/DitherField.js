@@ -32,7 +32,7 @@ function hexToRgb(hex) {
  * originX/originY are fractions of the box (1, 0 = top-right corner).
  */
 export default function DitherField({
-    color = '#e0e7ff',
+    color = '#dfe8d3',
     alpha = 0.32,
     pixel = 3,
     originX = 1,

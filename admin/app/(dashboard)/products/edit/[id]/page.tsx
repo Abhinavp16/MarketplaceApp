@@ -17,7 +17,7 @@ export default function EditProductRedirect() {
 
     return (
         <div className="flex justify-center items-center h-[400px]">
-            <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
         </div>
     )
 }

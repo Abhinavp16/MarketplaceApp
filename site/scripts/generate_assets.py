@@ -22,17 +22,22 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PUBLIC = os.path.join(ROOT, "public")
 FONT_BOLD = os.path.join(PUBLIC, "fonts", "cabinet-grotesk", "CabinetGrotesk-Extrabold.otf")
 
-DEEP = (15, 46, 52)
-DARKER = (9, 33, 38)
-INDIGO = (15, 118, 110)
-MID = (13, 148, 136)
-SOFT = (94, 234, 212)
-LIGHT = (204, 244, 238)
-PALE = (232, 250, 247)
-TEAL = (13, 148, 136)
-TEAL_D = (15, 118, 110)
-TEAL_L = (94, 234, 212)
+# Palette of the original platform site (leaf green + gold accent), see app/globals.css and
+# the hard-coded hex values in components/ (#0b3b1f, #174f2c, #dfe8d3, #edf3e6, #1f8a3b, #d9a441...).
+DEEP = (14, 74, 31)        # #0E4A1F
+DARKER = (6, 39, 18)       # #062712
+GREEN = (31, 138, 59)     # #1F8A3B  primary leaf green 
+MID = (23, 79, 44)         # #174F2C
+SOFT = (143, 191, 119)     # #8FBF77
+LIGHT = (223, 232, 211)    # #DFE8D3
+PALE = (237, 243, 230)     # #EDF3E6
+GOLD = (217, 164, 65)      # #D9A441  gold accent used by the footer glow
+GOLD_D = (179, 128, 40)
+GOLD_L = (244, 201, 107)   # #F4C96B
 WHITE = (255, 255, 255)
+MARK_DOT = (158, 227, 176)  # #9EE3B0 light-green dot of the "D." mark
+TILE_A = (15, 118, 41)     # tile gradient, sampled from app/assets/images/logo.png
+TILE_B = (17, 95, 37)
 
 SS = 2  # supersampling factor for smooth edges
 
@@ -104,7 +109,7 @@ class Canvas:
         x0, y0, x1, y1 = box
         self.d.pieslice([x0 * SS, y0 * SS, x1 * SS, y1 * SS], start, end, fill=fill)
 
-    def cube(self, cx, cy, size, top=SOFT, left=INDIGO, right=DEEP):
+    def cube(self, cx, cy, size, top=SOFT, left=GREEN, right=DEEP):
         w, h = size * 0.866, size * 0.5
         self.poly([(cx, cy), (cx + w, cy - h), (cx, cy - 2 * h), (cx - w, cy - h)], top)
         self.poly([(cx, cy), (cx + w, cy - h), (cx + w, cy - h + size), (cx, cy + size)], right)
@@ -116,7 +121,7 @@ class Canvas:
         return self.img.resize((self.w, self.h), Image.LANCZOS)
 
 
-def cube_stack(c, cx, base_y, size, rows, top=SOFT, left=INDIGO, right=DEEP, accent=None):
+def cube_stack(c, cx, base_y, size, rows, top=SOFT, left=GREEN, right=DEEP, accent=None):
     """Pyramid of cubes in a simple isometric arrangement (front-facing rows)."""
     w = size * 0.866
     y = base_y
@@ -126,12 +131,12 @@ def cube_stack(c, cx, base_y, size, rows, top=SOFT, left=INDIGO, right=DEEP, acc
         for i in range(n):
             col = (top, left, right)
             if accent and (r + i) % 3 == 0:
-                col = (TEAL_L, TEAL, TEAL_D)
+                col = (GOLD_L, GOLD, GOLD_D)
             c.cube(start + i * 2 * w, y, size, *col)
         y -= size * 1.5
 
 
-def floating_dots(c, seed, count=14, w=1920, h=1080, cols=(TEAL_L, SOFT, WHITE)):
+def floating_dots(c, seed, count=14, w=1920, h=1080, cols=(GOLD_L, SOFT, WHITE)):
     import random
 
     rnd = random.Random(seed)
@@ -152,13 +157,46 @@ def font(size):
 # --------------------------------------------------------------------------- logo / favicon / og
 
 
-def logo_mark(size=512):
-    c = Canvas(size, size, transparent=True)
-    c.circle(size / 2, size / 2, size / 2, DEEP + (255,))
-    c.circle(size / 2, size / 2, size * 0.47, INDIGO + (255,))
-    s = size * 0.27
-    c.cube(size / 2, size * 0.5, s, top=WHITE, left=LIGHT, right=TEAL_L)
-    return c.finish()
+def _rr_mask(size, box, r, corners):
+    """Anti-aliased rounded-rectangle mask. box is in 512-unit coordinates."""
+    k = 4 * size / 512
+    m = Image.new("L", (size * 4, size * 4), 0)
+    ImageDraw.Draw(m).rounded_rectangle([v * k for v in box], radius=r * k, fill=255, corners=corners)
+    return m
+
+
+def logo_mark(size=512, rounded=False):
+    """DemoMart 'D.' mark: white D + light-green dot on a green gradient tile
+    (same artwork as app/assets/images/logo.png)."""
+    from PIL import ImageChops
+
+    # Diagonal gradient, top-left -> bottom-right.
+    tile = Image.new("RGBA", (size, size))
+    px = []
+    den = 2.0 * (size - 1)
+    for y in range(size):
+        for x in range(size):
+            t = (x + y) / den
+            px.append(tuple(int(TILE_A[i] + (TILE_B[i] - TILE_A[i]) * t) for i in range(3)) + (255,))
+    tile.putdata(px)
+    # D body: small radius on the stem side, large radius on the bowl side.
+    stem = _rr_mask(size, (106, 114, 342, 398), 22, (True, True, True, True))
+    bowl = _rr_mask(size, (106, 114, 342, 398), 112, (False, True, True, False))
+    body = ImageChops.darker(stem, bowl)
+    cstem = _rr_mask(size, (180, 186, 270, 324), 10, (True, True, True, True))
+    cbowl = _rr_mask(size, (180, 186, 270, 324), 46, (False, True, True, False))
+    counter = ImageChops.darker(cstem, cbowl)
+    d_mask = ImageChops.subtract(body, counter).resize((size, size), Image.LANCZOS)
+    tile.paste(Image.new("RGBA", (size, size), WHITE + (255,)), (0, 0), d_mask)
+    dot = Image.new("L", (size * 4, size * 4), 0)
+    k = 4 * size / 512
+    ImageDraw.Draw(dot).ellipse([(388 - 26) * k, (372 - 26) * k, (388 + 26) * k, (372 + 26) * k], fill=255)
+    tile.paste(Image.new("RGBA", (size, size), MARK_DOT + (255,)), (0, 0), dot.resize((size, size), Image.LANCZOS))
+    if rounded:
+        m = Image.new("L", (size * 4, size * 4), 0)
+        ImageDraw.Draw(m).rounded_rectangle([0, 0, size * 4 - 1, size * 4 - 1], radius=size * 4 * 0.22, fill=255)
+        tile.putalpha(m.resize((size, size), Image.LANCZOS))
+    return tile
 
 
 def build_logo():
@@ -174,24 +212,23 @@ def build_logo():
     # horizontal wordmark
     w, h = 1100, 260
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    img.alpha_composite(mark.resize((220, 220), Image.LANCZOS), (20, 20))
+    img.alpha_composite(logo_mark(220, rounded=True), (20, 20))
     d = ImageDraw.Draw(img)
     d.text((270, 40), "DemoMart", font=font(120), fill=DEEP + (255,))
-    d.text((272, 158), "DEMO  -  Distribution made simple", font=font(50), fill=TEAL + (255,))
+    d.text((272, 158), "DEMO  -  Distribution made simple", font=font(50), fill=GREEN + (255,))
     img.save(out("logo.png"))
 
 
 def build_og():
     w, h = 1200, 630
-    c = Canvas(w, h, gradient=(DEEP, INDIGO))
+    c = Canvas(w, h, gradient=(DEEP, GREEN))
     floating_dots(c, 3, 12, w, h)
     cube_stack(c, 930, 470, 80, 3, accent=True)
     img = c.finish()
-    mark = logo_mark(200)
-    img.alpha_composite(mark, (70, 90))
+    img.alpha_composite(logo_mark(200, rounded=True), (70, 90))
     d = ImageDraw.Draw(img)
     d.text((70, 320), "DemoMart", font=font(96), fill=WHITE)
-    d.text((72, 440), "Distribution made simple", font=font(46), fill=TEAL_L)
+    d.text((72, 440), "Distribution made simple", font=font(46), fill=GOLD_L)
     d.text((72, 530), "Demonstration environment - synthetic data", font=font(30), fill=LIGHT)
     img.convert("RGB").save(out("og-image.png"))
 
@@ -200,17 +237,17 @@ def build_og():
 
 
 def neutral_placeholder(w, h, label):
-    c = Canvas(w, h, gradient=((238, 244, 243), (222, 233, 231)))
+    c = Canvas(w, h, gradient=(PALE, LIGHT))
     cx, cy = w / 2, h / 2 - h * 0.04
     r = min(w, h) * 0.16
-    c.rect((cx - r * 1.5, cy - r, cx + r * 1.5, cy + r), (196, 214, 211), r=r * 0.18)
-    c.circle(cx - r * 0.7, cy - r * 0.35, r * 0.24, (238, 244, 243))
-    c.poly([(cx - r * 1.3, cy + r * 0.85), (cx - r * 0.3, cy - r * 0.15), (cx + r * 0.3, cy + r * 0.45), (cx + r * 0.7, cy + r * 0.05), (cx + r * 1.3, cy + r * 0.85)], (238, 244, 243))
+    c.rect((cx - r * 1.5, cy - r, cx + r * 1.5, cy + r), (200, 214, 184), r=r * 0.18)
+    c.circle(cx - r * 0.7, cy - r * 0.35, r * 0.24, PALE)
+    c.poly([(cx - r * 1.3, cy + r * 0.85), (cx - r * 0.3, cy - r * 0.15), (cx + r * 0.3, cy + r * 0.45), (cx + r * 0.7, cy + r * 0.05), (cx + r * 1.3, cy + r * 0.85)], PALE)
     img = c.finish().convert("RGB")
     d = ImageDraw.Draw(img)
     f = font(int(min(w, h) * 0.05))
     tw = d.textlength(label, font=f)
-    d.text(((w - tw) / 2, cy + r * 1.35), label, font=f, fill=(140, 165, 161))
+    d.text(((w - tw) / 2, cy + r * 1.35), label, font=f, fill=(111, 131, 103))
     return img
 
 
@@ -238,7 +275,7 @@ def app_preview():
     d = ImageDraw.Draw(frame)
     x0 = 90 * SSx
     y0 = 40 * SSx
-    d.rounded_rectangle([x0, y0, x0 + (ph_w + 2 * pad) * SSx, y0 + (ph_h + 2 * pad) * SSx], radius=44 * SSx, fill=(20, 28, 30, 255))
+    d.rounded_rectangle([x0, y0, x0 + (ph_w + 2 * pad) * SSx, y0 + (ph_h + 2 * pad) * SSx], radius=44 * SSx, fill=DARKER + (255,))
     screen = shot.resize((ph_w * SSx, ph_h * SSx), Image.LANCZOS)
     mask = Image.new("L", screen.size, 0)
     ImageDraw.Draw(mask).rounded_rectangle([0, 0, screen.width - 1, screen.height - 1], radius=32 * SSx, fill=255)

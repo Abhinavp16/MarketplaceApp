@@ -56,7 +56,7 @@ interface DemandData {
     trendingProducts: { productId: string; name: string; views: number; stock: number }[]
 }
 
-const COLORS = ['#0088FE', '#0a10ba', '#FFBB28', '#FF8042', '#8884d8', '#8284ca', '#ffc658', '#ff7f7f'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#ff7f7f'];
 const BAR_COLORS = { views: '#3b82f6', orders: '#2563eb', revenue: '#f59e0b', demand: '#ef4444' };
 
 export default function AnalyticsPage() {

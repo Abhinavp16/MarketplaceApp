@@ -205,7 +205,7 @@ export default function CustomersPage() {
                 </div>
                 <Button
                     onClick={toggleDraftingHeader}
-                    className={`${isNotifyModalOpen ? "bg-red-500/10 text-red-500 hover:bg-red-500/20" : "bg-[#818cf8] text-black hover:bg-[#7478e1]"} w-full gap-2 font-bold sm:w-auto`}
+                    className={`${isNotifyModalOpen ? "bg-red-500/10 text-red-500 hover:bg-red-500/20" : "bg-[#86efac] text-black hover:bg-[#6ee7b7]"} w-full gap-2 font-bold sm:w-auto`}
                 >
                     {isNotifyModalOpen ? "Cancel Draft" : <><Bell className="h-4 w-4" /> Custom Notification</>}
                     {selectedIds.length > 0 && `(${selectedIds.length})`}
@@ -214,21 +214,21 @@ export default function CustomersPage() {
 
             {isNotifyModalOpen && (
                 <div className="relative mb-2 animate-in fade-in slide-in-from-top-4 duration-500 ease-out">
-                    <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-[#818cf8]/50 to-transparent" />
+                    <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-[#86efac]/50 to-transparent" />
 
                     <Card className="overflow-hidden border-[#333] bg-[#111111] shadow-2xl">
                         <CardHeader className="border-b border-[#333]/50 bg-gradient-to-b from-[#1a1a1a]/50 to-transparent pb-4">
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                 <CardTitle className="flex items-center gap-3 text-xl font-bold text-white">
-                                    <div className="rounded-lg border border-[#818cf8]/20 bg-[#818cf8]/10 p-2">
-                                        <Send className="h-5 w-5 text-[#818cf8]" />
+                                    <div className="rounded-lg border border-[#86efac]/20 bg-[#86efac]/10 p-2">
+                                        <Send className="h-5 w-5 text-[#86efac]" />
                                     </div>
                                     Draft Custom Notification
                                 </CardTitle>
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                                     <div className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold
                                         ${selectedIds.length > 0
-                                            ? "border-[#818cf8]/30 bg-[#818cf8]/10 text-[#818cf8]"
+                                            ? "border-[#86efac]/30 bg-[#86efac]/10 text-[#86efac]"
                                             : "border-yellow-500/20 bg-yellow-500/5 text-yellow-500/70"
                                         }`}>
                                         <User className="h-3.5 w-3.5" />
@@ -256,7 +256,7 @@ export default function CustomersPage() {
                                             placeholder="Write a clear, punchy title..."
                                             value={notificationData.title}
                                             onChange={(e) => setNotificationData((prev) => ({ ...prev, title: e.target.value }))}
-                                            className="h-11 bg-[#0D0D0D] border-[#333] text-white focus-visible:ring-1 focus-visible:ring-[#818cf8]/50"
+                                            className="h-11 bg-[#0D0D0D] border-[#333] text-white focus-visible:ring-1 focus-visible:ring-[#86efac]/50"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -267,7 +267,7 @@ export default function CustomersPage() {
                                             placeholder="What do you want to tell your customers?"
                                             value={notificationData.body}
                                             onChange={(e) => setNotificationData((prev) => ({ ...prev, body: e.target.value }))}
-                                            className="min-h-[140px] resize-none bg-[#0D0D0D] border-[#333] text-white focus-visible:ring-1 focus-visible:ring-[#818cf8]/50"
+                                            className="min-h-[140px] resize-none bg-[#0D0D0D] border-[#333] text-white focus-visible:ring-1 focus-visible:ring-[#86efac]/50"
                                         />
                                     </div>
                                 </div>
@@ -290,7 +290,7 @@ export default function CustomersPage() {
                                         <Button
                                             onClick={handleSendNotification}
                                             disabled={isSending || !notificationData.title || !notificationData.body || selectedIds.length === 0}
-                                            className="h-14 w-full gap-3 bg-[#818cf8] font-black text-black shadow-[0_0_20px_-5px_rgba(129, 140, 248,0.3)] hover:bg-[#abadef]"
+                                            className="h-14 w-full gap-3 bg-[#86efac] font-black text-black shadow-[0_0_20px_-5px_rgba(134,239,172,0.3)] hover:bg-[#a7f3d0]"
                                         >
                                             {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                                             Send Now
@@ -311,7 +311,7 @@ export default function CustomersPage() {
                         placeholder="Search by name, email, phone..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-[#161616] border-[#333] pl-10 text-white placeholder:text-gray-500 focus-visible:ring-[#818cf8]"
+                        className="bg-[#161616] border-[#333] pl-10 text-white placeholder:text-gray-500 focus-visible:ring-[#86efac]"
                     />
                 </div>
                 <Button type="submit" variant="outline" className="w-full border-[#333] bg-[#0D0D0D] text-white hover:bg-[#1A1A1A] sm:w-auto">
@@ -339,7 +339,7 @@ export default function CustomersPage() {
                 <CardContent>
                     {isLoading ? (
                         <div className="flex justify-center p-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
                         </div>
                     ) : customers.length === 0 ? (
                         <div className="py-10 text-center text-gray-500">No customers found</div>
@@ -401,7 +401,7 @@ export default function CustomersPage() {
                                                     className="border border-[#333] text-white hover:bg-[#1A1A1A]"
                                                     onClick={() => toggleSelect(customer._id)}
                                                 >
-                                                    {isSelected ? <CheckSquare className="h-4 w-4 text-[#818cf8]" /> : <Square className="h-4 w-4" />}
+                                                    {isSelected ? <CheckSquare className="h-4 w-4 text-[#86efac]" /> : <Square className="h-4 w-4" />}
                                                 </Button>
                                             </div>
                                         </div>
@@ -427,7 +427,7 @@ export default function CustomersPage() {
                                                     onClick={toggleSelectAll}
                                                 >
                                                     {selectedIds.length === customers.length && customers.length > 0 ? (
-                                                        <CheckSquare className="h-4 w-4 text-[#818cf8]" />
+                                                        <CheckSquare className="h-4 w-4 text-[#86efac]" />
                                                     ) : (
                                                         <Square className="h-4 w-4" />
                                                     )}
@@ -480,7 +480,7 @@ export default function CustomersPage() {
                                                         onClick={() => toggleSelect(customer._id)}
                                                     >
                                                         {selectedIds.includes(customer._id) ? (
-                                                            <CheckSquare className="h-4 w-4 text-[#818cf8]" />
+                                                            <CheckSquare className="h-4 w-4 text-[#86efac]" />
                                                         ) : (
                                                             <Square className="h-4 w-4" />
                                                         )}

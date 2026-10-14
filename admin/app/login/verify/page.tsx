@@ -69,7 +69,7 @@ function VerifyContent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-transparent p-4">
-      <Card className="w-full max-w-md border-[#d0d1e3] bg-white/92 shadow-[0_32px_90px_rgba(50,58,110,0.12)]">
+      <Card className="w-full max-w-md border-[#dde3d0] bg-white/92 shadow-[0_32px_90px_rgba(60,80,40,0.12)]">
         <CardHeader className="space-y-1">
           <div className="flex justify-center pb-2">
             <Image src="/icon.svg" alt="DemoMart logo" width={56} height={56} className="h-14 w-14 rounded-xl object-cover" />
@@ -96,7 +96,7 @@ function VerifyContent() {
               <Button
                 type="button"
                 onClick={() => router.push("/login")}
-                className="w-full bg-[#818cf8] text-black hover:bg-[#7a7ddd]"
+                className="w-full bg-[#86efac] text-black hover:bg-[#74e39c]"
               >
                 Request a new link
               </Button>

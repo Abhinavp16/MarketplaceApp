@@ -5,7 +5,7 @@ export default function DemoFormStatus({ submitted, className = '' }) {
     return (
         <div className={className} aria-live="polite">
             {submitted ? (
-                <p role="status" className="rounded-2xl bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800">
+                <p role="status" className="rounded-2xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
                     {DEMO_INQUIRY_CONFIRMATION}
                 </p>
             ) : (

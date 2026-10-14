@@ -40,7 +40,7 @@ interface RequirementGroupPanelProps {
 const STATUS: Record<string, { label: string; className: string }> = {
     pending: { label: "Requirement Sent", className: "border-amber-200 bg-amber-50 text-amber-700" },
     countered: { label: "New Price Sent", className: "border-blue-200 bg-blue-50 text-blue-700" },
-    accepted: { label: "Accepted", className: "border-indigo-200 bg-indigo-50 text-indigo-700" },
+    accepted: { label: "Accepted", className: "border-emerald-200 bg-emerald-50 text-emerald-700" },
     converted: { label: "Order Created", className: "border-indigo-200 bg-indigo-50 text-indigo-700" },
     rejected: { label: "Declined", className: "border-red-200 bg-red-50 text-red-700" },
     expired: { label: "Expired", className: "border-slate-200 bg-slate-50 text-slate-500" },

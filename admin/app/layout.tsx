@@ -8,13 +8,13 @@ import './globals.css'
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const viewport = {
-  themeColor: '#1a1e7b',
+  themeColor: '#15803d',
 }
 
 export const metadata: Metadata = {
   title: 'DemoMart Admin',
   description: 'DemoMart Admin Dashboard - Manage products, orders, and negotiations (demonstration environment, synthetic data)',
-    manifest: '/manifest.webmanifest',
+  manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

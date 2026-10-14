@@ -28,7 +28,7 @@ export default function CategoriesSection({
     const remainingCount = Math.max(categories.length - INITIAL_VISIBLE_COUNT, 0);
 
     return (
-        <section id="categories" className="bg-[#e0e7ff] px-4 py-16 sm:px-6 sm:py-24 lg:px-7">
+        <section id="categories" className="bg-[#dfe8d3] px-4 py-16 sm:px-6 sm:py-24 lg:px-7">
             <div className="mx-auto max-w-7xl">
             <ScrollReveal className="mb-12 grid grid-cols-1 gap-5 lg:mb-16 lg:grid-cols-[0.8fr_1fr] lg:items-end">
                 <div>
@@ -39,7 +39,7 @@ export default function CategoriesSection({
             </ScrollReveal>
 
             {categories.length === 0 && (
-                <div className="rounded-[2rem] border border-dashed border-[#312e81]/25 bg-white/60 p-10 text-center">
+                <div className="rounded-[2rem] border border-dashed border-gray-300 bg-white/70 p-10 text-center">
                     <h3 className="text-2xl font-bold text-text-primary">Catalogue unavailable</h3>
                     <p className="mt-3 text-text-secondary">No categories were returned. Start the demo backend and refresh this page.</p>
                 </div>
@@ -52,9 +52,9 @@ export default function CategoriesSection({
                         <ScrollReveal key={i} delay={i * 80}>
                             <Link
                                 href={href}
-                                className="group mx-auto flex h-full w-full max-w-[220px] cursor-pointer flex-col overflow-hidden rounded-[1.35rem] border border-[#312e81]/10 bg-[#eef2ff]/80 p-2 shadow-[0_16px_40px_rgba(30,27,75,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(30,27,75,0.14)]"
+                                className="group mx-auto flex h-full w-full max-w-[220px] cursor-pointer flex-col overflow-hidden rounded-[1.35rem] border border-[#0b3b1f]/10 bg-[#edf3e6]/80 p-2 shadow-[0_16px_40px_rgba(8,36,18,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(8,36,18,0.14)]"
                             >
-                                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[1.2rem] bg-[#c7d2fe]">
+                                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[1.2rem] bg-[#d6e0c9]">
                                     <img
                                         src={cat.image}
                                         className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
@@ -65,7 +65,7 @@ export default function CategoriesSection({
                                     <h3 className="text-sm font-semibold leading-tight tracking-[-0.018em] text-text-primary sm:text-base">
                                         {cat.name}
                                     </h3>
-                                    <div className="mt-3 flex items-center justify-between border-t border-[#312e81]/10 pt-2.5 text-[11px] font-semibold text-brand-primary">
+                                    <div className="mt-3 flex items-center justify-between border-t border-[#0b3b1f]/10 pt-2.5 text-[11px] font-semibold text-brand-primary">
                                         <span>{section.buttonText || 'View Products'}</span>
                                         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/60"><Icon icon={ArrowRight02Icon} size={14} /></span>
                                     </div>
@@ -80,7 +80,7 @@ export default function CategoriesSection({
                         <button
                             type="button"
                             onClick={() => setExpanded(true)}
-                            className="group mx-auto flex h-full min-h-[15rem] w-full max-w-[220px] flex-col items-center justify-center rounded-[1.35rem] border border-white/10 bg-[#17153b] px-5 text-center text-white shadow-[0_16px_40px_rgba(30,27,75,0.16)] transition-all duration-300 hover:-translate-y-1"
+                            className="group mx-auto flex h-full min-h-[15rem] w-full max-w-[220px] flex-col items-center justify-center rounded-[1.35rem] border border-white/10 bg-[#062712] px-5 text-center text-white shadow-[0_16px_40px_rgba(8,36,18,0.16)] transition-all duration-300 hover:-translate-y-1"
                         >
                             <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full border border-white/30 bg-white/8">
                                 <Icon icon={ArrowRight02Icon} size={34} strokeWidth={2.2} className="transition-transform duration-300 group-hover:translate-x-1" />

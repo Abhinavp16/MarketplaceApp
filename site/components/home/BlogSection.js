@@ -9,7 +9,7 @@ const HOME_POST_COUNT = 3;
 
 export default function BlogSection() {
     return (
-        <section className="bg-[#e0e7ff] px-4 py-16 sm:px-6 sm:py-24 lg:px-7">
+        <section className="bg-[#dfe8d3] px-4 py-16 sm:px-6 sm:py-24 lg:px-7">
             <div className="mx-auto max-w-7xl">
                 <ScrollReveal className="mb-12 grid grid-cols-1 gap-6 lg:mb-16 lg:grid-cols-[0.8fr_1fr] lg:items-end">
                     <div>
@@ -34,10 +34,10 @@ export default function BlogSection() {
                 <ScrollReveal className="mt-10 flex justify-center sm:mt-12">
                     <Link
                         href="/insights"
-                        className="group inline-flex items-center gap-4 rounded-full bg-[#16143a] py-2 pl-7 pr-2 text-sm font-bold text-white shadow-[0_16px_35px_-12px_rgba(22,20,58,0.6)] transition-all hover:-translate-y-0.5 sm:text-base"
+                        className="group inline-flex items-center gap-4 rounded-full bg-[#062712] py-2 pl-7 pr-2 text-sm font-bold text-white shadow-[0_16px_35px_-12px_rgba(6,39,18,0.6)] transition-all hover:-translate-y-0.5 sm:text-base"
                     >
                         View All Blog Posts
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 transition-colors group-hover:bg-white group-hover:text-[#16143a]">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 transition-colors group-hover:bg-white group-hover:text-[#062712]">
                             <Icon icon={ArrowRight02Icon} size={18} strokeWidth={2} className="transition-transform group-hover:translate-x-0.5" />
                         </span>
                     </Link>

@@ -22,8 +22,8 @@ export default function ContactSection() {
     };
 
     return (
-        <section id="contact" className="overflow-hidden bg-[#e0e7ff] px-4 py-16 sm:px-6 sm:py-24 lg:px-7">
-            <div className="relative mx-auto max-w-7xl rounded-[2.4rem] bg-[#17153b] p-5 shadow-[0_28px_80px_rgba(30,27,75,0.18)] sm:p-8 lg:p-12">
+        <section id="contact" className="overflow-hidden bg-[#dfe8d3] px-4 py-16 sm:px-6 sm:py-24 lg:px-7">
+            <div className="relative mx-auto max-w-7xl rounded-[2.4rem] bg-[#062712] p-5 shadow-[0_28px_80px_rgba(8,36,18,0.18)] sm:p-8 lg:p-12">
                 <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
                     <ScrollReveal>
                         <div className="mb-5 inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 sm:mb-6">
@@ -72,43 +72,43 @@ export default function ContactSection() {
                     </ScrollReveal>
 
                     <ScrollReveal>
-                        <div className="relative rounded-[2rem] bg-[#eef2ff] p-5 shadow-2xl sm:rounded-[2.4rem] sm:p-8">
+                        <div className="relative rounded-[2rem] bg-[#edf3e6] p-5 shadow-2xl sm:rounded-[2.4rem] sm:p-8">
                             <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="mb-2 block text-xs font-bold uppercase text-[#5b6079]">Your Name</label>
+                                        <label className="mb-2 block text-xs font-bold uppercase text-[#5d6a5f]">Your Name</label>
                                         <input
                                             type="text"
                                             name="name"
                                             suppressHydrationWarning
-                                            className="w-full rounded-2xl border border-[#312e81]/10 bg-white/60 px-5 py-4 text-gray-900 outline-none transition-all focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-primary/10"
+                                            className="w-full rounded-2xl border border-[#0b3b1f]/10 bg-white/60 px-5 py-4 text-gray-900 outline-none transition-all focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-primary/10"
                                             placeholder="Alex Sample"
                                         />
                                     </div>
                                     <div>
-                                        <label className="mb-2 block text-xs font-bold uppercase text-[#5b6079]">Phone Number</label>
+                                        <label className="mb-2 block text-xs font-bold uppercase text-[#5d6a5f]">Phone Number</label>
                                         <input
                                             type="tel"
                                             name="phone"
                                             suppressHydrationWarning
-                                            className="w-full rounded-2xl border border-[#312e81]/10 bg-white/60 px-5 py-4 text-gray-900 outline-none transition-all focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-primary/10"
+                                            className="w-full rounded-2xl border border-[#0b3b1f]/10 bg-white/60 px-5 py-4 text-gray-900 outline-none transition-all focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-primary/10"
                                             placeholder="+91 00000 00000"
                                         />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="mb-2 block text-xs font-bold uppercase text-[#5b6079]">Category of Interest</label>
-                                    <select name="category" suppressHydrationWarning className="w-full appearance-none rounded-2xl border border-[#312e81]/10 bg-white/60 px-5 py-4 text-gray-900 outline-none transition-all focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-primary/10">
+                                    <label className="mb-2 block text-xs font-bold uppercase text-[#5d6a5f]">Category of Interest</label>
+                                    <select name="category" suppressHydrationWarning className="w-full appearance-none rounded-2xl border border-[#0b3b1f]/10 bg-white/60 px-5 py-4 text-gray-900 outline-none transition-all focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-primary/10">
                                         <option>Personal Use</option>
                                         <option>Bulk Inquiry</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="mb-2 block text-xs font-bold uppercase text-[#5b6079]">Your Message</label>
+                                    <label className="mb-2 block text-xs font-bold uppercase text-[#5d6a5f]">Your Message</label>
                                     <textarea
                                         name="message"
                                         suppressHydrationWarning
-                                        className="min-h-[120px] w-full rounded-2xl border border-[#312e81]/10 bg-white/60 px-5 py-4 text-gray-900 outline-none transition-all focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-primary/10"
+                                        className="min-h-[120px] w-full rounded-2xl border border-[#0b3b1f]/10 bg-white/60 px-5 py-4 text-gray-900 outline-none transition-all focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-primary/10"
                                         placeholder="I would like pricing and availability for a sample product."
                                     />
                                 </div>

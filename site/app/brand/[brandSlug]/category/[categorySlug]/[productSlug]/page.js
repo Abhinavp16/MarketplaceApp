@@ -26,7 +26,7 @@ export default async function BrandProductDetailPage({ params }) {
             <div className="page-transition min-h-[60vh] flex flex-col items-center justify-center text-center px-6">
                 <h1 className="text-4xl md:text-5xl font-primary font-bold text-text-primary mb-6">Product Not Found</h1>
                 <p className="text-text-secondary text-lg mb-8">We could not find the product you were looking for.</p>
-                <Link href={`/brand/${resolvedParams.brandSlug}/category/${resolvedParams.categorySlug}`} className="px-8 py-3 bg-brand-primary text-white font-bold rounded-full hover:bg-brand-secondary transition-colors shadow-cta">Back to Products</Link>
+                <Link href={`/brand/${resolvedParams.brandSlug}/category/${resolvedParams.categorySlug}`} className="px-8 py-3 bg-brand-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors shadow-cta">Back to Products</Link>
             </div>
         );
     }
@@ -55,7 +55,7 @@ export default async function BrandProductDetailPage({ params }) {
                             <ProductVariantShowcase product={product} productKey={productKey} />
                             {highlights.length > 0 && <div className="mt-8 rounded-[2rem] bg-neutral-surface p-6"><h3 className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-primary mb-4">Key Features</h3><ul className="space-y-3">{highlights.map((highlight, index) => <li key={index} className="flex items-start gap-3 text-sm leading-7 text-text-secondary"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-brand-primary" /><span>{highlight}</span></li>)}</ul></div>}
                             <div className="mt-8 flex flex-wrap gap-3 text-sm"><VariantAwareSkuChip productKey={productKey} sku={product.sku} /></div>
-                            <div className="mt-10"><VariantAwareInquiryButton productKey={productKey} productName={product.name} price={displayPrice} details={inquiryDetails} className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-4 text-center text-sm font-bold text-white shadow-[0_14px_30px_rgba(13,148,136,0.26)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(13,148,136,0.34)]">Request Quote</VariantAwareInquiryButton></div>
+                            <div className="mt-10"><VariantAwareInquiryButton productKey={productKey} productName={product.name} price={displayPrice} details={inquiryDetails} className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-4 text-center text-sm font-bold text-white shadow-[0_14px_30px_rgba(249,115,22,0.26)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(249,115,22,0.34)]">Request Quote</VariantAwareInquiryButton></div>
                         </div>
                     </ScrollReveal>
                 </div>

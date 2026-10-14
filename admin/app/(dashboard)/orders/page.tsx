@@ -443,7 +443,7 @@ export default function OrdersPage() {
                         placeholder="Search by order number, customer name, phone..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-[#161616] border-[#333] pl-10 text-white placeholder:text-gray-500 focus-visible:ring-[#818cf8]"
+                        className="bg-[#161616] border-[#333] pl-10 text-white placeholder:text-gray-500 focus-visible:ring-[#86efac]"
                     />
                 </div>
                 <Button
@@ -472,12 +472,12 @@ export default function OrdersPage() {
             </form>
 
             <div className="flex flex-wrap gap-2" aria-label="Order approval filters">
-                <Button type="button" size="sm" variant={acceptanceFilter === "all" ? "default" : "outline"} className={acceptanceFilter === "all" ? "bg-[#818cf8] text-black hover:bg-[#797cd6]" : "border-[#333] bg-[#0D0D0D] text-white hover:bg-[#1A1A1A]"} onClick={() => { setAcceptanceFilter("all"); void fetchOrders(1, true, searchFromUrl, "all") }}>All Orders</Button>
+                <Button type="button" size="sm" variant={acceptanceFilter === "all" ? "default" : "outline"} className={acceptanceFilter === "all" ? "bg-[#86efac] text-black hover:bg-[#74db98]" : "border-[#333] bg-[#0D0D0D] text-white hover:bg-[#1A1A1A]"} onClick={() => { setAcceptanceFilter("all"); void fetchOrders(1, true, searchFromUrl, "all") }}>All Orders</Button>
                 <Button type="button" size="sm" variant={acceptanceFilter === "pending" ? "default" : "outline"} className={acceptanceFilter === "pending" ? "bg-amber-500 text-black hover:bg-amber-400" : "border-[#333] bg-[#0D0D0D] text-white hover:bg-[#1A1A1A]"} onClick={() => { setAcceptanceFilter("pending"); void fetchOrders(1, true, searchFromUrl, "pending") }}>Awaiting Approval ({pendingApprovalCount})</Button>
             </div>
 
             {filteredUserId && (
-                <div className="flex flex-col gap-3 rounded-xl border border-[#2f304f] bg-[#0D0D0D] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 rounded-xl border border-[#2f4f3a] bg-[#0D0D0D] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <div className="text-sm font-semibold text-white">
                             Viewing order history for {filteredCustomerName || "selected shop"}
@@ -510,7 +510,7 @@ export default function OrdersPage() {
                 <CardContent>
                     {isLoading ? (
                         <div className="flex justify-center p-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
                         </div>
                     ) : displayedOrders.length === 0 ? (
                         <div className="py-10 text-center text-gray-500">No orders found</div>
@@ -722,7 +722,7 @@ export default function OrdersPage() {
 
                                         {selectedOrder.status === "pending_payment" && canCompletePayment(selectedOrder) && (
                                             <Button
-                                                className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
+                                                className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
                                                 onClick={() => handleMarkPaymentCompleted(selectedOrder._id)}
                                                 disabled={isUpdatingStatus}
                                             >
@@ -736,7 +736,7 @@ export default function OrdersPage() {
                                         <div className="text-sm text-yellow-500">No payment information uploaded yet.</div>
                                         {selectedOrder.status === "pending_payment" && canCompletePayment(selectedOrder) && (
                                             <Button
-                                                className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
+                                                className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
                                                 onClick={() => handleMarkPaymentCompleted(selectedOrder._id)}
                                                 disabled={isUpdatingStatus}
                                             >
@@ -812,7 +812,7 @@ export default function OrdersPage() {
                                     <h3 className="mb-3 font-medium">Status Timeline</h3>
                                     <div className="space-y-3">
                                         {selectedOrder.statusHistory.map((entry, idx) => (
-                                            <div key={idx} className="border-l-2 border-[#818cf8] pl-3">
+                                            <div key={idx} className="border-l-2 border-[#86efac] pl-3">
                                                 <div className="text-sm font-medium">{formatStatusLabel(entry.status)}</div>
                                                 <div className="text-xs text-gray-400">{new Date(entry.timestamp).toLocaleString("en-IN")}</div>
                                                 {entry.note ? <div className="mt-1 text-xs text-gray-300">{displayActivityText(entry.note)}</div> : null}
@@ -947,7 +947,7 @@ export default function OrdersPage() {
                         </Button>
                         <Button
                             type="button"
-                            className="bg-[#818cf8] text-black hover:bg-[#797cd6]"
+                            className="bg-[#86efac] text-black hover:bg-[#74db98]"
                             onClick={() => selectedOrder && shipOrder(selectedOrder._id)}
                             disabled={isShipping}
                         >

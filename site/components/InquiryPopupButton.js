@@ -82,7 +82,7 @@ export default function InquiryPopupButton({
                                         </div>
 
                                         <div className="text-center">
-                                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-3 py-1 text-[11px] font-bold text-teal-700">
+                                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-green-100 bg-green-50 px-3 py-1 text-[11px] font-bold text-green-700">
                                                 Demo Inquiry
                                             </div>
                                             <h3 className="text-3xl font-extrabold text-text-primary">Product Inquiry</h3>
@@ -169,7 +169,7 @@ export default function InquiryPopupButton({
                     )}
 
                     {showToast && (
-                        <div className="fixed left-1/2 top-5 z-[10000] -translate-x-1/2 rounded-lg bg-teal-600 px-4 py-3 text-white shadow-lg">
+                        <div className="fixed left-1/2 top-5 z-[10000] -translate-x-1/2 rounded-lg bg-green-600 px-4 py-3 text-white shadow-lg">
                             {DEMO_INQUIRY_CONFIRMATION}
                         </div>
                     )}

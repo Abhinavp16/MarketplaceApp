@@ -33,7 +33,7 @@ export default async function CategoryPage({ params }) {
                 <p className="text-text-secondary text-lg mb-8">We could not find the category you were looking for.</p>
                 <Link
                     href="/products"
-                    className="px-8 py-3 bg-brand-primary text-white font-bold rounded-full hover:bg-brand-secondary transition-colors shadow-cta"
+                    className="px-8 py-3 bg-brand-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors shadow-cta"
                 >
                     Back to Products
                 </Link>
@@ -86,13 +86,13 @@ export default async function CategoryPage({ params }) {
                                         {(brandName || category.name) && (
                                             <div className="mt-1 space-y-0.5 sm:mt-2 sm:space-y-1">
                                                 {brandName && (
-                                                    <div className="inline-flex max-w-full items-center rounded-full border border-brand-primary/15 bg-[#eef2ff] px-1.5 py-0.5 text-[7.5px] font-black uppercase tracking-[0.08em] text-brand-primary sm:px-2 sm:text-[9px] sm:tracking-[0.1em]">
+                                                    <div className="inline-flex max-w-full items-center rounded-full border border-brand-primary/15 bg-[#edf3e6] px-1.5 py-0.5 text-[7.5px] font-black uppercase tracking-[0.08em] text-brand-primary sm:px-2 sm:text-[9px] sm:tracking-[0.1em]">
                                                         <span className="mr-1 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-primary" />
                                                         <span className="truncate">{brandName}</span>
                                                     </div>
                                                 )}
-                                                <p className="line-clamp-1 text-[8px] font-semibold leading-3 text-[#4b5578] sm:text-[10px] sm:leading-4">
-                                                    <span className="font-black uppercase tracking-[0.1em] text-[#1e1b4b]/55">Category: </span>
+                                                <p className="line-clamp-1 text-[8px] font-semibold leading-3 text-[#486352] sm:text-[10px] sm:leading-4">
+                                                    <span className="font-black uppercase tracking-[0.1em] text-[#17351d]/55">Category: </span>
                                                     {category.name}
                                                 </p>
                                             </div>

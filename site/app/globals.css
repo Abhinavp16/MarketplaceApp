@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
 @import "tailwindcss";
 
 @font-face {
@@ -33,18 +35,16 @@
 }
 
 @theme {
-  --color-brand-primary: #3730a3;
-  --color-brand-secondary: #4f46e5;
-  --color-brand-light: #e0e7ff;
-  --color-brand-dark: #1e1b4b;
-  --color-brand-accent: #0d9488;
-  --color-text-primary: #131530;
-  --color-text-secondary: #5b6079;
-  --color-neutral-background: #e0e7ff;
-  --color-neutral-surface: #eef2ff;
+  --color-brand-primary: #0b3b1f;
+  --color-brand-secondary: #174f2c;
+  --color-brand-light: #dfe8d3;
+  --color-brand-dark: #062712;
+  --color-text-primary: #142018;
+  --color-text-secondary: #5d6a5f;
+  --color-neutral-background: #dfe8d3;
+  --color-neutral-surface: #edf3e6;
   --font-family-primary: 'Cabinet Grotesk', sans-serif;
-  --font-family-secondary: 'Cabinet Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --shadow-cta: 0 4px 14px 0 rgba(55,48,163, 0.39);
+  --font-family-secondary: 'Outfit', sans-serif;
 }
 
 html {
@@ -72,11 +72,11 @@ h6 {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid rgba(49,46,129, 0.12);
+  border: 1px solid rgba(11, 59, 31, 0.12);
   border-radius: 999px;
-  background: rgba(238,242,255, 0.72);
+  background: rgba(237, 243, 230, 0.72);
   padding: 0.55rem 1rem;
-  color: #312e81;
+  color: #0b3b1f;
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -207,10 +207,10 @@ h6 {
 
 /* Glassmorphism utility */
 .glass {
-  background: rgba(255,255,255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 /* Custom scrollbar */

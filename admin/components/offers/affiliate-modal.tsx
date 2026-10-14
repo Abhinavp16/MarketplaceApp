@@ -160,7 +160,7 @@ export function AffiliateModal({ isOpen, onClose, onSuccess, code }: AffiliateMo
                                 value={formData.personName}
                                 onChange={(e) => setFormData({ ...formData, personName: e.target.value })}
                                 placeholder="Enter name"
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                                 required
                             />
                         </div>
@@ -171,7 +171,7 @@ export function AffiliateModal({ isOpen, onClose, onSuccess, code }: AffiliateMo
                                 value={formData.code}
                                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                                 placeholder="CODEWITHHARRYBOGO"
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                                 required
                             />
                         </div>
@@ -256,7 +256,7 @@ export function AffiliateModal({ isOpen, onClose, onSuccess, code }: AffiliateMo
                                 type="number"
                                 value={formData.usageLimit}
                                 onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value })}
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                                 required
                             />
                         </div>
@@ -270,7 +270,7 @@ export function AffiliateModal({ isOpen, onClose, onSuccess, code }: AffiliateMo
                                 type="date"
                                 value={formData.startDate}
                                 onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                                 required
                             />
                         </div>
@@ -281,7 +281,7 @@ export function AffiliateModal({ isOpen, onClose, onSuccess, code }: AffiliateMo
                                 type="date"
                                 value={formData.endDate}
                                 onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                                className="bg-[#0D0D0D] border-[#333] focus:border-[#818cf8]"
+                                className="bg-[#0D0D0D] border-[#333] focus:border-[#86efac]"
                             />
                         </div>
                     </div>
@@ -292,7 +292,7 @@ export function AffiliateModal({ isOpen, onClose, onSuccess, code }: AffiliateMo
                         <Button type="button" variant="ghost" onClick={onClose} className="text-gray-400 hover:text-white hover:bg-[#333]">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={loading} className="is-active hover:bg-[#818cf8]/90 px-8">
+                        <Button type="submit" disabled={loading} className="is-active hover:bg-[#86efac]/90 px-8">
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {code ? "Update Affiliate Code" : "Create Affiliate Code"}
                         </Button>

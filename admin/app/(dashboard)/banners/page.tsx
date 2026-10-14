@@ -715,7 +715,7 @@ export default function BannersPage() {
         const isVideo = type === 'hero' && banner.mediaType !== 'image'
 
         return (
-            <div className={`border rounded-lg p-4 space-y-4 bg-[#0D0D0D] ${isDragging ? 'border-[#818cf8] shadow-2xl' : 'border-[#333]'}`}>
+            <div className={`border rounded-lg p-4 space-y-4 bg-[#0D0D0D] ${isDragging ? 'border-[#86efac] shadow-2xl' : 'border-[#333]'}`}>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2 min-w-0">
                         {handle}
@@ -1078,7 +1078,7 @@ export default function BannersPage() {
     if (isLoading) {
         return (
             <div className="flex justify-center p-8">
-                <Loader2 className="h-8 w-8 animate-spin text-[#818cf8]" />
+                <Loader2 className="h-8 w-8 animate-spin text-[#86efac]" />
             </div>
         )
     }
