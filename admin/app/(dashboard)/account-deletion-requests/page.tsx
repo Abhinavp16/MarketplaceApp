@@ -69,6 +69,8 @@ async function fetchDeletionRequests(statusFilter: "all" | DeletionStatus) {
 }
 
 export default function AccountDeletionRequestsPage() {
+  // Fixed per page load so the overdue / due-soon badges stay stable between renders.
+  const [now] = useState(() => Date.now())
   const [requests, setRequests] = useState<DeletionRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<"all" | DeletionStatus>("all")
@@ -76,6 +78,8 @@ export default function AccountDeletionRequestsPage() {
   const [memberNote, setMemberNote] = useState("")
   const [identityVerified, setIdentityVerified] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // Website requests need the admin to confirm they verified the account holder.
+  const needsVerification = selectedRequest?.source === "website" && !selectedRequest.identityVerification?.verifiedAt
 
   const outstandingCount = useMemo(
     () => requests.filter((request) => request.status === "pending" || request.status === "in_review").length,
@@ -134,7 +138,7 @@ export default function AccountDeletionRequestsPage() {
         : `/admin/account-deletion-requests/${selectedRequest._id}`
       const response = await apiFetch(endpoint, {
         method: status === "completed" ? "POST" : "PUT",
-        body: JSON.stringify(status === "completed" ? { staffNote: memberNote } : { status, staffNote: memberNote, identityVerified }),
+        body: JSON.stringify(status === "completed" ? { staffNote: memberNote, identityVerified } : { status, staffNote: memberNote, identityVerified }),
       })
       const body = await response.json()
       if (!response.ok) throw new Error(body.message || "Unable to update deletion request")
@@ -189,7 +193,10 @@ export default function AccountDeletionRequestsPage() {
           ) : (
             <div className="space-y-3">
               {requests.map((request) => {
-                const isOverdue = ["pending", "in_review"].includes(request.status) && new Date(request.dueAt) < new Date()
+                const isOpen = ["pending", "in_review"].includes(request.status)
+                const msLeft = new Date(request.dueAt).getTime() - now
+                const isOverdue = isOpen && msLeft < 0
+                const isDueSoon = isOpen && !isOverdue && msLeft <= 7 * 24 * 60 * 60 * 1000
                 return (
                   <button
                     type="button"
@@ -203,7 +210,7 @@ export default function AccountDeletionRequestsPage() {
                       <p className="mt-1 text-xs text-gray-500">Requested {formatDate(request.requestedAt)} via {request.source}</p>
                     </div>
                     <div className="text-left md:text-right">
-                      <p className={`text-xs font-semibold ${isOverdue ? "text-red-300" : "text-gray-300"}`}>{isOverdue ? "Overdue" : "Due"}: {formatDate(request.dueAt)}</p>
+                      <p className={`text-xs font-semibold ${isOverdue ? "text-red-300" : isDueSoon ? "text-amber-300" : "text-gray-300"}`}>{isOverdue ? "Overdue" : isDueSoon ? "Due soon" : "Due"}: {formatDate(request.dueAt)}</p>
                     </div>
                     <Badge variant="outline" className={statusClass[request.status]}>{statusLabel[request.status]}</Badge>
                   </button>
@@ -232,7 +239,7 @@ export default function AccountDeletionRequestsPage() {
               </div>
               {selectedRequest.status === "pending" || selectedRequest.status === "in_review" ? (
                 <>
-                  {selectedRequest.source === "website" && selectedRequest.status === "pending" ? (
+                  {needsVerification ? (
                     <label className="flex items-start gap-3 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">
                       <input
                         type="checkbox"
@@ -249,10 +256,11 @@ export default function AccountDeletionRequestsPage() {
                     placeholder="Verification outcome, retention exception, or rejection reason"
                     className="min-h-28 border-[#333] bg-[#0D0D0D] text-white placeholder:text-gray-500"
                   />
+                  <p className="text-xs text-gray-500">If you reject the request, this note is shown to the customer in the app.</p>
                   <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                    {selectedRequest.status === "pending" ? <Button disabled={isSubmitting || (selectedRequest.source === "website" && !identityVerified)} onClick={() => void updateStatus("in_review")} variant="outline" className="border-blue-400/30 bg-blue-400/10 text-blue-200 hover:bg-blue-400/20">Mark in review</Button> : null}
+                    {selectedRequest.status === "pending" ? <Button disabled={isSubmitting || (needsVerification && !identityVerified)} onClick={() => void updateStatus("in_review")} variant="outline" className="border-blue-400/30 bg-blue-400/10 text-blue-200 hover:bg-blue-400/20">Mark in review</Button> : null}
                     <Button disabled={isSubmitting} onClick={() => void updateStatus("rejected")} variant="outline" className="border-red-400/30 bg-red-400/10 text-red-200 hover:bg-red-400/20">Reject request</Button>
-                    <Button disabled={isSubmitting} onClick={() => void updateStatus("completed")} className="bg-[#818cf8] text-black hover:bg-[#abadef]">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Complete deletion"}</Button>
+                    <Button disabled={isSubmitting || (needsVerification && !identityVerified)} onClick={() => void updateStatus("completed")} className="bg-[#818cf8] text-black hover:bg-[#abadef]">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Complete deletion"}</Button>
                   </div>
                 </>
               ) : (

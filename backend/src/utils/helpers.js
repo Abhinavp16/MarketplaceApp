@@ -14,6 +14,14 @@ const generateNegotiationNumber = () => {
   return `NGT-${year}-${timestamp}${random}`;
 };
 
+// Number shared by products a wholesaler sent together from the cart.
+const generateRequestNumber = () => {
+  const year = new Date().getFullYear();
+  const random = crypto.randomInt(1000, 9999);
+  const timestamp = Date.now().toString().slice(-4);
+  return `REQ-${year}-${timestamp}${random}`;
+};
+
 const generatePaymentNumber = () => {
   const year = new Date().getFullYear();
   const random = crypto.randomInt(1000, 9999);
@@ -29,12 +37,17 @@ const generateSKU = (category, name) => {
 };
 
 const paginate = (page = 1, limit = 20, maxLimit = 50) => {
-  const pageNum = Math.max(1, parseInt(page));
-  const limitNum = Math.min(Math.max(1, parseInt(limit)), maxLimit);
+  // Missing or non-numeric values fall back to the defaults.
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.min(Math.max(1, parseInt(limit, 10) || 20), maxLimit);
   const skip = (pageNum - 1) * limitNum;
 
   return { page: pageNum, limit: limitNum, skip };
 };
+
+// A query-string value as text, or undefined when it isn't plain text
+// (e.g. ?status[x]=y arrives as an object).
+const queryText = (value) => (typeof value === 'string' ? value : undefined);
 
 const formatPaginationResponse = (data, total, page, limit) => {
   const totalPages = Math.ceil(total / limit);
@@ -56,6 +69,8 @@ const sanitizeUser = (user) => {
   const userObj = user.toObject ? user.toObject() : { ...user };
   delete userObj.passwordHash;
   delete userObj.__v;
+  // Admin-only: which brands are hidden from this customer.
+  delete userObj.hiddenBrands;
   if (userObj.businessInfo) {
     delete userObj.businessInfo.proofImageKeys;
     delete userObj.businessInfo.proofImages;
@@ -72,8 +87,10 @@ const formatPrice = (price) => {
 };
 
 module.exports = {
+  queryText,
   generateOrderNumber,
   generateNegotiationNumber,
+  generateRequestNumber,
   generatePaymentNumber,
   generateSKU,
   paginate,

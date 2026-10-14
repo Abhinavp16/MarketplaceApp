@@ -1,8 +1,42 @@
-const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Negotiation = require('../models/Negotiation');
+const { verifyAccessToken } = require('../utils/jwtTokens');
 const logger = require('../utils/logger');
+
+// The business team can open any deal; a wholesaler only their own.
+const TEAM_ROLES = new Set(['admin', 'staff']);
+
+/**
+ * The signed-in user on this socket, from their access token (sent with the
+ * event or at connection). What the client says about its own id or role is
+ * never trusted. Null when there is no valid token or the account is off.
+ */
+async function socketUser(socket, data = {}) {
+  const token = data?.token || socket.handshake.auth?.token;
+  if (!token || typeof token !== 'string') return null;
+  try {
+    const decoded = verifyAccessToken(token);
+    if (decoded.sessionExpiresAt && new Date(decoded.sessionExpiresAt) <= new Date()) return null;
+    const user = await User.findById(decoded.userId).select('_id name role isActive');
+    return user && user.isActive ? user : null;
+  } catch {
+    return null;
+  }
+}
+
+async function canOpenNegotiation(user, negotiationId) {
+  if (!mongoose.Types.ObjectId.isValid(negotiationId)) return false;
+  if (TEAM_ROLES.has(user.role)) {
+    return Boolean(await Negotiation.exists({ _id: negotiationId }));
+  }
+  if (user.role !== 'wholesaler') return false;
+  return Boolean(await Negotiation.exists({ _id: negotiationId, wholesalerId: user._id }));
+}
+
+// Events about a deal only count from a socket that joined that deal.
+const inNegotiation = (socket, data) =>
+  Boolean(socket.negotiationId) && String(data?.negotiationId || '') === socket.negotiationId;
 
 // Shared Socket.IO server instance (also used for admin fan-out).
 let ioInstance = null;
@@ -13,74 +47,26 @@ const activeConnections = new Map();
 // Store typing users: { negotiationId: { userId: { username, timestamp } } }
 const typingUsers = new Map();
 
-const MAX_MESSAGE_LENGTH = 280;
-const PRIVILEGED_ROLES = ['admin', 'staff'];
+// Takes the socket out of its deal's room and tells the others.
+function leaveRoom(socket) {
+  const { negotiationId, userId, userRole } = socket;
+  if (!negotiationId) return;
+  const room = `negotiation-${negotiationId}`;
+  socket.leave(room);
 
-const roomFor = (negotiationId) => `negotiation-${negotiationId}`;
-
-const extractToken = (socket) => {
-  const auth = socket.handshake?.auth || {};
-  if (typeof auth.token === 'string' && auth.token) return auth.token.replace(/^Bearer\s+/i, '');
-  const header = socket.handshake?.headers?.authorization;
-  if (typeof header === 'string' && /^Bearer\s+/i.test(header)) return header.replace(/^Bearer\s+/i, '');
-  const queryToken = socket.handshake?.query?.token;
-  if (typeof queryToken === 'string' && queryToken) return queryToken;
-  return null;
-};
-
-/**
- * Socket.IO connection middleware. Every socket must present a valid access
- * token; identity (user id, role, name) is derived from that token and the
- * database - never from fields sent by the client.
- */
-async function authenticateSocket(socket, next) {
-  try {
-    const token = extractToken(socket);
-    if (!token) return next(new Error('Authentication required'));
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.type === 'refresh') return next(new Error('Invalid token'));
-    if (decoded.sessionExpiresAt && new Date(decoded.sessionExpiresAt) <= new Date()) {
-      return next(new Error('Session expired'));
-    }
-
-    const user = await User.findById(decoded.userId).select('_id name username role isActive');
-    if (!user || !user.isActive) return next(new Error('Account not available'));
-
-    socket.data.user = {
-      id: String(user._id),
-      role: user.role,
-      name: user.name || user.username || 'User',
-    };
-    return next();
-  } catch (error) {
-    return next(new Error('Invalid or expired token'));
-  }
-}
-
-// Admin/staff may join any negotiation; a wholesaler only their own.
-async function canAccessNegotiation(user, negotiationId) {
-  if (!user || !mongoose.isValidObjectId(negotiationId)) return false;
-  if (PRIVILEGED_ROLES.includes(user.role)) {
-    return Boolean(await Negotiation.exists({ _id: negotiationId }));
-  }
-  if (user.role === 'wholesaler') {
-    return Boolean(await Negotiation.exists({ _id: negotiationId, wholesalerId: user.id }));
-  }
-  return false;
-}
-
-function cleanupMembership(socket, negotiationId) {
   if (activeConnections.has(negotiationId)) {
     activeConnections.get(negotiationId).delete(socket.id);
     if (activeConnections.get(negotiationId).size === 0) {
       activeConnections.delete(negotiationId);
     }
   }
-  const user = socket.data.user;
-  if (user && typingUsers.has(negotiationId)) {
-    delete typingUsers.get(negotiationId)[user.id];
+  if (typingUsers.has(negotiationId)) {
+    delete typingUsers.get(negotiationId)[userId];
   }
+
+  socket.to(room).emit('user-offline', { userId, userRole, timestamp: new Date() });
+  logger.info(`[Socket] ${userRole} left negotiation ${negotiationId}`);
+  socket.negotiationId = null;
 }
 
 class NegotiationSocketService {
@@ -90,26 +76,25 @@ class NegotiationSocketService {
 
   static initializeSocket(io) {
     ioInstance = io;
-    io.use(authenticateSocket);
-
     io.on('connection', (socket) => {
-      const user = socket.data.user;
-      logger.info(`[Socket] Authenticated connection: ${socket.id} (${user.role})`);
+      logger.info(`[Socket] New connection: ${socket.id}`);
 
-      // Rooms this socket is allowed to speak in (set only after authorization).
-      const joined = new Set();
-      const inRoom = (negotiationId) => joined.has(String(negotiationId));
-
-      // Admin panels join the shared `admins` room for realtime notifications.
-      // The role comes from the authenticated socket, not from the client.
-      socket.on('join-admin', () => {
+      // Admin panels join the shared `admins` room for realtime
+      // notifications. Unlike negotiation rooms, this join is authenticated:
+      // the client must present a valid JWT for an active admin user.
+      socket.on('join-admin', async (data = {}) => {
+        const user = await socketUser(socket, data);
+        if (!user) {
+          socket.emit('admin-join-error', { message: 'Invalid or expired token' });
+          return;
+        }
         if (user.role !== 'admin') {
           socket.emit('admin-join-error', { message: 'Admin access required' });
           return;
         }
         socket.join('admins');
-        socket.adminUserId = user.id;
-        logger.info(`[Socket] Admin ${user.id} joined admins room`);
+        socket.adminUserId = String(user._id);
+        logger.info(`[Socket] Admin ${user._id} joined admins room`);
         socket.emit('admin-joined', { at: new Date() });
       });
 
@@ -118,120 +103,90 @@ class NegotiationSocketService {
         socket.adminUserId = null;
       });
 
-      // Join a negotiation chat room (authorized against the database).
+      // Joining a deal's chat room needs a valid sign-in and access to the deal.
       socket.on('join-negotiation', async (data = {}) => {
+        const negotiationId = String(data?.negotiationId || '');
+        const user = await socketUser(socket, data);
+        if (!user) {
+          socket.emit('negotiation-join-error', { negotiationId, message: 'Authentication required' });
+          return;
+        }
+        let allowed = false;
         try {
-          const negotiationId = String(data.negotiationId || '');
-          if (!(await canAccessNegotiation(user, negotiationId))) {
-            socket.emit('negotiation-join-error', { negotiationId, message: 'Not allowed to join this negotiation' });
-            return;
-          }
-          const room = roomFor(negotiationId);
-          socket.join(room);
-          joined.add(negotiationId);
-          socket.negotiationId = negotiationId;
-
-          if (!activeConnections.has(negotiationId)) {
-            activeConnections.set(negotiationId, new Set());
-          }
-          activeConnections.get(negotiationId).add(socket.id);
-
-          logger.info(`[Socket] ${user.role} joined negotiation ${negotiationId}`);
-          socket.to(room).emit('user-online', {
-            userId: user.id,
-            userRole: user.role,
-            timestamp: new Date(),
-          });
-          socket.emit('negotiation-joined', { negotiationId });
-        } catch (error) {
-          socket.emit('negotiation-join-error', { message: 'Could not join negotiation' });
+          allowed = await canOpenNegotiation(user, negotiationId);
+        } catch (err) {
+          logger.error('[Socket] Negotiation access check failed', { message: err.message });
         }
-      });
+        if (!allowed) {
+          socket.emit('negotiation-join-error', { negotiationId, message: 'Negotiation not found' });
+          return;
+        }
 
-      // Live message relay. Identity is taken from the token. (Persistence
-      // happens through the REST message endpoints.)
-      socket.on('send-message', (data = {}) => {
-        const negotiationId = String(data.negotiationId || '');
-        if (!inRoom(negotiationId)) return;
-        const message = typeof data.message === 'string' ? data.message.trim() : '';
-        if (!message || message.length > MAX_MESSAGE_LENGTH) return;
+        // One deal per socket: leave the previous one first.
+        if (socket.negotiationId && socket.negotiationId !== negotiationId) {
+          leaveRoom(socket);
+        }
 
-        io.to(roomFor(negotiationId)).emit('receive-message', {
-          negotiationId,
-          message,
-          userId: user.id,
-          userRole: user.role,
+        const room = `negotiation-${negotiationId}`;
+        socket.join(room);
+        socket.negotiationId = negotiationId;
+        socket.userId = String(user._id);
+        socket.userRole = TEAM_ROLES.has(user.role) ? 'admin' : 'wholesaler';
+        socket.username = user.name || '';
+
+        if (!activeConnections.has(negotiationId)) {
+          activeConnections.set(negotiationId, new Set());
+        }
+        activeConnections.get(negotiationId).add(socket.id);
+
+        logger.info(`[Socket] ${socket.userRole} joined negotiation ${negotiationId}`);
+        socket.emit('negotiation-joined', { negotiationId });
+
+        socket.to(room).emit('user-online', {
+          userId: socket.userId,
+          userRole: socket.userRole,
           timestamp: new Date(),
-          messageId: `${user.id}-${Date.now()}`,
         });
-
-        if (typingUsers.has(negotiationId)) {
-          delete typingUsers.get(negotiationId)[user.id];
-        }
-        io.to(roomFor(negotiationId)).emit('stop-typing', { userId: user.id });
       });
 
+      // Typing indicators, using the identity from the join.
       socket.on('typing', (data = {}) => {
-        const negotiationId = String(data.negotiationId || '');
-        if (!inRoom(negotiationId)) return;
-
-        if (!typingUsers.has(negotiationId)) typingUsers.set(negotiationId, {});
-        typingUsers.get(negotiationId)[user.id] = {
-          username: user.name,
-          userRole: user.role,
-          timestamp: Date.now(),
-        };
-        socket.to(roomFor(negotiationId)).emit('user-typing', {
-          userId: user.id,
-          username: user.name,
-          userRole: user.role,
-        });
+        if (!inNegotiation(socket, data)) return;
+        const { negotiationId, userId, username, userRole } = socket;
+        if (!typingUsers.has(negotiationId)) {
+          typingUsers.set(negotiationId, {});
+        }
+        typingUsers.get(negotiationId)[userId] = { username, userRole, timestamp: Date.now() };
+        socket.to(`negotiation-${negotiationId}`).emit('user-typing', { userId, username, userRole });
       });
 
       socket.on('stop-typing', (data = {}) => {
-        const negotiationId = String(data.negotiationId || '');
-        if (!inRoom(negotiationId)) return;
+        if (!inNegotiation(socket, data)) return;
+        const { negotiationId, userId } = socket;
         if (typingUsers.has(negotiationId)) {
-          delete typingUsers.get(negotiationId)[user.id];
+          delete typingUsers.get(negotiationId)[userId];
         }
-        socket.to(roomFor(negotiationId)).emit('stop-typing', { userId: user.id });
+        socket.to(`negotiation-${negotiationId}`).emit('stop-typing', { userId });
       });
 
       socket.on('mark-read', (data = {}) => {
-        const negotiationId = String(data.negotiationId || '');
-        if (!inRoom(negotiationId)) return;
-        io.to(roomFor(negotiationId)).emit('message-read', {
-          messageId: data.messageId,
-          userId: user.id,
+        if (!inNegotiation(socket, data)) return;
+        const messageId = String(data.messageId || '').slice(0, 100);
+        if (!messageId) return;
+        io.to(`negotiation-${socket.negotiationId}`).emit('message-read', {
+          messageId,
+          userId: socket.userId,
           timestamp: new Date(),
         });
       });
 
       socket.on('leave-negotiation', (data = {}) => {
-        const negotiationId = String(data.negotiationId || '');
-        if (!inRoom(negotiationId)) return;
-        const room = roomFor(negotiationId);
-        socket.leave(room);
-        joined.delete(negotiationId);
-        cleanupMembership(socket, negotiationId);
-        socket.to(room).emit('user-offline', {
-          userId: user.id,
-          userRole: user.role,
-          timestamp: new Date(),
-        });
-        logger.info(`[Socket] ${user.role} left negotiation ${negotiationId}`);
+        if (!inNegotiation(socket, data)) return;
+        leaveRoom(socket);
       });
 
       socket.on('disconnect', () => {
-        for (const negotiationId of joined) {
-          cleanupMembership(socket, negotiationId);
-          socket.to(roomFor(negotiationId)).emit('user-offline', {
-            userId: user.id,
-            userRole: user.role,
-            timestamp: new Date(),
-          });
-        }
-        joined.clear();
+        if (socket.negotiationId) leaveRoom(socket);
         logger.info(`[Socket] Disconnected: ${socket.id}`);
       });
     });
@@ -256,5 +211,3 @@ class NegotiationSocketService {
 }
 
 module.exports = NegotiationSocketService;
-module.exports.authenticateSocket = authenticateSocket;
-module.exports.canAccessNegotiation = canAccessNegotiation;

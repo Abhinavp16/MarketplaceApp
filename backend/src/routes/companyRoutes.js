@@ -20,6 +20,7 @@ const companyValidation = {
     order: Joi.number().integer().min(0),
     customerDiscountPercent: discountPercent,
     wholesalerDiscountPercent: discountPercent,
+    hideFromCustomers: Joi.boolean(),
   }),
   update: Joi.object({
     name: Joi.string().max(100),
@@ -33,6 +34,7 @@ const companyValidation = {
     order: Joi.number().integer().min(0),
     customerDiscountPercent: discountPercent,
     wholesalerDiscountPercent: discountPercent,
+    hideFromCustomers: Joi.boolean(),
   }),
   reorder: Joi.object({
     updates: Joi.array().items(Joi.object({

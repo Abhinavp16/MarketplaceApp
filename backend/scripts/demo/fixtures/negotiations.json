@@ -174,5 +174,224 @@
         "hoursAfterCreate": 4
       }
     ]
+  },
+  {
+    "key": "ngt-sunrise-bolt",
+    "number": "NGT-DEMO-1006",
+    "wholesaler": "sunrise",
+    "sku": "AP-HXB-M10",
+    "requestedQuantity": 20,
+    "requestedPricePerUnit": 720,
+    "message": "Fasteners for the monthly restock - sent together with the screws.",
+    "status": "pending",
+    "createdHoursAgo": 3,
+    "expiresInDays": 7,
+    "currentOfferBy": "wholesaler",
+    "currentPricePerUnit": 720,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 720,
+        "message": "Fasteners for the monthly restock - sent together with the screws.",
+        "hoursAfterCreate": 0
+      }
+    ],
+    "requestGroup": {
+      "key": "grp-sunrise-fasteners",
+      "number": "REQ-2026-DEMO01"
+    }
+  },
+  {
+    "key": "ngt-sunrise-screw",
+    "number": "NGT-DEMO-1007",
+    "wholesaler": "sunrise",
+    "sku": "AP-CSK-48",
+    "requestedQuantity": 20,
+    "requestedPricePerUnit": 600,
+    "message": "Fasteners for the monthly restock - sent together with the bolts.",
+    "status": "pending",
+    "createdHoursAgo": 3,
+    "expiresInDays": 7,
+    "currentOfferBy": "wholesaler",
+    "currentPricePerUnit": 600,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 600,
+        "message": "Fasteners for the monthly restock - sent together with the bolts.",
+        "hoursAfterCreate": 0
+      }
+    ],
+    "requestGroup": {
+      "key": "grp-sunrise-fasteners",
+      "number": "REQ-2026-DEMO01"
+    }
+  },
+  {
+    "key": "ngt-metro-sander",
+    "number": "NGT-DEMO-1008",
+    "wholesaler": "metro",
+    "sku": "KW-SND-300",
+    "requestedQuantity": 10,
+    "requestedPricePerUnit": 1650,
+    "message": "Sanders and goggles for the new workshop customer.",
+    "status": "converted",
+    "createdHoursAgo": 22,
+    "expiresInDays": 7,
+    "currentOfferBy": "admin",
+    "currentPricePerUnit": 1650,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 1650,
+        "message": "Sanders and goggles for the new workshop customer.",
+        "hoursAfterCreate": 0
+      },
+      {
+        "action": "accepted",
+        "by": "admin",
+        "actor": "admin",
+        "pricePerUnit": 1650,
+        "message": "Accepted by Admin Demo Business Owner",
+        "hoursAfterCreate": 8
+      }
+    ],
+    "order": "ord-1008",
+    "finalPricePerUnit": 1650,
+    "requestGroup": {
+      "key": "grp-metro-mixed",
+      "number": "REQ-2026-DEMO02"
+    }
+  },
+  {
+    "key": "ngt-metro-goggle",
+    "number": "NGT-DEMO-1009",
+    "wholesaler": "metro",
+    "sku": "BG-GGL-AF",
+    "requestedQuantity": 50,
+    "requestedPricePerUnit": 135,
+    "message": "Sanders and goggles for the new workshop customer.",
+    "status": "converted",
+    "createdHoursAgo": 22,
+    "expiresInDays": 7,
+    "currentOfferBy": "admin",
+    "currentPricePerUnit": 135,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 135,
+        "message": "Sanders and goggles for the new workshop customer.",
+        "hoursAfterCreate": 0
+      },
+      {
+        "action": "accepted",
+        "by": "admin",
+        "actor": "admin",
+        "pricePerUnit": 135,
+        "message": "Accepted by Admin Demo Business Owner",
+        "hoursAfterCreate": 8
+      }
+    ],
+    "order": "ord-1008",
+    "finalPricePerUnit": 135,
+    "requestGroup": {
+      "key": "grp-metro-mixed",
+      "number": "REQ-2026-DEMO02"
+    }
+  },
+  {
+    "key": "ngt-bluepeak-anchor",
+    "number": "NGT-DEMO-1010",
+    "wholesaler": "bluepeak",
+    "sku": "AP-FRA-10",
+    "requestedQuantity": 30,
+    "requestedPricePerUnit": 430,
+    "message": "Plumbing stock for two projects.",
+    "status": "rejected",
+    "createdHoursAgo": 56,
+    "expiresInDays": -1,
+    "currentOfferBy": "wholesaler",
+    "currentPricePerUnit": 430,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 430,
+        "message": "Plumbing stock for two projects.",
+        "hoursAfterCreate": 0
+      },
+      {
+        "action": "rejected",
+        "by": "admin",
+        "actor": "admin",
+        "message": "Out of stock for this volume until next month. Please resend then.",
+        "hoursAfterCreate": 26
+      }
+    ],
+    "requestGroup": {
+      "key": "grp-bluepeak-plumbing",
+      "number": "REQ-2026-DEMO03"
+    }
+  },
+  {
+    "key": "ngt-bluepeak-elbow",
+    "number": "NGT-DEMO-1011",
+    "wholesaler": "bluepeak",
+    "sku": "AP-BEL-34",
+    "requestedQuantity": 40,
+    "requestedPricePerUnit": 480,
+    "message": "Plumbing stock for two projects.",
+    "status": "rejected",
+    "createdHoursAgo": 56,
+    "expiresInDays": -1,
+    "currentOfferBy": "wholesaler",
+    "currentPricePerUnit": 480,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 480,
+        "message": "Plumbing stock for two projects.",
+        "hoursAfterCreate": 0
+      },
+      {
+        "action": "rejected",
+        "by": "admin",
+        "actor": "admin",
+        "message": "Out of stock for this volume until next month. Please resend then.",
+        "hoursAfterCreate": 26
+      }
+    ],
+    "requestGroup": {
+      "key": "grp-bluepeak-plumbing",
+      "number": "REQ-2026-DEMO03"
+    }
+  },
+  {
+    "key": "ngt-sunrise-hose",
+    "number": "NGT-DEMO-1012",
+    "wholesaler": "sunrise",
+    "sku": "AP-HSE-12",
+    "requestedQuantity": 200,
+    "requestedPricePerUnit": 55,
+    "message": "Need 4 coils (200 m) of the braided hose. Price per metre?",
+    "status": "pending",
+    "createdHoursAgo": 8,
+    "expiresInDays": 7,
+    "currentOfferBy": "wholesaler",
+    "currentPricePerUnit": 55,
+    "history": [
+      {
+        "action": "requested",
+        "by": "wholesaler",
+        "pricePerUnit": 55,
+        "message": "Need 4 coils (200 m) of the braided hose. Price per metre?",
+        "hoursAfterCreate": 0
+      }
+    ]
   }
 ]

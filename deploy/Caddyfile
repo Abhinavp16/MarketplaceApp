@@ -1,0 +1,22 @@
+# Per-client reverse proxy. The site addresses come from the client's .env:
+#   local domains (*.localhost): "http://<host>"  -> plain HTTP, no certificates
+#   real domains:                "<host>"         -> automatic HTTPS (Let's Encrypt)
+#   behind another proxy:        "http://<host>"  -> plain HTTP, TLS ended upstream
+{
+	admin off
+}
+
+{$API_ADDR} {
+	encode zstd gzip
+	reverse_proxy backend:5000
+}
+
+{$ADMIN_ADDR} {
+	encode zstd gzip
+	reverse_proxy admin:3000
+}
+
+{$SITE_ADDR} {
+	encode zstd gzip
+	reverse_proxy site:3000
+}

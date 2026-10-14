@@ -17,7 +17,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['order_update', 'negotiation_update', 'negotiation_accepted', 'negotiation_rejected', 'negotiation_countered', 'payment_verified', 'payment_rejected', 'new_product', 'promotion', 'general', 'price_change_campaign_started', 'price_change_campaign_12h', 'price_change_campaign_6h', 'price_change_campaign_20m', 'price_change_campaign_3h', 'price_change_campaign_1h', 'price_change_campaign_5m', 'price_change_campaign_applied'],
+    enum: ['order_update', 'negotiation_update', 'negotiation_accepted', 'negotiation_rejected', 'negotiation_countered', 'payment_verified', 'payment_rejected', 'new_product', 'product_launched', 'promotion', 'general', 'price_change_campaign_started', 'price_change_campaign_12h', 'price_change_campaign_6h', 'price_change_campaign_20m', 'price_change_campaign_3h', 'price_change_campaign_1h', 'price_change_campaign_5m', 'price_change_campaign_applied'],
     default: 'general',
   },
   data: {

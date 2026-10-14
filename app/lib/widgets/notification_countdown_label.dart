@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../core/theme/app_fonts.dart';
 import '../l10n/l10n.dart';
 
@@ -113,13 +114,28 @@ class _NotificationCountdownLabelState
 
     return Padding(
       padding: const EdgeInsets.only(top: 6),
-      child: Text(
-        context.l10n.priceNoticeTimeLeft(_format(context.l10n, remaining)),
-        style: AppFonts.jakarta(
-          fontSize: widget.fontSize,
-          fontWeight: FontWeight.w700,
-          color: widget.color,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          HugeIcon(
+            icon: HugeIcons.strokeRoundedClock01,
+            size: widget.fontSize + 2,
+            color: widget.color,
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              context.l10n.priceNoticeTimeLeft(
+                _format(context.l10n, remaining),
+              ),
+              style: AppFonts.jakarta(
+                fontSize: widget.fontSize,
+                fontWeight: FontWeight.w700,
+                color: widget.color,
+              ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+            ),
+          ),
+        ],
       ),
     );
   }

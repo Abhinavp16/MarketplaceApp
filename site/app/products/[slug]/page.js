@@ -4,6 +4,9 @@ import ScrollReveal from '@/components/ScrollReveal';
 import ProductImageGallery from '@/components/ProductImageGallery';
 import ProductVariantShowcase from '@/components/products/ProductVariantShowcase';
 import VariantAwareInquiryButton from '@/components/products/VariantAwareInquiryButton';
+import OpenInApp from '@/components/OpenInApp';
+import { SITE_NAME, SITE_URL } from '@/lib/site-config';
+import { getAppProductBySlug } from '@/lib/app-product';
 import {
     buildFeaturedProductInquiryProps,
     featuredProductFallbackImage,
@@ -12,27 +15,56 @@ import {
     getFeaturedProducts,
 } from '@/lib/featured-products';
 
+
+// A featured product (website content) or, for links shared from the app,
+// any active product from the app's catalogue.
+async function findProduct(slug) {
+    const products = await getFeaturedProducts();
+    return findFeaturedProductBySlug(products, slug) || getAppProductBySlug(slug);
+}
+
 export async function generateMetadata({ params }) {
     const resolvedParams = await params;
-    const products = await getFeaturedProducts();
-    const product = findFeaturedProductBySlug(products, resolvedParams.slug);
+    const product = await findProduct(resolvedParams.slug);
+    const path = `/products/${encodeURIComponent(resolvedParams.slug)}`;
+    const title = product ? product.name : 'Product Details';
+    const description = product
+        ? [product.price, getFeaturedDescription(product)]
+            .filter(Boolean)
+            .join(' · ')
+            .replace(/\s+/g, ' ')
+            .slice(0, 200)
+        : 'View detailed product information and request the latest price.';
+    const image = product?.images?.[0] || product?.image;
 
     return {
-        title: product ? product.name : 'Product Details',
-        description: product ? getFeaturedDescription(product) : 'View detailed product information and request the latest price.',
+        title,
+        description,
+        // Preview card in WhatsApp and other chats. The demo has no published mobile app,
+        // so there is no apple-itunes-app smart banner and no store deep links.
+        openGraph: {
+            title: product?.name || title,
+            description,
+            url: `${SITE_URL}${path}`,
+            siteName: SITE_NAME,
+            type: 'website',
+            ...(image ? { images: [{ url: image }] } : {}),
+        },
     };
 }
 
 export default async function FeaturedProductDetailPage({ params }) {
     const resolvedParams = await params;
-    const products = await getFeaturedProducts();
-    const product = findFeaturedProductBySlug(products, resolvedParams.slug);
+    const product = await findProduct(resolvedParams.slug);
 
     if (!product) {
         return (
             <div className="page-transition min-h-[60vh] flex flex-col items-center justify-center px-6 text-center">
                 <h1 className="mb-6 text-4xl font-primary font-bold text-text-primary md:text-5xl">Product Not Found</h1>
                 <p className="mb-8 text-lg text-text-secondary">We could not find the product you were looking for.</p>
+                <div className="mb-8 w-full max-w-xl text-left">
+                    <OpenInApp />
+                </div>
                 <Link
                     href="/products"
                     className="rounded-full bg-brand-primary px-8 py-3 font-bold text-white shadow-cta transition-colors hover:bg-brand-secondary"
@@ -45,6 +77,7 @@ export default async function FeaturedProductDetailPage({ params }) {
 
     const inquiryProps = buildFeaturedProductInquiryProps(product);
     const productKey = product.slug || product.name;
+    const comingSoon = Boolean(product.comingSoon);
 
     return (
         <div className="page-transition">
@@ -84,6 +117,10 @@ export default async function FeaturedProductDetailPage({ params }) {
                                 {product.price}
                             </p>
 
+                            <div className="mt-6">
+                                <OpenInApp />
+                            </div>
+
                             {/* Always show short description if available */}
                             {product.shortDescription && (
                                 <p className="mt-6 text-base leading-8 text-text-secondary">
@@ -120,6 +157,7 @@ export default async function FeaturedProductDetailPage({ params }) {
                                 </div>
                             )}
 
+                            {!comingSoon && (
                             <div className="mt-10">
                                 <VariantAwareInquiryButton
                                     productKey={productKey}
@@ -129,6 +167,7 @@ export default async function FeaturedProductDetailPage({ params }) {
                                     Get Latest Price
                                 </VariantAwareInquiryButton>
                             </div>
+                            )}
 
                         </div>
                     </ScrollReveal>

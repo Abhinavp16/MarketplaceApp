@@ -1,6 +1,9 @@
 const { Order, Cart, Product, Negotiation, Settings, AffiliateCode, Offer } = require('../models');
+const { getMinimumWholesaleQuantity, getMinimumCustomerQuantity, isWholePacks } = require('../utils/packSize');
+const { purchaseBlockCode } = require('../utils/productAvailability');
+const { hiddenCatalogFor, isProductHidden } = require('../utils/customerVisibility');
 const { NotFoundError, BadRequestError, UnauthorizedError } = require('../utils/errors');
-const { paginate, formatPaginationResponse } = require('../utils/helpers');
+const { paginate, formatPaginationResponse, queryText } = require('../utils/helpers');
 const { ORDER_STATUS, ORDER_TYPES, NEGOTIATION_STATUS, USER_ROLES } = require('../utils/constants');
 const { createOrderWorkbookBuffer, sanitizeFileNamePart } = require('../utils/orderWorkbook');
 const { orderWhatsAppNumber } = require('../config/publicBusiness');
@@ -385,14 +388,11 @@ const buildProductMap = (products = []) => products.reduce((acc, product) => {
   return acc;
 }, {});
 
-const getMinimumWholesaleQuantity = (product) => {
-  const value = Number(product?.minWholesaleQuantity);
-  return Number.isInteger(value) && value > 0 ? value : 1;
-};
 
 // productMap products must include company/categoryRef/category;
 // discountMap comes from buildDiscountMap (brand/category % off MRP).
-const prepareOrderItems = ({ itemsToProcess, productMap, userRole, discountMap = null }) => {
+// hidden: what this customer may not buy (utils/customerVisibility), or null.
+const prepareOrderItems = ({ itemsToProcess, productMap, userRole, discountMap = null, hidden = null }) => {
   const orderItems = [];
   const stockIssues = [];
   let subtotal = 0;
@@ -423,10 +423,27 @@ const prepareOrderItems = ({ itemsToProcess, productMap, userRole, discountMap =
       continue;
     }
 
+    // Draft / archived / coming-soon products can't be ordered, nor products
+    // hidden from this customer.
+    const blocked = purchaseBlockCode(product) || (isProductHidden(product, hidden) ? 'PRODUCT_UNAVAILABLE' : null);
+    if (blocked) {
+      stockIssues.push({
+        productId: item.productId.toString(),
+        variantId: normalizedVariantId,
+        cartItemKey: cartItemKey(item.productId.toString(), normalizedVariantId),
+        name: product.name,
+        type: blocked === 'PRODUCT_COMING_SOON' ? 'coming_soon' : 'unavailable',
+        message: blocked === 'PRODUCT_COMING_SOON'
+          ? `${product.name} is coming soon and can't be ordered yet`
+          : `${product.name} is currently unavailable`,
+      });
+      continue;
+    }
+
     const minimumQuantity = getMinimumWholesaleQuantity(product);
     if (
       userRole === USER_ROLES.WHOLESALER &&
-      item.quantity < minimumQuantity
+      (item.quantity < minimumQuantity || !isWholePacks(product, item.quantity))
     ) {
       const itemName = getVariantDisplayName(product, resolved.variant);
       stockIssues.push({
@@ -439,6 +456,23 @@ const prepareOrderItems = ({ itemsToProcess, productMap, userRole, discountMap =
         availableStock: resolved.variant.stock,
         requestedQty: item.quantity,
         message: `Minimum wholesale quantity for ${itemName} is ${minimumQuantity}`,
+      });
+      continue;
+    }
+
+    const customerMinimum = getMinimumCustomerQuantity(product);
+    if (userRole !== USER_ROLES.WHOLESALER && item.quantity < customerMinimum) {
+      const itemName = getVariantDisplayName(product, resolved.variant);
+      stockIssues.push({
+        productId: item.productId.toString(),
+        variantId: resolved.variantId,
+        cartItemKey: cartItemKey(item.productId.toString(), resolved.variantId),
+        name: itemName,
+        type: 'minimum_customer_quantity',
+        minimumCustomerQuantity: customerMinimum,
+        availableStock: resolved.variant.stock,
+        requestedQty: item.quantity,
+        message: `Minimum order quantity for ${itemName} is ${customerMinimum}`,
       });
       continue;
     }
@@ -522,7 +556,8 @@ exports.previewCouponForCart = async (req, res, next) => {
       userRole,
     });
 
-    const deliveryFee = subtotal > 0 ? 50 : 0;
+    // Delivery is added by the admin when accepting the order.
+    const deliveryFee = 0;
     const totalBeforeDiscount = subtotal + deliveryFee;
     const payableTotal = Math.max(totalBeforeDiscount - discount, 0);
 
@@ -549,7 +584,7 @@ exports.previewCouponForCart = async (req, res, next) => {
 
 exports.getMyOrders = async (req, res, next) => {
   try {
-    const { status } = req.query;
+    const status = queryText(req.query.status);
     const { page, limit, skip } = paginate(req.query.page, req.query.limit);
     const { checkout } = await resolveCheckoutSettings();
 
@@ -661,15 +696,17 @@ exports.createOrderFromCart = async (req, res, next) => {
     const products = await Product.find({ _id: { $in: productIds } });
     const productMap = buildProductMap(products);
     const discountMap = await buildDiscountMap(products);
-    const { orderItems, subtotal, stockIssues } = prepareOrderItems({ itemsToProcess, productMap, userRole, discountMap });
+    const hidden = await hiddenCatalogFor(req.user);
+    const { orderItems, subtotal, stockIssues } = prepareOrderItems({ itemsToProcess, productMap, userRole, discountMap, hidden });
 
     if (stockIssues.length > 0) {
       const msg = stockIssues.map((issue) => issue.message).join('; ');
-      const code = stockIssues.some(
-        (issue) => issue.type === 'minimum_wholesale_quantity'
-      )
-        ? 'MIN_WHOLESALE_QUANTITY_NOT_MET'
-        : 'INSUFFICIENT_STOCK';
+      const hasIssue = (type) => stockIssues.some((issue) => issue.type === type);
+      let code = 'INSUFFICIENT_STOCK';
+      if (hasIssue('coming_soon')) code = 'PRODUCT_COMING_SOON';
+      else if (hasIssue('unavailable')) code = 'PRODUCT_UNAVAILABLE';
+      else if (hasIssue('minimum_wholesale_quantity')) code = 'MIN_WHOLESALE_QUANTITY_NOT_MET';
+      else if (hasIssue('minimum_customer_quantity')) code = 'MIN_CUSTOMER_QUANTITY_NOT_MET';
       return res.status(400).json({
         success: false,
         message: msg,
@@ -692,7 +729,8 @@ exports.createOrderFromCart = async (req, res, next) => {
       subtotal,
       userRole,
     });
-    const deliveryFee = subtotal > 0 ? 50 : 0;
+    // Delivery is added by the admin when accepting the order.
+    const deliveryFee = 0;
     const total = round2(Math.max(subtotal + deliveryFee - discount, 0));
 
     let order = null;
@@ -818,6 +856,9 @@ exports.createOrderFromNegotiation = async (req, res, next) => {
     const product = await Product.findById(negotiation.productId);
     if (!product) {
       throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
+    }
+    if (purchaseBlockCode(product)) {
+      throw new BadRequestError(`${product.name} can't be ordered right now`, purchaseBlockCode(product));
     }
 
     const resolved = getVariantById(product, null);

@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Icon from '@/components/Icon';
+import { ArrowRight02Icon } from '@hugeicons/core-free-icons';
 
 export default function BannersSection() {
     return (
@@ -15,8 +17,8 @@ export default function BannersSection() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 items-stretch gap-5 lg:gap-6">
-                    <div className="group relative left-1/2 min-h-[292px] w-screen -translate-x-1/2 overflow-hidden bg-transparent transition-all sm:min-h-[356px]">
+                <div className="grid grid-cols-1 items-stretch">
+                    <div className="group relative left-1/2 min-h-[292px] w-screen -translate-x-1/2 overflow-hidden bg-transparent pb-5 transition-all sm:min-h-[356px] lg:pb-6">
                         <div className="absolute inset-0 bg-white sm:top-[100px]" />
 
                         <div className="absolute left-6 top-[106px] h-[150px] w-[195px] sm:left-[max(20px,calc(50%-650px))] sm:top-[-6px] sm:h-[350px] sm:w-[520px]">
@@ -29,17 +31,17 @@ export default function BannersSection() {
 
                         <span className="absolute right-6 top-[139px] z-20 inline-flex items-center gap-3 rounded-full border border-white/85 bg-white px-4 py-2 text-sm font-bold text-[#0d9488] shadow-[0_12px_28px_rgba(30,27,75,0.12)] sm:hidden">
                             Explore
-                            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#0d9488]/40 text-2xl leading-none">→</span>
+                            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#0d9488]/40 text-2xl leading-none"><Icon icon={ArrowRight02Icon} size={20} /></span>
                         </span>
 
                         <div className="relative z-10 flex min-h-[292px] flex-col px-7 pt-7 sm:ml-[max(430px,calc(50%-130px))] sm:min-h-[356px] sm:pt-[128px]">
                             <h3 className="max-w-[21rem] text-[28px] font-black leading-[1.18] tracking-[-0.045em] text-[#16143a] sm:max-w-[700px] sm:text-5xl sm:leading-[1.08] sm:tracking-[-0.055em] lg:text-[48px] xl:text-[48px]">
-                                Come make an impact with TradeHub Demo
+                                Come make an impact with DemoMart
                             </h3>
                             <div className="mt-6 hidden items-center gap-4 sm:mt-8 sm:flex">
                                 <Link href="/products" className="inline-flex w-fit shrink-0 items-center gap-6 rounded-full border border-[#0d9488]/70 px-8 py-3 text-base font-semibold text-[#0d9488] transition-colors hover:bg-[#0d9488] hover:text-white sm:gap-8">
                                     Explore Products
-                                    <span className="flex h-12 w-12 items-center justify-center rounded-full border border-current text-3xl leading-none">→</span>
+                                    <span className="flex h-12 w-12 items-center justify-center rounded-full border border-current text-3xl leading-none"><Icon icon={ArrowRight02Icon} size={24} /></span>
                                 </Link>
                                 <span className="rounded-xl border border-[#16143a]/10 bg-white/95 px-4 py-3 text-xs font-semibold text-[#4b5578] shadow-[0_12px_28px_rgba(30,27,75,0.12)]">
                                     Demo only — no mobile app is published
@@ -66,7 +68,7 @@ export default function BannersSection() {
                             </p>
                             <span className="mt-7 inline-flex w-fit items-center gap-8 rounded-full bg-[#0f766e] px-7 py-3 text-base font-bold text-white shadow-[0_16px_35px_rgba(13,148,136,0.24)] transition-colors group-hover:bg-white group-hover:text-[#0f766e] sm:mt-8">
                                 Become Dealer
-                                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl leading-none text-[#0f766e] transition-colors group-hover:bg-[#0f766e] group-hover:text-white">→</span>
+                                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl leading-none text-[#0f766e] transition-colors group-hover:bg-[#0f766e] group-hover:text-white"><Icon icon={ArrowRight02Icon} size={20} /></span>
                             </span>
                         </div>
                     </Link>

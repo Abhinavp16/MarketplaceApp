@@ -101,13 +101,13 @@ abstract class AppLocalizations {
   /// No description provided for @aboutBrand.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo'**
+  /// **'DemoMart'**
   String get aboutBrand;
 
   /// No description provided for @aboutDescription.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo is a demonstration marketplace that shows how retailers, wholesalers, and buyers can work together on one platform. You can discover products, place orders, negotiate bulk deals, and manage delivery from one app. All data in this environment is synthetic.'**
+  /// **'DemoMart is a demonstration marketplace that shows how retailers, wholesalers, and buyers can work together on one platform. You can discover products, place orders, negotiate bulk deals, and manage delivery from one app. All data in this environment is synthetic.'**
   String get aboutDescription;
 
   /// No description provided for @aboutFeatureCatalogue.
@@ -131,7 +131,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutFeatureDispatch.
   ///
   /// In en, this message translates to:
-  /// **'Sales and dispatch coordination'**
+  /// **'City-based sales and dispatch coordination'**
   String get aboutFeatureDispatch;
 
   /// No description provided for @aboutTagline.
@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutTitle.
   ///
   /// In en, this message translates to:
-  /// **'About TradeHub Demo'**
+  /// **'About DemoMart'**
   String get aboutTitle;
 
   /// No description provided for @aboutWhatYouCanDo.
@@ -506,6 +506,30 @@ abstract class AppLocalizations {
   /// **'Please enter a valid quantity.'**
   String get apiErrorInvalidQuantity;
 
+  /// No description provided for @apiErrorPackQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'This product is sold in whole packets, coils or bundles only.'**
+  String get apiErrorPackQuantity;
+
+  /// No description provided for @apiErrorMinCustomerQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Please order at least the minimum quantity.'**
+  String get apiErrorMinCustomerQuantity;
+
+  /// No description provided for @apiErrorProductComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'This product is coming soon and can\'t be ordered yet.'**
+  String get apiErrorProductComingSoon;
+
+  /// No description provided for @apiErrorProductUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This product isn\'t available right now.'**
+  String get apiErrorProductUnavailable;
+
   /// No description provided for @apiErrorMinWholesaleQuantity.
   ///
   /// In en, this message translates to:
@@ -575,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo'**
+  /// **'DemoMart'**
   String get appTitle;
 
   /// No description provided for @authBusinessNameHint.
@@ -689,7 +713,7 @@ abstract class AppLocalizations {
   /// No description provided for @authJoinSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Join TradeHub Demo today'**
+  /// **'Join DemoMart today'**
   String get authJoinSubtitle;
 
   /// No description provided for @authNameHint.
@@ -749,7 +773,7 @@ abstract class AppLocalizations {
   /// No description provided for @authSignInSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Sign in to continue to TradeHub Demo'**
+  /// **'Sign in to continue to DemoMart'**
   String get authSignInSubtitle;
 
   /// No description provided for @authSignUp.
@@ -953,7 +977,7 @@ abstract class AppLocalizations {
   /// No description provided for @cartIssueOutOfStock.
   ///
   /// In en, this message translates to:
-  /// **'{product} is out of stock'**
+  /// **'{product} is sold out'**
   String cartIssueOutOfStock(String product);
 
   /// No description provided for @cartIssueUnavailable.
@@ -983,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @cartItemOutOfStock.
   ///
   /// In en, this message translates to:
-  /// **'Out of stock — please remove this item'**
+  /// **'Sold out — please remove this item'**
   String get cartItemOutOfStock;
 
   /// No description provided for @cartItemUnavailable.
@@ -1087,6 +1111,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stock Issues'**
   String get cartStockIssuesTitle;
+
+  /// No description provided for @cartSendingRequirement.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending requirement...'**
+  String get cartSendingRequirement;
+
+  /// No description provided for @cartRequirementSent.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Requirement sent for 1 product} other{Requirement sent for {count} products}}. DemoMart will reply in Deal Desk.'**
+  String cartRequirementSent(int count);
+
+  /// No description provided for @cartRequirementBlockedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove these items to send the requirement: {names}'**
+  String cartRequirementBlockedItems(String names);
 
   /// No description provided for @cartTitle.
   ///
@@ -1205,7 +1247,7 @@ abstract class AppLocalizations {
   /// No description provided for @checkoutApprovalNote.
   ///
   /// In en, this message translates to:
-  /// **'We’ll notify you after the TradeHub Demo team reviews your order.'**
+  /// **'We’ll notify you after the DemoMart team reviews your order.'**
   String get checkoutApprovalNote;
 
   /// No description provided for @checkoutAwaitingApproval.
@@ -1400,6 +1442,66 @@ abstract class AppLocalizations {
   /// **'Date'**
   String get commonDate;
 
+  /// No description provided for @comingSoonBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get comingSoonBadge;
+
+  /// No description provided for @comingSoonExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected {date}'**
+  String comingSoonExpected(String date);
+
+  /// No description provided for @comingSoonPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price coming soon'**
+  String get comingSoonPrice;
+
+  /// No description provided for @comingSoonNotifyMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when available'**
+  String get comingSoonNotifyMe;
+
+  /// No description provided for @comingSoonNotifying.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll notify you'**
+  String get comingSoonNotifying;
+
+  /// No description provided for @comingSoonNotifyOn.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll let you know as soon as it\'s available.'**
+  String get comingSoonNotifyOn;
+
+  /// No description provided for @comingSoonNotifyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'You won\'t be notified for this product.'**
+  String get comingSoonNotifyOff;
+
+  /// No description provided for @comingSoonLoginToNotify.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to get notified when it\'s available.'**
+  String get comingSoonLoginToNotify;
+
+  /// No description provided for @homeComingSoonSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get homeComingSoonSection;
+
+  /// No description provided for @homeComingSoonSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Launching soon. Tap Notify me to hear first.'**
+  String get homeComingSoonSubtitle;
+
   /// No description provided for @commonDelete.
   ///
   /// In en, this message translates to:
@@ -1505,7 +1607,7 @@ abstract class AppLocalizations {
   /// No description provided for @commonOutOfStock.
   ///
   /// In en, this message translates to:
-  /// **'Out of Stock'**
+  /// **'Sold Out'**
   String get commonOutOfStock;
 
   /// No description provided for @commonPerUnit.
@@ -1979,13 +2081,13 @@ abstract class AppLocalizations {
   /// No description provided for @dealAcceptedByPlatform.
   ///
   /// In en, this message translates to:
-  /// **'Accepted by TradeHub Demo'**
+  /// **'Accepted by DemoMart'**
   String get dealAcceptedByPlatform;
 
   /// No description provided for @dealAcceptedByPlatformName.
   ///
   /// In en, this message translates to:
-  /// **'Accepted by TradeHub Demo: {name}'**
+  /// **'Accepted by DemoMart: {name}'**
   String dealAcceptedByPlatformName(String name);
 
   /// No description provided for @dealBulletTotal.
@@ -2021,7 +2123,7 @@ abstract class AppLocalizations {
   /// No description provided for @dealDeclinedByPlatform.
   ///
   /// In en, this message translates to:
-  /// **'Declined by TradeHub Demo'**
+  /// **'Declined by DemoMart'**
   String get dealDeclinedByPlatform;
 
   /// No description provided for @dealEnterMessage.
@@ -2063,13 +2165,13 @@ abstract class AppLocalizations {
   /// No description provided for @dealPlatform.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo'**
+  /// **'DemoMart'**
   String get dealPlatform;
 
   /// No description provided for @dealPlatformActor.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo: {name}'**
+  /// **'DemoMart: {name}'**
   String dealPlatformActor(String name);
 
   /// No description provided for @dealLoadFailed.
@@ -2207,7 +2309,7 @@ abstract class AppLocalizations {
   /// No description provided for @dealStatusNewPriceFromPlatform.
   ///
   /// In en, this message translates to:
-  /// **'New Price from TradeHub Demo'**
+  /// **'New Price from DemoMart'**
   String get dealStatusNewPriceFromPlatform;
 
   /// No description provided for @dealStatusNewPriceReceived.
@@ -2477,7 +2579,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideStep3Body.
   ///
   /// In en, this message translates to:
-  /// **'After your order is created, share its receipt with the TradeHub Demo team so they can coordinate the next step.'**
+  /// **'After your order is created, share its receipt with the DemoMart team so they can coordinate the next step.'**
   String get guideStep3Body;
 
   /// No description provided for @guideStep3Title.
@@ -2489,13 +2591,13 @@ abstract class AppLocalizations {
   /// No description provided for @guideStep4Body.
   ///
   /// In en, this message translates to:
-  /// **'Complete payment at the shop or using QR or bank details provided by the TradeHub Demo team. Your order status is updated after admin verification.'**
+  /// **'Complete payment at the shop or using QR or bank details provided by the DemoMart team. Your order status is updated after admin verification.'**
   String get guideStep4Body;
 
   /// No description provided for @guideStep4Title.
   ///
   /// In en, this message translates to:
-  /// **'Pay through the TradeHub Demo team'**
+  /// **'Pay through the DemoMart team'**
   String get guideStep4Title;
 
   /// No description provided for @guideTip.
@@ -2525,7 +2627,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpBrandName.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo'**
+  /// **'DemoMart'**
   String get helpBrandName;
 
   /// No description provided for @helpCallUs.
@@ -2759,19 +2861,19 @@ abstract class AppLocalizations {
   /// No description provided for @homeBrandFirstWord.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub'**
+  /// **'Demo'**
   String get homeBrandFirstWord;
 
   /// No description provided for @homeBrandName.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo'**
+  /// **'DemoMart'**
   String get homeBrandName;
 
   /// No description provided for @homeBrandSecondWord.
   ///
   /// In en, this message translates to:
-  /// **'Demo'**
+  /// **'Mart'**
   String get homeBrandSecondWord;
 
   /// No description provided for @homeBrandTagline.
@@ -2935,6 +3037,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current:'**
   String get homeCurrentLabel;
+
+  /// No description provided for @dealDeliveryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Delivery charges, if any, will be added by DemoMart when your order is confirmed.'**
+  String get dealDeliveryNote;
+
+  /// No description provided for @dealDeliveryOnConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Added on confirmation'**
+  String get dealDeliveryOnConfirmation;
+
+  /// No description provided for @dealEstimatedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated total'**
+  String get dealEstimatedTotal;
+
+  /// No description provided for @dealOrderBeingPrepared.
+  ///
+  /// In en, this message translates to:
+  /// **'DemoMart is preparing your order'**
+  String get dealOrderBeingPrepared;
+
+  /// No description provided for @dealAwaitingOrderConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted. DemoMart will create your order and confirm delivery charges.'**
+  String get dealAwaitingOrderConfirmation;
+
+  /// No description provided for @dealDeskRequirementGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Requirement {number} · {count, plural, =1{1 product} other{{count} products}} · ₹{total}'**
+  String dealDeskRequirementGroup(String number, int count, String total);
 
   /// No description provided for @homeDealDeskTitle.
   ///
@@ -3371,7 +3509,7 @@ abstract class AppLocalizations {
   /// No description provided for @homePartnershipsTitle.
   ///
   /// In en, this message translates to:
-  /// **'AUTHORIZED REPRESENTATIVE & PARTNERSHIPS'**
+  /// **'PARTNERSHIPS'**
   String get homePartnershipsTitle;
 
   /// No description provided for @homePayableTotal.
@@ -3635,7 +3773,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeSampleReview1Text.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo has completely changed how I source my stock. The bulk pricing and quality are unbeatable.'**
+  /// **'DemoMart has completely changed how I source my stock. The bulk pricing and quality are unbeatable.'**
   String get homeSampleReview1Text;
 
   /// No description provided for @homeSampleReview2Name.
@@ -3653,7 +3791,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeSampleReview2Text.
   ///
   /// In en, this message translates to:
-  /// **'As a retailer, I need reliable delivery and authentic brands. The service on TradeHub Demo is a lifesaver for my business.'**
+  /// **'As a retailer, I need reliable delivery and authentic brands. The service on DemoMart is a lifesaver for my business.'**
   String get homeSampleReview2Text;
 
   /// No description provided for @homeSampleReview3Name.
@@ -3671,7 +3809,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeSampleReview3Text.
   ///
   /// In en, this message translates to:
-  /// **'I\'ve been using TradeHub Demo for a year now. It has greatly simplified how I manage large orders and track inventory.'**
+  /// **'I\'ve been using DemoMart for a year now. It has greatly simplified how I manage large orders and track inventory.'**
   String get homeSampleReview3Text;
 
   /// No description provided for @homeSampleReview4Name.
@@ -3689,7 +3827,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeSampleReview4Text.
   ///
   /// In en, this message translates to:
-  /// **'The variety of products on TradeHub Demo is impressive. Truly a one-stop shop for wholesale buying.'**
+  /// **'The variety of products on DemoMart is impressive. Truly a one-stop shop for wholesale buying.'**
   String get homeSampleReview4Text;
 
   /// No description provided for @homeSaveAddress.
@@ -4133,7 +4271,7 @@ abstract class AppLocalizations {
   /// No description provided for @localNotificationBrand.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo'**
+  /// **'DemoMart'**
   String get localNotificationBrand;
 
   /// No description provided for @localNotificationCountdownChannel.
@@ -4157,7 +4295,7 @@ abstract class AppLocalizations {
   /// No description provided for @localNotificationGeneralChannelDescription.
   ///
   /// In en, this message translates to:
-  /// **'General notifications for TradeHub Demo'**
+  /// **'General notifications for DemoMart'**
   String get localNotificationGeneralChannelDescription;
 
   /// No description provided for @localNotificationPriceUpdateActive.
@@ -4229,7 +4367,7 @@ abstract class AppLocalizations {
   /// No description provided for @negotiationsNewPriceFromPlatformLabel.
   ///
   /// In en, this message translates to:
-  /// **'New Price from TradeHub Demo:'**
+  /// **'New Price from DemoMart:'**
   String get negotiationsNewPriceFromPlatformLabel;
 
   /// No description provided for @negotiationsNoDate.
@@ -4379,7 +4517,7 @@ abstract class AppLocalizations {
   /// No description provided for @orderSuccessDeliveryNote.
   ///
   /// In en, this message translates to:
-  /// **'Contact TradeHub Demo to confirm arrangements'**
+  /// **'Contact DemoMart to confirm arrangements'**
   String get orderSuccessDeliveryNote;
 
   /// No description provided for @orderSuccessMessage.
@@ -4646,6 +4784,24 @@ abstract class AppLocalizations {
   /// **'Keep account'**
   String get privacyKeepAccount;
 
+  /// No description provided for @privacyRejectedNoReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us if you have any questions. You can send a new request below.'**
+  String get privacyRejectedNoReason;
+
+  /// No description provided for @privacyRejectedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason from DemoMart: {reason}'**
+  String privacyRejectedReason(String reason);
+
+  /// No description provided for @privacyRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last deletion request was declined'**
+  String get privacyRejectedTitle;
+
   /// No description provided for @privacyRequestBody.
   ///
   /// In en, this message translates to:
@@ -4712,6 +4868,18 @@ abstract class AppLocalizations {
   /// **'Add to Cart'**
   String get productAddToCart;
 
+  /// No description provided for @productCartShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get productCartShort;
+
+  /// No description provided for @productViewCart.
+  ///
+  /// In en, this message translates to:
+  /// **'View Cart'**
+  String get productViewCart;
+
   /// No description provided for @productAddToCartDisabledPreview.
   ///
   /// In en, this message translates to:
@@ -4745,7 +4913,7 @@ abstract class AppLocalizations {
   /// No description provided for @productBrandFallback.
   ///
   /// In en, this message translates to:
-  /// **'TradeHub Demo'**
+  /// **'DemoMart'**
   String get productBrandFallback;
 
   /// No description provided for @productBrandValue.
@@ -4787,7 +4955,7 @@ abstract class AppLocalizations {
   /// No description provided for @productBulkUpiNote.
   ///
   /// In en, this message translates to:
-  /// **'Bulk orders require manual UPI verification before processing.'**
+  /// **'Bulk orders require manual payment verification before processing.'**
   String get productBulkUpiNote;
 
   /// No description provided for @productBuyNow.
@@ -4937,7 +5105,7 @@ abstract class AppLocalizations {
   /// No description provided for @productOnlyPlatformCanConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Only TradeHub Demo can confirm the deal'**
+  /// **'Only DemoMart can confirm the deal'**
   String get productOnlyPlatformCanConfirm;
 
   /// No description provided for @productPlaceholderControlPanel.
@@ -5147,13 +5315,13 @@ abstract class AppLocalizations {
   /// No description provided for @productShareText.
   ///
   /// In en, this message translates to:
-  /// **'Check out {name} on TradeHub Demo!\n\n{url}'**
+  /// **'Check out {name} on DemoMart!\n\n{url}'**
   String productShareText(String name, String url);
 
   /// No description provided for @productShareTextWithPrice.
   ///
   /// In en, this message translates to:
-  /// **'Check out {name} - ₹{price} on TradeHub Demo!\n\n{url}'**
+  /// **'Check out {name} - ₹{price} on DemoMart!\n\n{url}'**
   String productShareTextWithPrice(String name, String price, String url);
 
   /// No description provided for @productShippingReturns.
@@ -5165,7 +5333,7 @@ abstract class AppLocalizations {
   /// No description provided for @productShippingTermsDefault.
   ///
   /// In en, this message translates to:
-  /// **'Delivery, payment, and return arrangements depend on the product, order, and location. Contact TradeHub Demo to confirm the applicable terms before payment or dispatch.'**
+  /// **'Delivery, payment, and return arrangements depend on the product, order, and location. Contact DemoMart to confirm the applicable terms before payment or dispatch.'**
   String get productShippingTermsDefault;
 
   /// No description provided for @productShowLess.
@@ -5858,29 +6026,839 @@ abstract class AppLocalizations {
   /// **'My Wishlist'**
   String get wishlistTitle;
 
-  /// No description provided for @productRequirementMessageLabel.
+  /// No description provided for @productPiecesCount.
   ///
   /// In en, this message translates to:
-  /// **'MESSAGE / DELIVERY REQUIREMENT (OPTIONAL)'**
-  String get productRequirementMessageLabel;
+  /// **'{count, plural, =1{1 piece} other{{count} pieces}}'**
+  String productPiecesCount(int count);
 
-  /// No description provided for @productRequirementMessageHint.
+  /// No description provided for @productMetersCount.
   ///
   /// In en, this message translates to:
-  /// **'e.g. preferred delivery date, packaging or site details'**
-  String get productRequirementMessageHint;
+  /// **'{count} m'**
+  String productMetersCount(String count);
 
-  /// No description provided for @productRequirementMessageReview.
+  /// No description provided for @productPacketsCount.
   ///
   /// In en, this message translates to:
-  /// **'Message'**
-  String get productRequirementMessageReview;
+  /// **'{count, plural, =1{1 Packet} other{{count} Packets}}'**
+  String productPacketsCount(int count);
 
-  /// No description provided for @negotiationBuyerMessage.
+  /// No description provided for @productCoilsCount.
   ///
   /// In en, this message translates to:
-  /// **'Message'**
-  String get negotiationBuyerMessage;
+  /// **'{count, plural, =1{1 Coil} other{{count} Coils}}'**
+  String productCoilsCount(int count);
+
+  /// No description provided for @productBundlesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Bundle} other{{count} Bundles}}'**
+  String productBundlesCount(int count);
+
+  /// No description provided for @productPackWithContents.
+  ///
+  /// In en, this message translates to:
+  /// **'{pack} ({contents})'**
+  String productPackWithContents(String pack, String contents);
+
+  /// No description provided for @productPackPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{pack} = ₹{price}'**
+  String productPackPrice(String pack, String price);
+
+  /// No description provided for @productCardPack.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} {contents}'**
+  String productCardPack(String unit, String contents);
+
+  /// No description provided for @productPcsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pcs'**
+  String productPcsCount(int count);
+
+  /// No description provided for @productUnitCoil.
+  ///
+  /// In en, this message translates to:
+  /// **'Coil'**
+  String get productUnitCoil;
+
+  /// No description provided for @productUnitBundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle'**
+  String get productUnitBundle;
+
+  /// No description provided for @productMinOrderQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum order: {quantity}'**
+  String productMinOrderQuantity(String quantity);
+
+  /// No description provided for @productPacketContainsPieces.
+  ///
+  /// In en, this message translates to:
+  /// **'1 Packet contains {count, plural, =1{1 piece} other{{count} pieces}}'**
+  String productPacketContainsPieces(int count);
+
+  /// No description provided for @productPacketContains.
+  ///
+  /// In en, this message translates to:
+  /// **'1 Packet contains {contents}'**
+  String productPacketContains(String contents);
+
+  /// No description provided for @uiDecreaseQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease quantity'**
+  String get uiDecreaseQuantity;
+
+  /// No description provided for @uiIncreaseQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase quantity'**
+  String get uiIncreaseQuantity;
+
+  /// No description provided for @uiUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get uiUndo;
+
+  /// No description provided for @uiItemRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed'**
+  String uiItemRemoved(String name);
+
+  /// No description provided for @uiAddToWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to wishlist'**
+  String get uiAddToWishlist;
+
+  /// No description provided for @uiRemoveFromWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from wishlist'**
+  String get uiRemoveFromWishlist;
+
+  /// No description provided for @uiPerMeter.
+  ///
+  /// In en, this message translates to:
+  /// **'/m'**
+  String get uiPerMeter;
+
+  /// No description provided for @uiPerPiece.
+  ///
+  /// In en, this message translates to:
+  /// **'/pc'**
+  String get uiPerPiece;
+
+  /// No description provided for @cartPlaceOrderRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Place order request'**
+  String get cartPlaceOrderRequest;
+
+  /// No description provided for @cartClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear your cart?'**
+  String get cartClearTitle;
+
+  /// No description provided for @cartClearMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Every item in your cart will be removed.'**
+  String get cartClearMessage;
+
+  /// No description provided for @cartClearConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cart'**
+  String get cartClearConfirm;
+
+  /// No description provided for @cartItemTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Item total'**
+  String get cartItemTotal;
+
+  /// No description provided for @cartYouSave.
+  ///
+  /// In en, this message translates to:
+  /// **'You save ₹{amount}'**
+  String cartYouSave(String amount);
+
+  /// No description provided for @cartViewBreakup.
+  ///
+  /// In en, this message translates to:
+  /// **'View breakup'**
+  String get cartViewBreakup;
+
+  /// No description provided for @cartHideBreakup.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide breakup'**
+  String get cartHideBreakup;
+
+  /// No description provided for @cartBillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill details'**
+  String get cartBillTitle;
+
+  /// No description provided for @cartQtySheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter quantity'**
+  String get cartQtySheetTitle;
+
+  /// No description provided for @cartQtyPackCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} count'**
+  String cartQtyPackCount(String unit);
+
+  /// No description provided for @cartQtyEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a quantity'**
+  String get cartQtyEnter;
+
+  /// No description provided for @cartQtyUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update quantity'**
+  String get cartQtyUpdate;
+
+  /// No description provided for @cartQtyTapToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to type the quantity'**
+  String get cartQtyTapToEdit;
+
+  /// No description provided for @ordActionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What you need to do'**
+  String get ordActionTitle;
+
+  /// No description provided for @ordNeedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help with this order?'**
+  String get ordNeedHelp;
+
+  /// No description provided for @ordNeedHelpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk to the DemoMart team directly'**
+  String get ordNeedHelpSubtitle;
+
+  /// No description provided for @ordStepUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get ordStepUpcoming;
+
+  /// No description provided for @ordDeliveredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order was delivered'**
+  String get ordDeliveredTitle;
+
+  /// No description provided for @ordPlacedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Placed on {date}'**
+  String ordPlacedOn(String date);
+
+  /// No description provided for @ordTransporterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Transporter / Courier'**
+  String get ordTransporterLabel;
+
+  /// No description provided for @ordLrNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'LR / Tracking number'**
+  String get ordLrNumberLabel;
+
+  /// No description provided for @ordHideDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get ordHideDetails;
+
+  /// No description provided for @ordCancelledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled'**
+  String get ordCancelledTitle;
+
+  /// No description provided for @dealNeedsReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs your reply'**
+  String get dealNeedsReply;
+
+  /// No description provided for @dealNeedsReplyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 deal needs your reply} other{{count} deals need your reply}}'**
+  String dealNeedsReplyCount(int count);
+
+  /// No description provided for @dealPriceYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your price'**
+  String get dealPriceYours;
+
+  /// No description provided for @dealPricePlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'DemoMart\'s price'**
+  String get dealPricePlatform;
+
+  /// No description provided for @dealPriceAgreed.
+  ///
+  /// In en, this message translates to:
+  /// **'Agreed price'**
+  String get dealPriceAgreed;
+
+  /// No description provided for @dealAwaitingPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting reply'**
+  String get dealAwaitingPrice;
+
+  /// No description provided for @dealToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dealToday;
+
+  /// No description provided for @dealYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get dealYesterday;
+
+  /// No description provided for @dealQuickBetterPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Can you do a better price?'**
+  String get dealQuickBetterPrice;
+
+  /// No description provided for @dealQuickDeliveryTime.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the delivery time?'**
+  String get dealQuickDeliveryTime;
+
+  /// No description provided for @dealQuickConfirmStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm stock'**
+  String get dealQuickConfirmStock;
+
+  /// No description provided for @dealQuickRepliesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick replies'**
+  String get dealQuickRepliesLabel;
+
+  /// No description provided for @dealExplainerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How Deal Desk works'**
+  String get dealExplainerTitle;
+
+  /// No description provided for @dealSummaryShowDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Show details'**
+  String get dealSummaryShowDetails;
+
+  /// No description provided for @dealSummaryHideDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get dealSummaryHideDetails;
+
+  /// No description provided for @dealStepRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested'**
+  String get dealStepRequested;
+
+  /// No description provided for @dealStepTalking.
+  ///
+  /// In en, this message translates to:
+  /// **'Price talk'**
+  String get dealStepTalking;
+
+  /// No description provided for @dealStepAgreed.
+  ///
+  /// In en, this message translates to:
+  /// **'Agreed'**
+  String get dealStepAgreed;
+
+  /// No description provided for @dealStepOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get dealStepOrder;
+
+  /// No description provided for @dealOfferPerUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Per unit'**
+  String get dealOfferPerUnit;
+
+  /// No description provided for @dealSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get dealSend;
+
+  /// No description provided for @accLogoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get accLogoutTitle;
+
+  /// No description provided for @accLogoutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can log in again anytime with your phone number and password.'**
+  String get accLogoutMessage;
+
+  /// No description provided for @accUpgradeBenefitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What you get as a wholesaler'**
+  String get accUpgradeBenefitsTitle;
+
+  /// No description provided for @accBenefitDealerPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Dealer prices on wholesale products'**
+  String get accBenefitDealerPrices;
+
+  /// No description provided for @accBenefitDealDesk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for a better price on Deal Desk'**
+  String get accBenefitDealDesk;
+
+  /// No description provided for @accBenefitBulkPacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy in full packets, coils and bundles'**
+  String get accBenefitBulkPacks;
+
+  /// No description provided for @accBenefitCartRequirement.
+  ///
+  /// In en, this message translates to:
+  /// **'Send your whole cart as one requirement'**
+  String get accBenefitCartRequirement;
+
+  /// No description provided for @accStepBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get accStepBusiness;
+
+  /// No description provided for @accStepLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop location'**
+  String get accStepLocation;
+
+  /// No description provided for @accStepProof.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof photos'**
+  String get accStepProof;
+
+  /// No description provided for @accStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String accStepOf(int current, int total);
+
+  /// No description provided for @accReviewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Our team reviews every application before approving it. You\'ll see the status here.'**
+  String get accReviewNote;
+
+  /// No description provided for @accTrackSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get accTrackSubmitted;
+
+  /// No description provided for @accTrackUnderReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Under review'**
+  String get accTrackUnderReview;
+
+  /// No description provided for @accTrackApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get accTrackApproved;
+
+  /// No description provided for @accTrackNeedsChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs changes'**
+  String get accTrackNeedsChanges;
+
+  /// No description provided for @accGstInvalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid 15-character GSTIN, e.g. 22AAAAA0000A1Z5'**
+  String get accGstInvalidFormat;
+
+  /// No description provided for @authTroubleSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Trouble signing in?'**
+  String get authTroubleSignIn;
+
+  /// No description provided for @authContactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support'**
+  String get authContactSupport;
+
+  /// No description provided for @homeTrustTrustedByDealers.
+  ///
+  /// In en, this message translates to:
+  /// **'Trusted by dealers'**
+  String get homeTrustTrustedByDealers;
+
+  /// No description provided for @homeTrustGstInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'GST invoice'**
+  String get homeTrustGstInvoice;
+
+  /// No description provided for @homeTrustGenuineBrands.
+  ///
+  /// In en, this message translates to:
+  /// **'Genuine brands'**
+  String get homeTrustGenuineBrands;
+
+  /// No description provided for @homeTrustCallUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Call us'**
+  String get homeTrustCallUs;
+
+  /// No description provided for @catBrandsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load brands'**
+  String get catBrandsLoadError;
+
+  /// No description provided for @catCategoriesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load categories'**
+  String get catCategoriesLoadError;
+
+  /// No description provided for @catLoadErrorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your internet connection and try again.'**
+  String get catLoadErrorHint;
+
+  /// No description provided for @catPerMeterShort.
+  ///
+  /// In en, this message translates to:
+  /// **'/m'**
+  String get catPerMeterShort;
+
+  /// No description provided for @catPerPieceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'/pc'**
+  String get catPerPieceShort;
+
+  /// No description provided for @pdpKeySpecs.
+  ///
+  /// In en, this message translates to:
+  /// **'Key specs'**
+  String get pdpKeySpecs;
+
+  /// No description provided for @pdpFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get pdpFeatures;
+
+  /// No description provided for @pdpYouSave.
+  ///
+  /// In en, this message translates to:
+  /// **'You save {amount}'**
+  String pdpYouSave(String amount);
+
+  /// No description provided for @pdpViewFullScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'View full screen'**
+  String get pdpViewFullScreen;
+
+  /// No description provided for @pdpImageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Image {current} of {total}'**
+  String pdpImageOf(int current, int total);
+
+  /// No description provided for @searchRemoveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove filter'**
+  String get searchRemoveFilter;
+
+  /// No description provided for @homeLogoutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get homeLogoutConfirmTitle;
+
+  /// No description provided for @homeLogoutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to log in again to see your orders and place new ones.'**
+  String get homeLogoutConfirmMessage;
+
+  /// No description provided for @profileStatOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get profileStatOrders;
+
+  /// No description provided for @profileStatDeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Active deals'**
+  String get profileStatDeals;
+
+  /// No description provided for @profileMemberSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since {date}'**
+  String profileMemberSince(String date);
+
+  /// No description provided for @profileYourOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order'**
+  String get profileYourOrder;
+
+  /// No description provided for @profileMoreOrdersInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{+1 more in progress} other{+{count} more in progress}}'**
+  String profileMoreOrdersInProgress(int count);
+
+  /// No description provided for @profileUpgradeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply now'**
+  String get profileUpgradeCta;
+
+  /// No description provided for @profileAddressesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No saved address yet} =1{1 saved address} other{{count} saved addresses}}'**
+  String profileAddressesSaved(int count);
+
+  /// No description provided for @profileNotificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates about your orders'**
+  String get profileNotificationsSubtitle;
+
+  /// No description provided for @profileAccountPrivacySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data and account deletion'**
+  String get profileAccountPrivacySubtitle;
+
+  /// No description provided for @profileLegalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy, terms, shipping and refunds'**
+  String get profileLegalSubtitle;
+
+  /// No description provided for @profileUnreadCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} unread'**
+  String profileUnreadCount(int count);
+
+  /// No description provided for @profileUpgradeContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get profileUpgradeContinue;
+
+  /// No description provided for @homeGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Namaste 🙏'**
+  String get homeGreeting;
+
+  /// No description provided for @homeGreetingName.
+  ///
+  /// In en, this message translates to:
+  /// **'Namaste, {name} 🙏'**
+  String homeGreetingName(String name);
+
+  /// No description provided for @homeHeadlineCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'What does your business need today?'**
+  String get homeHeadlineCustomer;
+
+  /// No description provided for @homeHeadlineDealer.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to restock today?'**
+  String get homeHeadlineDealer;
+
+  /// No description provided for @homeShopByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop by category'**
+  String get homeShopByCategory;
+
+  /// No description provided for @homeAllCategoriesTile.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get homeAllCategoriesTile;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notificationsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get notificationsToday;
+
+  /// No description provided for @notificationsYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get notificationsYesterday;
+
+  /// No description provided for @notificationsEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get notificationsEarlier;
+
+  /// No description provided for @notificationsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notificationsFilterAll;
+
+  /// No description provided for @notificationsFilterOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get notificationsFilterOrders;
+
+  /// No description provided for @notificationsFilterDeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Deals'**
+  String get notificationsFilterDeals;
+
+  /// No description provided for @notificationsFilterOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers'**
+  String get notificationsFilterOffers;
+
+  /// No description provided for @notificationsFilterEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get notificationsFilterEmpty;
+
+  /// No description provided for @notificationsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your notifications'**
+  String get notificationsLoadFailed;
+
+  /// No description provided for @notificationsLoadFailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again.'**
+  String get notificationsLoadFailedHint;
+
+  /// No description provided for @notificationsActionTrackOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Track order'**
+  String get notificationsActionTrackOrder;
+
+  /// No description provided for @notificationsActionViewOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'View orders'**
+  String get notificationsActionViewOrders;
+
+  /// No description provided for @notificationsActionOpenDeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Open deal'**
+  String get notificationsActionOpenDeal;
+
+  /// No description provided for @notificationsActionViewOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'View order'**
+  String get notificationsActionViewOrder;
+
+  /// No description provided for @dealYourTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'your turn'**
+  String get dealYourTurn;
+
+  /// No description provided for @uiMuteVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute video'**
+  String get uiMuteVideo;
+
+  /// No description provided for @uiUnmuteVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on video sound'**
+  String get uiUnmuteVideo;
 }
 
 class _AppLocalizationsDelegate

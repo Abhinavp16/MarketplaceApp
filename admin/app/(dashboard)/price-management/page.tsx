@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Clock3, Download, FolderTree, History, Loader2, Package, Search } from "@/components/hugeicons"
 import { apiFetch } from "@/lib/api"
+import { usePriceUpdateNudge } from "@/lib/hooks/usePriceUpdateNudge"
 import { describeDiscountSource, type EffectivePricing, type EffectiveRolePricing } from "@/lib/discount"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -137,6 +138,7 @@ export default function PriceManagementPage() {
   const [drafts, setDrafts] = useState<Record<string, RowDraft>>({})
   const [stockDrafts, setStockDrafts] = useState<Record<string, string>>({})
   const [savingProductId, setSavingProductId] = useState<string | null>(null)
+  const nudgePriceUpdates = usePriceUpdateNudge()
   const [savingStockProductId, setSavingStockProductId] = useState<string | null>(null)
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true)
   const [isProductsLoading, setIsProductsLoading] = useState(false)
@@ -192,7 +194,7 @@ export default function PriceManagementPage() {
   const fetchCategories = useCallback(async () => {
     setIsCategoriesLoading(true)
     try {
-      const response = await apiFetch("/categories?page=1&limit=200", { skipAuth: true })
+      const response = await apiFetch("/categories?page=1&limit=200")
       const data = await response.json()
       if (!response.ok) throw new Error(data?.message || "Failed to load categories")
       setCategories(Array.isArray(data?.data) ? data.data : [])
@@ -369,7 +371,14 @@ export default function PriceManagementPage() {
         ))
       }
       setDrafts((current) => ({ ...current, [product._id]: { ...DEFAULT_DRAFT } }))
-      toast.success(data?.message || "Price change saved")
+      if (draft.priceChangeMode === "immediate") {
+        nudgePriceUpdates()
+        toast.success(data?.message || "Price updated", {
+          description: "App users get one message about your changes about 2 minutes after your last save.",
+        })
+      } else {
+        toast.success(data?.message || "Price change saved")
+      }
       void fetchHistory()
     } catch (error: any) {
       toast.error(error?.message || "Failed to update price")

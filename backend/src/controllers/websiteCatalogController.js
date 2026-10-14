@@ -1,6 +1,27 @@
 const { Company, Category, Product } = require('../models');
 const { PRODUCT_STATUS } = require('../utils/constants');
 const { normalizeMediaUrl } = require('../utils/mediaUrls');
+const {
+  hiddenCatalogFor,
+  hiddenProductConditions,
+  isBrandHidden,
+  isCategoryHidden,
+  isProductHidden,
+} = require('../utils/customerVisibility');
+
+// The website is for visitors who aren't signed in: brands and categories
+// hidden from customers (and their products) never appear on it.
+const websiteHidden = () => hiddenCatalogFor(null);
+const withHiddenProductsExcluded = (query, hidden) => {
+  const conditions = hiddenProductConditions(hidden);
+  return conditions.length ? { ...query, $and: [...(query.$and || []), ...conditions] } : query;
+};
+const visibleBrandsQuery = (hidden) => (
+  hidden?.brandIds.size ? { ...visibleBrandQuery, _id: { $nin: [...hidden.brandIds] } } : visibleBrandQuery
+);
+const withoutHiddenWebsiteCategories = (categories, hidden) => (
+  hidden ? categories.filter((category) => !isCategoryHidden(category, hidden)) : categories
+);
 
 const GENERAL_PRODUCTS_NAME = 'GENERAL PRODUCTS';
 
@@ -29,12 +50,13 @@ function mapBrand(brand) {
 async function attachVisibleProductCounts(brands = []) {
   if (brands.length === 0) return brands;
   const brandIds = brands.map((brand) => brand._id);
+  const hidden = await websiteHidden();
   const counts = await Product.aggregate([
     {
-      $match: {
+      $match: withHiddenProductsExcluded({
         ...visibleProductQuery,
         company: { $in: brandIds },
-      },
+      }, hidden),
     },
     { $group: { _id: '$company', count: { $sum: 1 } } },
   ]);
@@ -91,7 +113,6 @@ function mapProduct(product, req) {
     sku: product.sku || '',
     mrp: product.mrp || 0,
     retailPrice: product.retailPrice || 0,
-    wholesalePrice: product.wholesalePrice || 0,
     stock: product.stock || 0,
     inStock: (product.stock || 0) > 0,
     priceUnit: product.priceUnit || '',
@@ -103,7 +124,7 @@ function mapProduct(product, req) {
 
 async function getRandomFeaturedProducts(req, limit = 5) {
   const sampledProducts = await Product.aggregate([
-    { $match: visibleProductQuery },
+    { $match: withHiddenProductsExcluded(visibleProductQuery, await websiteHidden()) },
     {
       $lookup: {
         from: 'companies',
@@ -162,22 +183,26 @@ const visibleCategoryQuery = {
 const visibleProductQuery = {
   status: PRODUCT_STATUS.ACTIVE,
   showOnWebsite: { $ne: false },
+  // Coming-soon products are app-only until they launch.
+  'comingSoon.enabled': { $ne: true },
 };
 
 async function findVisibleBrand(slug) {
-  return Company.findOne({
+  const brand = await Company.findOne({
     slug,
     ...visibleBrandQuery,
     name: { $ne: GENERAL_PRODUCTS_NAME },
   });
+  return brand && !isBrandHidden(brand, await websiteHidden()) ? brand : null;
 }
 
 exports.getHomeCatalog = async (req, res, next) => {
   try {
     const generalBrand = await Company.findOne({ name: GENERAL_PRODUCTS_NAME });
-    const [rawBrands, generalCategories, featuredProducts] = await Promise.all([
+    const hidden = await websiteHidden();
+    const [rawBrands, rawGeneralCategories, featuredProducts] = await Promise.all([
       Company.find({
-        ...visibleBrandQuery,
+        ...visibleBrandsQuery(hidden),
         name: { $ne: GENERAL_PRODUCTS_NAME },
       }).sort({ order: 1, name: 1 }).lean(),
       generalBrand
@@ -188,6 +213,7 @@ exports.getHomeCatalog = async (req, res, next) => {
         : [],
       getRandomFeaturedProducts(req),
     ]);
+    const generalCategories = withoutHiddenWebsiteCategories(rawGeneralCategories, hidden);
     const brands = await attachVisibleProductCounts(rawBrands);
 
     res.json({
@@ -206,7 +232,7 @@ exports.getHomeCatalog = async (req, res, next) => {
 exports.getBrands = async (req, res, next) => {
   try {
     const rawBrands = await Company.find({
-      ...visibleBrandQuery,
+      ...visibleBrandsQuery(await websiteHidden()),
       name: { $ne: GENERAL_PRODUCTS_NAME },
     }).sort({ order: 1, name: 1 }).lean();
     const brands = await attachVisibleProductCounts(rawBrands);
@@ -221,10 +247,10 @@ exports.getBrandCategories = async (req, res, next) => {
     const brand = await findVisibleBrand(req.params.brandSlug);
     if (!brand) return res.status(404).json({ success: false, message: 'Brand not found' });
 
-    const categories = await Category.find({
+    const categories = withoutHiddenWebsiteCategories(await Category.find({
       ...visibleCategoryQuery,
       company: brand._id,
-    }).populate('company', 'name slug').sort({ order: 1, name: 1 }).lean();
+    }).populate('company', 'name slug').sort({ order: 1, name: 1 }).lean(), await websiteHidden());
 
     res.json({ success: true, data: { brand: mapBrand(brand), categories: categories.map(mapCategory) } });
   } catch (error) {
@@ -242,13 +268,14 @@ exports.getProductsByBrandCategory = async (req, res, next) => {
       company: brand._id,
       slug: req.params.categorySlug,
     }).populate('company', 'name slug');
-    if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
+    const hidden = await websiteHidden();
+    if (!category || isCategoryHidden(category, hidden)) return res.status(404).json({ success: false, message: 'Category not found' });
 
-    const products = await Product.find({
+    const products = await Product.find(withHiddenProductsExcluded({
       ...visibleProductQuery,
       company: brand._id,
       categoryRef: category._id,
-    }).populate('company', 'name slug').populate('categoryRef', 'name slug').sort({ createdAt: -1 }).lean();
+    }, hidden)).populate('company', 'name slug').populate('categoryRef', 'name slug').sort({ createdAt: -1 }).lean();
 
     res.json({ success: true, data: { brand: mapBrand(brand), category: mapCategory(category), products: products.map((product) => mapProduct(product, req)) } });
   } catch (error) {
@@ -261,10 +288,10 @@ exports.getGeneralCategories = async (req, res, next) => {
     const generalBrand = await Company.findOne({ name: GENERAL_PRODUCTS_NAME, isActive: true });
     if (!generalBrand) return res.json({ success: true, data: [] });
 
-    const categories = await Category.find({
+    const categories = withoutHiddenWebsiteCategories(await Category.find({
       ...visibleCategoryQuery,
       company: generalBrand._id,
-    }).populate('company', 'name slug').sort({ order: 1, name: 1 }).lean();
+    }).populate('company', 'name slug').sort({ order: 1, name: 1 }).lean(), await websiteHidden());
 
     res.json({ success: true, data: categories.map(mapCategory) });
   } catch (error) {
@@ -282,13 +309,14 @@ exports.getGeneralCategoryProducts = async (req, res, next) => {
       company: generalBrand._id,
       slug: req.params.categorySlug,
     }).populate('company', 'name slug');
-    if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
+    const hidden = await websiteHidden();
+    if (!category || isCategoryHidden(category, hidden)) return res.status(404).json({ success: false, message: 'Category not found' });
 
-    const products = await Product.find({
+    const products = await Product.find(withHiddenProductsExcluded({
       ...visibleProductQuery,
       company: generalBrand._id,
       categoryRef: category._id,
-    }).populate('company', 'name slug').populate('categoryRef', 'name slug').sort({ createdAt: -1 }).lean();
+    }, hidden)).populate('company', 'name slug').populate('categoryRef', 'name slug').sort({ createdAt: -1 }).lean();
 
     res.json({ success: true, data: { category: mapCategory(category), products: products.map((product) => mapProduct(product, req)) } });
   } catch (error) {
@@ -298,10 +326,10 @@ exports.getGeneralCategoryProducts = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const search = String(req.query.search || '').trim();
+    const search = String(req.query.search || '').trim().slice(0, 100);
     const searchRegex = search ? new RegExp(escapeRegex(search), 'i') : null;
 
-    const products = await Product.find(visibleProductQuery)
+    const products = await Product.find(withHiddenProductsExcluded(visibleProductQuery, await websiteHidden()))
       .populate('company', 'name slug isActive showOnWebsite')
       .populate('categoryRef', 'name slug isActive showOnWebsite')
       .sort({ name: 1 })
@@ -343,7 +371,7 @@ exports.getProduct = async (req, res, next) => {
       .populate('categoryRef', 'name slug isActive showOnWebsite')
       .lean();
 
-    if (!product || product.company?.isActive === false || product.company?.showOnWebsite === false || product.categoryRef?.isActive === false || product.categoryRef?.showOnWebsite === false) {
+    if (!product || isProductHidden(product, await websiteHidden()) || product.company?.isActive === false || product.company?.showOnWebsite === false || product.categoryRef?.isActive === false || product.categoryRef?.showOnWebsite === false) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 

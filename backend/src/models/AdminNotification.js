@@ -10,6 +10,8 @@ const ADMIN_NOTIFICATION_TYPES = [
   'negotiation_rejected',
   'stock_low',
   'account_deletion_requested',
+  'account_deletion_due_soon',
+  'account_deletion_overdue',
   'wholesaler_application',
   'general',
 ];

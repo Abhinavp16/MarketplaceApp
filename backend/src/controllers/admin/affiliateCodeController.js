@@ -1,4 +1,5 @@
 const { AffiliateCode, AffiliateCommission, Order } = require('../../models');
+const { escapeRegex } = require('../../utils/searchQuery');
 const { NotFoundError, BadRequestError } = require('../../utils/errors');
 const { paginate, formatPaginationResponse } = require('../../utils/helpers');
 
@@ -39,8 +40,8 @@ exports.getAffiliateCodes = async (req, res, next) => {
         if (isActive !== undefined) query.isActive = isActive === 'true';
         if (search) {
             query.$or = [
-                { personName: { $regex: search, $options: 'i' } },
-                { code: { $regex: search, $options: 'i' } },
+                { personName: { $regex: escapeRegex(search), $options: 'i' } },
+                { code: { $regex: escapeRegex(search), $options: 'i' } },
             ];
         }
 
@@ -236,9 +237,9 @@ exports.getAffiliateCommissions = async (req, res, next) => {
         if (status) query.status = status;
         if (search) {
             query.$or = [
-                { affiliateCode: { $regex: search, $options: 'i' } },
-                { personNameSnapshot: { $regex: search, $options: 'i' } },
-                { orderNumber: { $regex: search, $options: 'i' } },
+                { affiliateCode: { $regex: escapeRegex(search), $options: 'i' } },
+                { personNameSnapshot: { $regex: escapeRegex(search), $options: 'i' } },
+                { orderNumber: { $regex: escapeRegex(search), $options: 'i' } },
             ];
         }
 

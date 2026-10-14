@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the *synthetic* brand graphics for the TradeHub Demo site with Pillow.
+"""Generate the *synthetic* brand graphics for the DemoMart site with Pillow.
 
 Run from the site/ directory:  python3 scripts/generate_assets.py   (or: npm run assets)
 
@@ -176,7 +176,7 @@ def build_logo():
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     img.alpha_composite(mark.resize((220, 220), Image.LANCZOS), (20, 20))
     d = ImageDraw.Draw(img)
-    d.text((270, 40), "TradeHub", font=font(120), fill=DEEP + (255,))
+    d.text((270, 40), "DemoMart", font=font(120), fill=DEEP + (255,))
     d.text((272, 158), "DEMO  -  Distribution made simple", font=font(50), fill=TEAL + (255,))
     img.save(out("logo.png"))
 
@@ -190,7 +190,7 @@ def build_og():
     mark = logo_mark(200)
     img.alpha_composite(mark, (70, 90))
     d = ImageDraw.Draw(img)
-    d.text((70, 320), "TradeHub Demo", font=font(96), fill=WHITE)
+    d.text((70, 320), "DemoMart", font=font(96), fill=WHITE)
     d.text((72, 440), "Distribution made simple", font=font(46), fill=TEAL_L)
     d.text((72, 530), "Demonstration environment - synthetic data", font=font(30), fill=LIGHT)
     img.convert("RGB").save(out("og-image.png"))

@@ -6,6 +6,7 @@ import { CheckmarkBadge01Icon, Notification01Icon } from "@hugeicons/core-free-i
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Button } from "@/components/ui/button"
 import { useAdminNotifications, type AdminNotification } from "@/lib/hooks/useAdminNotifications"
+import { useAdminPush } from "@/lib/hooks/useAdminPush"
 
 const SEVERITY_STYLES: Record<AdminNotification["severity"], string> = {
     info: "bg-blue-500",
@@ -30,7 +31,8 @@ function formatType(type: string): string {
 
 export default function NotificationsPage() {
     const router = useRouter()
-    const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useAdminNotifications()
+    const { notifications, unreadCount, isLoading, fetchNotifications, markAsRead, markAllAsRead } = useAdminNotifications()
+    const { status: pushStatus, enable: enablePush, disable: disablePush } = useAdminPush(() => void fetchNotifications())
     const [showUnreadOnly, setShowUnreadOnly] = useState(false)
 
     const visible = useMemo(
@@ -70,6 +72,34 @@ export default function NotificationsPage() {
                         Mark all read
                     </Button>
                 </div>
+            </div>
+
+            <div data-testid="push-card" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#333] bg-[#161616] p-4">
+                <div>
+                    <p className="font-semibold text-white">Browser alerts on this device</p>
+                    <p className="text-sm text-gray-400">
+                        {pushStatus === "enabled" && "Enabled - you will be alerted even when this tab is closed."}
+                        {pushStatus === "disabled" && "Off - enable to get alerts when this tab is closed."}
+                        {pushStatus === "denied" && "Blocked - allow notifications in your browser site settings."}
+                        {pushStatus === "unsupported" && "Unavailable - this browser does not support push alerts."}
+                        {pushStatus === "not-configured" && "Browser alerts are not configured for this environment."}
+                        {pushStatus === "loading" && "Setting up browser alerts..."}
+                    </p>
+                </div>
+                {pushStatus === "enabled" ? (
+                    <Button type="button" variant="outline" onClick={disablePush} className="border-[#333] bg-[#0D0D0D] text-white hover:bg-[#1A1A1A]">
+                        Turn off
+                    </Button>
+                ) : (
+                    <Button
+                        type="button"
+                        onClick={enablePush}
+                        disabled={pushStatus === "not-configured" || pushStatus === "unsupported" || pushStatus === "denied" || pushStatus === "loading"}
+                        className="bg-[#818cf8] text-black hover:bg-[#818cf8]/90 disabled:opacity-40"
+                    >
+                        Enable alerts
+                    </Button>
+                )}
             </div>
 
             {isLoading ? (

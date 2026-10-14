@@ -35,6 +35,12 @@ const companySchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  // Only wholesalers (and the team) see this brand and all its products; retail customers and
+  // anyone not signed in (app guests, the website) don't. See utils/customerVisibility.
+  hideFromCustomers: {
+    type: Boolean,
+    default: false,
+  },
   order: {
     type: Number,
     default: 0,

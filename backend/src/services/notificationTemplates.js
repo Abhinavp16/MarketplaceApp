@@ -26,8 +26,8 @@ const TEMPLATES = {
     hi: { title: 'ऑर्डर अपडेट', body: 'आपके ऑर्डर की स्थिति अपडेट की गई है।' },
   },
   orderAccepted: {
-    en: { title: 'Order Accepted', body: 'Your order {orderNumber} has been accepted. You can now complete payment.' },
-    hi: { title: 'ऑर्डर स्वीकार किया गया', body: 'आपका ऑर्डर {orderNumber} स्वीकार कर लिया गया है। अब आप भुगतान कर सकते हैं।' },
+    en: { title: 'Order Accepted', body: 'Your order {orderNumber} has been accepted. Total to pay: ₹{total} (incl. delivery). You can now complete payment.' },
+    hi: { title: 'ऑर्डर स्वीकार किया गया', body: 'आपका ऑर्डर {orderNumber} स्वीकार कर लिया गया है। कुल भुगतान: ₹{total} (डिलीवरी सहित)। अब आप भुगतान कर सकते हैं।' },
   },
   orderRejected: {
     en: { title: 'Order Rejected', body: 'Your order {orderNumber} was rejected: {reason}' },
@@ -53,6 +53,14 @@ const TEMPLATES = {
     en: { title: 'Requirement Declined', body: '{brand} could not confirm requirement for {productName}. Open it to view the reason.' },
     hi: { title: 'रिक्वायरमेंट अस्वीकार हुई', body: '{brand} {productName} की रिक्वायरमेंट कन्फर्म नहीं कर सका। कारण देखने के लिए खोलें।' },
   },
+  requirementGroupDeclinedWithReason: {
+    en: { title: 'Requirement Declined', body: '{brand} could not confirm requirement {requestNumber} ({count} products): {reason}' },
+    hi: { title: 'रिक्वायरमेंट अस्वीकार हुई', body: '{brand} रिक्वायरमेंट {requestNumber} ({count} प्रोडक्ट) कन्फर्म नहीं कर सका: {reason}' },
+  },
+  requirementGroupDeclined: {
+    en: { title: 'Requirement Declined', body: '{brand} could not confirm requirement {requestNumber} ({count} products). Open it to view the details.' },
+    hi: { title: 'रिक्वायरमेंट अस्वीकार हुई', body: '{brand} रिक्वायरमेंट {requestNumber} ({count} प्रोडक्ट) कन्फर्म नहीं कर सका। विवरण देखने के लिए खोलें।' },
+  },
   requirementNewPrice: {
     en: { title: 'New Price from {brand}', body: '{brand} shared a new price ₹{price}/unit for {productName}. Review and respond.' },
     hi: { title: '{brand} से नई कीमत', body: '{brand} ने {productName} के लिए नई कीमत ₹{price}/यूनिट भेजी है। देखें और जवाब दें।' },
@@ -64,6 +72,14 @@ const TEMPLATES = {
   requirementAccepted: {
     en: { title: 'Order Created! ✅', body: '{brand} accepted your requirement for {productName} at ₹{price}/unit. Order {orderNumber} is ready to view.' },
     hi: { title: 'ऑर्डर बन गया! ✅', body: '{brand} ने {productName} की आपकी रिक्वायरमेंट ₹{price}/यूनिट पर स्वीकार कर ली है। ऑर्डर {orderNumber} देखें।' },
+  },
+  productLaunched: {
+    en: { title: 'Now available! 🎉', body: '{productName} is now available. Order it in the app.' },
+    hi: { title: 'अब उपलब्ध! 🎉', body: '{productName} अब उपलब्ध है। ऐप में ऑर्डर करें।' },
+  },
+  requirementGroupAccepted: {
+    en: { title: 'Order Created! ✅', body: '{brand} accepted your requirement {requestNumber} for {count} products. Order {orderNumber} · total ₹{total}.' },
+    hi: { title: 'ऑर्डर बन गया! ✅', body: '{brand} ने आपकी रिक्वायरमेंट {requestNumber} ({count} प्रोडक्ट) स्वीकार कर ली है। ऑर्डर {orderNumber} · कुल ₹{total}।' },
   },
   negotiationUpdate: {
     en: { title: 'Negotiation Update', body: '{message}' },
@@ -97,6 +113,15 @@ const TEMPLATES = {
     en: { title: 'Prices updated', body: 'New prices are now applied.' },
     hi: { title: 'कीमतें बदल गईं', body: 'नई कीमतें अब लागू हो गई हैं।' },
   },
+  // Immediate price changes, announced together (priceChangeNotificationService).
+  priceUpdatedOne: {
+    en: { title: 'Price updated', body: 'The price of {productName} has changed. Open the app to see it.' },
+    hi: { title: 'कीमत बदली', body: '{productName} की कीमत बदल गई है। देखने के लिए ऐप खोलें।' },
+  },
+  priceUpdatedMany: {
+    en: { title: 'Prices updated', body: 'Prices of {count} products have changed. Open the app to see the latest prices.' },
+    hi: { title: 'कीमतें बदलीं', body: '{count} उत्पादों की कीमतें बदल गई हैं। नई कीमतें देखने के लिए ऐप खोलें।' },
+  },
 };
 
 const normalizeLanguage = (value) => (SUPPORTED_LANGUAGES.includes(value) ? value : 'en');
@@ -112,7 +137,7 @@ function renderNotification(key, language, params = {}) {
   if (!template) throw new Error(`Unknown notification template: ${key}`);
   const lang = normalizeLanguage(language);
   const values = {
-    brand: BRAND.name,
+    brand: BRAND.shortName,
     ...params,
     productName: lang === 'hi' && params.productNameHindi ? params.productNameHindi : params.productName,
   };

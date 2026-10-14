@@ -6,12 +6,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import 'local_notification_service.dart';
 
-/// In-app / local notifications only.
+/// Remote push delivery (FCM) sits behind this interface.
 ///
-/// The demo build has no push provider (no Firebase / FCM). Notifications are
-/// delivered through the in-app notification centre, which is fed by the
-/// backend `/notifications/my` endpoint. Calling [initialize] only prepares
-/// local notification channels and syncs any active price countdown.
+/// The default is [NoopPushService]: nothing is registered and notifications
+/// arrive through the in-app notification centre (backend `/notifications/my`)
+/// and local notifications. Push through Firebase Cloud Messaging is optional:
+/// `FirebasePushService` (`firebase_push_service.dart`) replaces the no-op
+/// through a [pushServiceProvider] override in `main.dart`, only when Firebase
+/// initialises (it needs your own `google-services.json`).
+abstract class PushService {
+  /// Registers for push and starts listening. Safe to call repeatedly.
+  Future<void> initialize({bool requestPermission = false});
+
+  /// Stops pushes for this device reaching the signed-in account. Called just
+  /// before logout, while the session is still valid. Never throws.
+  Future<void> unregister();
+
+  /// The current device push token, if any.
+  String? get currentToken;
+}
+
+/// Push delivery is off: every call does nothing.
+class NoopPushService implements PushService {
+  const NoopPushService();
+
+  @override
+  Future<void> initialize({bool requestPermission = false}) async {}
+
+  @override
+  Future<void> unregister() async {}
+
+  @override
+  String? get currentToken => null;
+}
+
+final pushServiceProvider = Provider<PushService>(
+  (ref) => const NoopPushService(),
+);
+
+/// In-app / local notifications, plus whatever [PushService] is installed.
 class NotificationService {
   final Ref _ref;
   bool _priceCountdownSynced = false;
@@ -19,6 +52,13 @@ class NotificationService {
   NotificationService(this._ref);
 
   Future<void> initialize({bool requestPermission = false}) async {
+    try {
+      await _ref
+          .read(pushServiceProvider)
+          .initialize(requestPermission: requestPermission);
+    } catch (error) {
+      debugPrint('[Notifications] Push init skipped: $error');
+    }
     try {
       await LocalNotificationService.instance.ensureInitialized();
     } catch (error) {
@@ -93,8 +133,16 @@ class NotificationService {
     }
   }
 
-  /// No push token is used in the demo build.
-  String? get currentToken => null;
+  /// Called before logout so the backend stops pushing to this device.
+  Future<void> unregisterPush() async {
+    try {
+      await _ref.read(pushServiceProvider).unregister();
+    } catch (error) {
+      debugPrint('[Notifications] Push unregister skipped: $error');
+    }
+  }
+
+  String? get currentToken => _ref.read(pushServiceProvider).currentToken;
 }
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {

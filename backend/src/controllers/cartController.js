@@ -7,6 +7,25 @@ const {
   getVariantDisplayName,
 } = require('../utils/productVariants');
 const { buildDiscountMap, discountsFor } = require('../services/productDiscountService');
+const { assertPurchasable, isComingSoon } = require('../utils/productAvailability');
+const { pricesForRole } = require('../utils/priceVisibility');
+const { hiddenCatalogFor, isProductHidden } = require('../utils/customerVisibility');
+
+// Products hidden from this customer (utils/customerVisibility) can't be added.
+async function assertVisibleToCustomer(product, user) {
+  if (isProductHidden(product, await hiddenCatalogFor(user))) {
+    throw new BadRequestError(`${product.name || 'This product'} is not available`, 'PRODUCT_UNAVAILABLE');
+  }
+}
+const {
+  describePack,
+  getPackSize,
+  getMinimumWholesalePacks,
+  getMinimumWholesaleQuantity,
+  getMinimumCustomerQuantity,
+  isWholePacks,
+  roundUpToWholesaleQuantity,
+} = require('../utils/packSize');
 
 const buildCartItemKey = (productId, variantId) => `${productId}:${variantId || 'default'}`;
 
@@ -24,19 +43,30 @@ const buildProductMap = (products = []) => products.reduce((acc, product) => {
   return acc;
 }, {});
 
-const getMinimumWholesaleQuantity = (product) => {
-  const value = Number(product?.minWholesaleQuantity);
-  return Number.isInteger(value) && value > 0 ? value : 1;
-};
-
 const isWholesaler = (userRole) => userRole === 'wholesaler';
 
 const assertMinimumWholesaleQuantity = (product, userRole, quantity) => {
+  if (!isWholesaler(userRole)) {
+    const customerMinimum = getMinimumCustomerQuantity(product);
+    if (quantity < customerMinimum) {
+      throw new BadRequestError(
+        `Minimum order quantity for ${product.name} is ${customerMinimum}`,
+        'MIN_CUSTOMER_QUANTITY_NOT_MET'
+      );
+    }
+    return;
+  }
   const minimumQuantity = getMinimumWholesaleQuantity(product);
-  if (isWholesaler(userRole) && quantity < minimumQuantity) {
+  if (quantity < minimumQuantity) {
     throw new BadRequestError(
       `Minimum wholesale quantity for ${product.name} is ${minimumQuantity}`,
       'MIN_WHOLESALE_QUANTITY_NOT_MET'
+    );
+  }
+  if (!isWholePacks(product, quantity)) {
+    throw new BadRequestError(
+      `${product.name} is sold in full ${describePack(product)}`,
+      'PACK_QUANTITY_REQUIRED'
     );
   }
 };
@@ -54,7 +84,7 @@ const formatCartItem = (item, product, userRole, discounts = null) => {
     productId: item.productId,
     variantId,
     cartItemKey: buildCartItemKey(productId, variantId),
-    product: {
+    product: pricesForRole({
       id: product._id,
       name: product.name,
       nameHindi: product.nameHindi,
@@ -69,11 +99,14 @@ const formatCartItem = (item, product, userRole, discounts = null) => {
       discountSource: pricing.discountSource,
       discountSourceName: pricing.discountSourceName,
       stock: product.stock,
-      minWholesaleQuantity: getMinimumWholesaleQuantity(product),
+      // In packets for packet products (see packSize).
+      minWholesaleQuantity: getMinimumWholesalePacks(product),
+      packSize: getPackSize(product),
+      minCustomerQuantity: getMinimumCustomerQuantity(product),
       image: product.images?.find(img => img.isPrimary)?.url || product.images?.[0]?.url,
       priceUnit: product.priceUnit || '',
       packing: product.packing || '',
-    },
+    }, userRole),
     variant: null,
     quantity: item.quantity,
     priceAtAdd: item.priceAtAdd,
@@ -83,10 +116,10 @@ const formatCartItem = (item, product, userRole, discounts = null) => {
   };
 };
 
-const populateCartItems = async (cart, userRole = 'guest') => {
+const populateCartItems = async (cart, userRole = 'guest', user = null) => {
   const productIds = [...new Set(cart.items.map(item => item.productId.toString()))];
   const products = await Product.find({ _id: { $in: productIds } })
-    .select('name nameHindi brand category categoryRef company slug mrp retailPrice wholesalePrice stock priceUnit packing images negotiationEnabled minWholesaleQuantity')
+    .select('name nameHindi brand category categoryRef company slug mrp retailPrice wholesalePrice stock priceUnit packing images negotiationEnabled minWholesaleQuantity minCustomerQuantity')
     .populate('company', 'name')
     .populate('categoryRef', 'name nameHindi slug')
     .lean();
@@ -95,17 +128,24 @@ const populateCartItems = async (cart, userRole = 'guest') => {
   const discountMap = await buildDiscountMap(products);
   let cartUpdated = false;
 
+  // Products hidden from this customer leave the cart (they can't be bought).
+  const hidden = await hiddenCatalogFor(user || { role: userRole });
+  const keptItems = cart.items.filter((item) => !isProductHidden(productMap[item.productId.toString()], hidden));
+  if (keptItems.length !== cart.items.length) {
+    cart.items = keptItems;
+    cartUpdated = true;
+  }
+
   const items = cart.items.map((item) => {
     const product = productMap[item.productId.toString()];
     if (!product) return null;
 
-    const minimumQuantity = getMinimumWholesaleQuantity(product);
-    if (
-      isWholesaler(userRole) &&
-      item.quantity < minimumQuantity &&
-      product.stock >= minimumQuantity
-    ) {
-      item.quantity = minimumQuantity;
+    // Raise to the minimum / whole packs when stock allows.
+    const validQuantity = isWholesaler(userRole)
+      ? roundUpToWholesaleQuantity(product, item.quantity)
+      : Math.max(item.quantity, getMinimumCustomerQuantity(product));
+    if (validQuantity !== item.quantity && product.stock >= validQuantity) {
+      item.quantity = validQuantity;
       cartUpdated = true;
     }
 
@@ -131,7 +171,7 @@ exports.getCart = async (req, res, next) => {
       cart = await Cart.create({ userId: req.user._id, items: [] });
     }
 
-    const data = await populateCartItems(cart, userRole);
+    const data = await populateCartItems(cart, userRole, req.user);
 
     res.json({
       success: true,
@@ -151,6 +191,8 @@ exports.addItem = async (req, res, next) => {
     if (!product) {
       throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
     }
+    assertPurchasable(product);
+    await assertVisibleToCustomer(product, req.user);
 
     const resolved = resolveVariantForCart(product, null);
     const requestedQuantity = Number(quantity);
@@ -180,7 +222,7 @@ exports.addItem = async (req, res, next) => {
     cart.addItem(productId, null, requestedQuantity, pricing.price, variantSnapshot);
     await cart.save();
 
-    const data = await populateCartItems(cart, userRole);
+    const data = await populateCartItems(cart, userRole, req.user);
     res.json({
       success: true,
       message: 'Item added to cart',
@@ -202,6 +244,8 @@ exports.updateItemQuantity = async (req, res, next) => {
     if (!product) {
       throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
     }
+    assertPurchasable(product);
+    await assertVisibleToCustomer(product, req.user);
 
     const resolved = resolveVariantForCart(product, variantId);
     const requestedQuantity = Number(quantity);
@@ -222,7 +266,7 @@ exports.updateItemQuantity = async (req, res, next) => {
     cart.updateItemQuantity(productId, resolved.variantId, requestedQuantity);
     await cart.save();
 
-    const data = await populateCartItems(cart, userRole);
+    const data = await populateCartItems(cart, userRole, req.user);
     res.json({
       success: true,
       message: 'Cart updated',
@@ -247,7 +291,7 @@ exports.removeItem = async (req, res, next) => {
     cart.removeItem(productId, variantId);
     await cart.save();
 
-    const data = await populateCartItems(cart, userRole);
+    const data = await populateCartItems(cart, userRole, req.user);
     res.json({
       success: true,
       message: 'Item removed from cart',
@@ -268,11 +312,12 @@ exports.validateCart = async (req, res, next) => {
     const userRole = req.user?.role || 'guest';
     const productIds = [...new Set(cart.items.map(item => item.productId.toString()))];
     const products = await Product.find({ _id: { $in: productIds } })
-      .select('name stock retailPrice status minWholesaleQuantity')
+      .select('name stock retailPrice status minWholesaleQuantity minCustomerQuantity priceUnit packing comingSoon company categoryRef')
       .lean();
 
     const productMap = buildProductMap(products);
     const issues = [];
+    const hidden = await hiddenCatalogFor(req.user);
 
     for (const item of cart.items) {
       const product = productMap[item.productId.toString()];
@@ -291,7 +336,7 @@ exports.validateCart = async (req, res, next) => {
         continue;
       }
 
-      if (product.status !== 'active') {
+      if (product.status !== 'active' || isProductHidden(product, hidden)) {
         issues.push({
           productId: item.productId.toString(),
           variantId: itemVariantId,
@@ -299,6 +344,20 @@ exports.validateCart = async (req, res, next) => {
           name: product.name,
           type: 'unavailable',
           message: `${product.name} is currently unavailable`,
+          availableStock: 0,
+          requestedQty: item.quantity,
+        });
+        continue;
+      }
+
+      if (isComingSoon(product)) {
+        issues.push({
+          productId: item.productId.toString(),
+          variantId: itemVariantId,
+          cartItemKey: buildCartItemKey(item.productId.toString(), itemVariantId),
+          name: product.name,
+          type: 'coming_soon',
+          message: `${product.name} is coming soon and can't be ordered yet`,
           availableStock: 0,
           requestedQty: item.quantity,
         });
@@ -322,7 +381,10 @@ exports.validateCart = async (req, res, next) => {
 
       const variantName = getVariantDisplayName(product, resolved.variant);
       const minimumQuantity = getMinimumWholesaleQuantity(product);
-      if (isWholesaler(userRole) && item.quantity < minimumQuantity) {
+      if (
+        isWholesaler(userRole) &&
+        (item.quantity < minimumQuantity || !isWholePacks(product, item.quantity))
+      ) {
         issues.push({
           productId: item.productId.toString(),
           variantId: itemVariantId,
@@ -333,6 +395,22 @@ exports.validateCart = async (req, res, next) => {
           availableStock: resolved.variant.stock,
           requestedQty: item.quantity,
           minimumWholesaleQuantity: minimumQuantity,
+        });
+        continue;
+      }
+
+      const customerMinimum = getMinimumCustomerQuantity(product);
+      if (!isWholesaler(userRole) && item.quantity < customerMinimum) {
+        issues.push({
+          productId: item.productId.toString(),
+          variantId: itemVariantId,
+          cartItemKey: buildCartItemKey(item.productId.toString(), itemVariantId),
+          name: variantName,
+          type: 'minimum_customer_quantity',
+          message: `Minimum order quantity for ${variantName} is ${customerMinimum}`,
+          availableStock: resolved.variant.stock,
+          requestedQty: item.quantity,
+          minimumCustomerQuantity: customerMinimum,
         });
         continue;
       }

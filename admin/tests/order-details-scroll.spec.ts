@@ -11,7 +11,7 @@ const order = {
   total: 12000,
   status: "pending_payment",
   createdAt: "2026-09-28T11:30:00.000Z",
-  shippingAddress: { addressLine1: "Market Road", city: "Bemetara", state: "CG", pincode: "491335" },
+  shippingAddress: { addressLine1: "Market Road", city: "Metro City", state: "DS", pincode: "000001" },
   statusHistory: Array.from({ length: 6 }, (_, i) => ({ status: "pending_payment", timestamp: "2026-09-28T11:30:00.000Z", note: `Update ${i + 1}` })),
   payment: null,
 }

@@ -34,7 +34,7 @@ const readFixture = (name) => JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, 
 
 // Deterministic ObjectId per (namespace, key).
 const oid = (namespace, key) => new mongoose.Types.ObjectId(
-  crypto.createHash('sha1').update(`tradehub-demo:${namespace}:${key}`).digest('hex').slice(0, 24),
+  crypto.createHash('sha1').update(`demomart-demo:${namespace}:${key}`).digest('hex').slice(0, 24),
 );
 
 // Small deterministic PRNG so analytics look the same after every reset.
@@ -96,6 +96,7 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
   const {
     User, Product, Negotiation, Order, Payment, Analytics, Settings, Company, Category,
     StockLog, Notification, Offer, Review, WebsiteSettings, ProductInterest, AdminNotification,
+    ProductAlert, PriceChangeNotificationBatch, AccountDeletionRequest,
   } = models;
 
   if (wipe) {
@@ -121,6 +122,7 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
       logo: { url: imageUrl(fx.logo), publicId: imagePublicId(fx.logo) },
       isActive: true,
       showOnWebsite: true,
+      hideFromCustomers: Boolean(fx.hideFromCustomers),
       order: fx.order,
     }, at(90 * 24));
   }
@@ -143,6 +145,8 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
       order: fx.order,
       isActive: true,
       showOnWebsite: true,
+      // Top-level categories can be hidden from retail customers and guests.
+      hideFromCustomers: Boolean(fx.hideFromCustomers),
     }, at(90 * 24));
   }
   counts.categories = categoryFixtures.length;
@@ -179,6 +183,8 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
       role: fx.role,
       mustChangePassword: Boolean(fx.mustChangePassword),
       preferredLanguage: fx.preferredLanguage || 'en',
+      // Brands an admin hid from this one customer (Customer Profile).
+      hiddenBrands: (fx.hiddenBrands || []).map((key) => brands[key]._id),
       businessInfo,
       phoneVerified: true,
       isActive: true,
@@ -230,6 +236,7 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
       retailPrice: fx.retailPrice,
       wholesalePrice: fx.wholesalePrice,
       minWholesaleQuantity: fx.minWholesaleQuantity,
+      minCustomerQuantity: fx.minCustomerQuantity || 1,
       negotiationEnabled: fx.negotiationEnabled !== false,
       sku: fx.sku,
       stock: fx.stock,
@@ -245,6 +252,15 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
       }],
       specifications: fx.specifications,
       status: 'active',
+      comingSoon: fx.comingSoon
+        ? {
+          enabled: Boolean(fx.comingSoon.enabled),
+          showPrice: fx.comingSoon.showPrice !== false,
+          expectedDate: fx.comingSoon.expectedInDays ? new Date(now.getTime() + fx.comingSoon.expectedInDays * DAY) : null,
+          autoLaunch: Boolean(fx.comingSoon.autoLaunch),
+          launchNotifiedAt: null,
+        }
+        : undefined,
       showOnWebsite: true,
       isFeatured: Boolean(fx.isFeatured),
       isHot: Boolean(fx.isHot),
@@ -313,7 +329,9 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
         businessName: user.businessInfo?.businessName,
       },
       orderType: fx.type,
-      negotiationId: fx.negotiation ? oid('negotiation', fx.negotiation) : null,
+      negotiationId: fx.negotiation ? oid('negotiation', fx.negotiation) : (fx.negotiations ? oid('negotiation', fx.negotiations[0]) : null),
+      // A combined order (requirement group) lists every requirement it holds.
+      negotiationIds: fx.negotiations ? fx.negotiations.map((key) => oid('negotiation', key)) : (fx.negotiation ? [oid('negotiation', fx.negotiation)] : []),
       items,
       subtotal,
       deliveryFee: fx.deliveryFee || 0,
@@ -438,7 +456,15 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
         image: primaryImageOf(fx.sku),
         sku: product.sku,
         variantSku: '',
+        priceUnit: product.priceUnit || '',
+        packing: product.packing || '',
       },
+      requestGroup: fx.requestGroup
+        ? { id: oid('request-group', fx.requestGroup.key).toString(), number: fx.requestGroup.number }
+        : { id: null, number: null },
+      rejectedAt: fx.status === 'rejected'
+        ? history.filter((entry) => entry.action === 'rejected').map((entry) => entry.timestamp).pop() || null
+        : null,
       requestedQuantity: qty,
       requestedPricePerUnit: fx.requestedPricePerUnit,
       requestedTotalPrice: qty * fx.requestedPricePerUnit,
@@ -472,6 +498,10 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
   const resolveData = (data = {}) => {
     const out = {};
     if (data.negotiation) out.negotiationId = String(negotiations[data.negotiation]._id);
+    if (data.product) {
+      out.productId = String(products[data.product]._id);
+      out.slug = products[data.product].slug || '';
+    }
     if (data.order) {
       out.orderId = String(orders[data.order]._id);
       out.orderNumber = orderFixtures.find((o) => o.key === data.order).number;
@@ -503,6 +533,45 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
   }
   counts.notifications = notificationFixtures.user.length;
   counts.adminNotifications = notificationFixtures.admin.length;
+
+  // 8b) Coming Soon "Notify me" subscriptions, price-update batch, deletion requests
+  const lifecycle = readFixture('lifecycle.json');
+  for (const fx of lifecycle.productAlerts) {
+    await insertDoc(ProductAlert, {
+      userId: users[fx.user]._id,
+      productId: products[fx.sku]._id,
+      notifiedAt: null,
+    }, at(24 * 2));
+  }
+  counts.productAlerts = lifecycle.productAlerts.length;
+
+  // Always 'sent': a pending batch would be announced to app users on the next request.
+  const batch = lifecycle.priceChangeBatch;
+  await insertDoc(PriceChangeNotificationBatch, {
+    status: 'sent',
+    firstChangeAt: at(batch.firstChangeHoursAgo),
+    lastChangeAt: at(batch.lastChangeHoursAgo),
+    retailProductIds: batch.retailSkus.map((sku) => products[sku]._id),
+    wholesaleProductIds: batch.wholesaleSkus.map((sku) => products[sku]._id),
+    claimedAt: at(batch.sentHoursAgo),
+    sentAt: at(batch.sentHoursAgo),
+    sentSummary: batch.sentSummary,
+  }, at(batch.firstChangeHoursAgo));
+  counts.priceChangeBatches = 1;
+
+  for (const fx of lifecycle.deletionRequests) {
+    const requestedAt = at(fx.requestedDaysAgo * 24);
+    await insertDoc(AccountDeletionRequest, {
+      userId: users[fx.user]._id,
+      source: fx.source,
+      status: 'pending',
+      requestedAt,
+      dueAt: new Date(now.getTime() + fx.dueInDays * DAY),
+      reminders: { dueSoonAt: at(fx.dueSoonReminderHoursAgo), overdueAt: null },
+      events: [{ action: 'requested', byUserId: users[fx.user]._id, note: null, at: requestedAt }],
+    }, requestedAt);
+  }
+  counts.accountDeletionRequests = lifecycle.deletionRequests.length;
 
   // 9) Analytics events -----------------------------------------------------
   const analyticsFx = readFixture('analytics.json');
@@ -633,6 +702,9 @@ async function seedDemo({ wipe = true, log = console.log } = {}) {
     await Company.updateOne({ _id: brand._id }, { $set: { productCount: await Product.countDocuments({ company: brand._id }) } });
   }
 
+  // The hidden-catalogue lists are cached for a short time per server process.
+  require('../../src/utils/customerVisibility').clearHiddenCatalogCache();
+
   log(`Seeded demo dataset v${manifest.version} (${Object.entries(counts).map(([k, v]) => `${k}=${v}`).join(', ')})`);
   return { counts, seededAt: now.toISOString(), version: manifest.version };
 }
@@ -646,7 +718,7 @@ if (require.main === module) {
   // These scripts only ever run against a demo database; the guard below
   // still rejects anything that is not a local "*demo*" database.
   if (!process.env.DEMO_MODE) process.env.DEMO_MODE = 'true';
-  if (!process.env.MONGODB_URI) process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/tradehub_demo?replicaSet=rs0';
+  if (!process.env.MONGODB_URI) process.env.MONGODB_URI = 'mongodb://127.0.0.1:27018/demomart_demo?replicaSet=rs0';
   const wipe = args.includes('--wipe') || args.includes('--reset');
 
   seedDemo({ wipe })

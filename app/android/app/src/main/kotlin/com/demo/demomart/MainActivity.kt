@@ -1,4 +1,4 @@
-package com.demo.tradehub
+package com.demo.demomart
 
 import io.flutter.embedding.android.FlutterActivity
 

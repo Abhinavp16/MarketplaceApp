@@ -7,9 +7,14 @@ class AppFonts {
   // squeezes Hindi vowel signs together.
   static bool hindi = false;
 
-  static List<String> get _fallback => [
+  static final List<String> _fallback = [
     GoogleFonts.notoSansDevanagari().fontFamily!,
   ];
+
+  // Plus Jakarta Sans family name per weight/style. google_fonts resolves
+  // (and starts loading) each one once; after that a style is a plain
+  // TextStyle copy, which matters at hundreds of styles per rebuild.
+  static final Map<(FontWeight, FontStyle), String> _jakartaFamilies = {};
 
   /// Letter spacing actually used (negative spacing is removed for Hindi).
   static double? spacingFor(double? letterSpacing) {
@@ -17,9 +22,9 @@ class AppFonts {
     return letterSpacing < 0 ? 0 : letterSpacing;
   }
 
-  /// Font size actually used (at least 10 for Hindi).
+  /// Font size actually used: never below 10, so no label becomes unreadable.
   static double? sizeFor(double? fontSize) {
-    if (!hindi || fontSize == null) return fontSize;
+    if (fontSize == null) return fontSize;
     return fontSize < 10 ? 10 : fontSize;
   }
 
@@ -38,8 +43,17 @@ class AppFonts {
     double? decorationThickness,
     List<Shadow>? shadows,
   }) {
-    return GoogleFonts.plusJakartaSans(
-      textStyle: textStyle,
+    final base = textStyle ?? const TextStyle();
+    final weight = fontWeight ?? base.fontWeight ?? FontWeight.w400;
+    final style = fontStyle ?? base.fontStyle ?? FontStyle.normal;
+    final family = _jakartaFamilies.putIfAbsent(
+      (weight, style),
+      () => GoogleFonts.plusJakartaSans(
+        fontWeight: weight,
+        fontStyle: style,
+      ).fontFamily!,
+    );
+    return base.copyWith(
       color: color,
       fontSize: sizeFor(fontSize),
       fontWeight: fontWeight,
@@ -50,10 +64,13 @@ class AppFonts {
       decorationColor: decorationColor,
       decorationThickness: decorationThickness,
       shadows: shadows,
-    ).copyWith(fontFamilyFallback: _fallback);
+      fontFamily: family,
+      fontFamilyFallback: _fallback,
+    );
   }
 
-  // Montserrat - Primary headings and titles
+  // Headings used to be Montserrat. The app now uses one family, so this
+  // renders Plus Jakarta Sans; the name is kept for existing call sites.
   static TextStyle montserrat({
     double fontSize = 16,
     FontWeight fontWeight = FontWeight.w400,
@@ -62,17 +79,17 @@ class AppFonts {
     double? letterSpacing,
     TextDecoration? decoration,
   }) {
-    return GoogleFonts.montserrat(
+    return jakarta(
       decoration: decoration,
-      fontSize: sizeFor(fontSize),
+      fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
       height: height,
-      letterSpacing: spacingFor(letterSpacing),
-    ).copyWith(fontFamilyFallback: _fallback);
+      letterSpacing: letterSpacing,
+    );
   }
 
-  // Outfit - Body text and subtitles
+  // Body text used to be Outfit; now Plus Jakarta Sans (see [montserrat]).
   static TextStyle outfit({
     double fontSize = 14,
     FontWeight fontWeight = FontWeight.w400,
@@ -81,14 +98,14 @@ class AppFonts {
     double? letterSpacing,
     TextDecoration? decoration,
   }) {
-    return GoogleFonts.outfit(
+    return jakarta(
       decoration: decoration,
-      fontSize: sizeFor(fontSize),
+      fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
       height: height,
-      letterSpacing: spacingFor(letterSpacing),
-    ).copyWith(fontFamilyFallback: _fallback);
+      letterSpacing: letterSpacing,
+    );
   }
 
   // Heading Styles

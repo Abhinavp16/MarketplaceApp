@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/services/shipping_address_service.dart';
+import '../../core/theme/app_theme.dart';
 import '../../widgets/state_city_pincode_fields.dart';
+import '../../widgets/ui/ui.dart';
 import '../../core/theme/app_fonts.dart';
 import '../../l10n/l10n.dart';
 
@@ -45,14 +48,12 @@ class _AddressesScreenState extends State<AddressesScreen> {
     await ShippingAddressService.setSelectedAddressId(address.id);
     if (!mounted) return;
     setState(() => _selectedId = address.id);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _isPrimary(address.slot)
-              ? context.l10n.addressPrimarySetDefault
-              : context.l10n.addressSecondarySetDefault,
-        ),
-      ),
+    showAppSnack(
+      context,
+      _isPrimary(address.slot)
+          ? context.l10n.addressPrimarySetDefault
+          : context.l10n.addressSecondarySetDefault,
+      tone: SnackTone.success,
     );
   }
 
@@ -78,45 +79,50 @@ class _AddressesScreenState extends State<AddressesScreen> {
       builder: (ctx) => Padding(
         padding: EdgeInsets.fromLTRB(
           16,
-          12,
+          0,
           16,
           MediaQuery.of(ctx).viewInsets.bottom + 16,
         ),
         child: Form(
           key: fk,
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _isPrimary(slot)
-                      ? ctx.l10n.addressPrimaryTitle
-                      : ctx.l10n.addressSecondaryTitle,
-                  style: AppFonts.jakarta(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+            child: SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SheetHandle(),
+                  const SizedBox(height: 8),
+                  Text(
+                    _isPrimary(slot)
+                        ? ctx.l10n.addressPrimaryTitle
+                        : ctx.l10n.addressSecondaryTitle,
+                    style: AppFonts.jakarta(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                _field(nameC, ctx.l10n.fieldFullName),
-                const SizedBox(height: 10),
-                _field(
-                  phoneC,
-                  ctx.l10n.fieldPhone,
-                  keyboard: TextInputType.phone,
-                ),
-                const SizedBox(height: 10),
-                _field(addrC, ctx.l10n.fieldAddressLine1),
-                const SizedBox(height: 10),
-                StateCityPincodeFields(
-                  stateController: stateC,
-                  cityController: cityC,
-                  pincodeController: pinC,
-                ),
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
+                  const SizedBox(height: 16),
+                  _field(nameC, ctx.l10n.fieldFullName),
+                  const SizedBox(height: 12),
+                  _field(
+                    phoneC,
+                    ctx.l10n.fieldPhone,
+                    keyboard: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 12),
+                  _field(addrC, ctx.l10n.fieldAddressLine1),
+                  const SizedBox(height: 12),
+                  StateCityPincodeFields(
+                    stateController: stateC,
+                    cityController: cityC,
+                    pincodeController: pinC,
+                  ),
+                  const SizedBox(height: 20),
+                  AppButton(
+                    label: ctx.l10n.addressSaveButton,
                     onPressed: () {
                       if (!fk.currentState!.validate()) return;
                       Navigator.pop(ctx, {
@@ -128,10 +134,9 @@ class _AddressesScreenState extends State<AddressesScreen> {
                         'pincode': pinC.text.trim(),
                       });
                     },
-                    child: Text(ctx.l10n.addressSaveButton),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -156,20 +161,20 @@ class _AddressesScreenState extends State<AddressesScreen> {
       await ShippingAddressService.setSelectedAddressId(address.id);
       await _load();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _isPrimary(slot)
-                ? context.l10n.addressPrimarySaved
-                : context.l10n.addressSecondarySaved,
-          ),
-        ),
+      showAppSnack(
+        context,
+        _isPrimary(slot)
+            ? context.l10n.addressPrimarySaved
+            : context.l10n.addressSecondarySaved,
+        tone: SnackTone.success,
       );
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      showAppSnack(
         context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.addressSaveFailed)));
+        context.l10n.addressSaveFailed,
+        tone: SnackTone.error,
+      );
     }
   }
 
@@ -183,107 +188,131 @@ class _AddressesScreenState extends State<AddressesScreen> {
       keyboardType: keyboard,
       validator: (v) =>
           (v == null || v.trim().isEmpty) ? context.l10n.commonRequired : null,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
+      style: AppFonts.jakarta(fontSize: 14, fontWeight: FontWeight.w500),
+      decoration: InputDecoration(labelText: label),
     );
   }
 
   Widget _addressCard(String slot) {
     final address = _forSlot(slot);
     final isDefault = address != null && address.id == _selectedId;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      _slotLabel(slot),
-                      style: AppFonts.jakarta(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (isDefault) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0FDFA),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          context.l10n.addressDefaultBadge,
-                          style: AppFonts.jakarta(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF0F766E),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+    final l10n = context.l10n;
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 16),
+      borderColor: isDefault ? AppColors.primary : AppColors.border,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isDefault ? AppColors.primarySoft : AppColors.gray100,
+                  shape: BoxShape.circle,
                 ),
-                TextButton(
-                  onPressed: () => _openEditor(slot),
-                  child: Text(
-                    address == null
-                        ? context.l10n.addressAdd
-                        : context.l10n.commonEdit,
+                child: Center(
+                  child: HugeIcon(
+                    icon: _isPrimary(slot)
+                        ? HugeIcons.strokeRoundedHome01
+                        : HugeIcons.strokeRoundedStore01,
+                    size: 18,
+                    color: isDefault
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (address == null)
-              Text(
-                context.l10n.addressEmpty,
-                style: AppFonts.jakarta(color: Colors.black54),
-              )
-            else ...[
-              Text(
-                '${address.fullName} • ${address.phone}',
-                style: AppFonts.jakarta(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 4),
-              Text(
-                '${address.addressLine1}, ${address.city}, ${localizedStateName(context, address.state)} - ${address.pincode}',
-              ),
-              const SizedBox(height: 10),
-              OutlinedButton(
-                onPressed: isDefault ? null : () => _setDefault(address),
+              const SizedBox(width: 10),
+              Flexible(
                 child: Text(
-                  isDefault
-                      ? context.l10n.addressDefaultForDelivery
-                      : context.l10n.addressSetAsDefault,
+                  _slotLabel(slot),
+                  style: AppFonts.jakarta(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              if (isDefault) ...[
+                const SizedBox(width: 8),
+                StatusChip(
+                  label: l10n.addressDefaultBadge,
+                  tone: ChipTone.brand,
+                  dense: true,
+                ),
+              ],
+              const Spacer(),
+              TextButton.icon(
+                onPressed: () => _openEditor(slot),
+                style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
+                icon: HugeIcon(
+                  icon: address == null
+                      ? HugeIcons.strokeRoundedPlusSign
+                      : HugeIcons.strokeRoundedPencilEdit02,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
+                label: Text(
+                  address == null ? l10n.addressAdd : l10n.commonEdit,
                 ),
               ),
             ],
-          ],
-        ),
+          ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: address == null
+                ? Text(
+                    l10n.addressEmpty,
+                    style: AppFonts.jakarta(
+                      fontSize: 13,
+                      color: AppColors.textTertiary,
+                      height: 1.4,
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${address.fullName} • ${address.phone}',
+                        style: AppFonts.jakarta(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${address.addressLine1}, ${address.city}, ${localizedStateName(context, address.state)} - ${address.pincode}',
+                        style: AppFonts.jakarta(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      AppButton(
+                        label: isDefault
+                            ? l10n.addressDefaultForDelivery
+                            : l10n.addressSetAsDefault,
+                        icon: isDefault
+                            ? HugeIcons.strokeRoundedCheckmarkCircle02
+                            : null,
+                        variant: isDefault
+                            ? AppButtonVariant.tonal
+                            : AppButtonVariant.secondary,
+                        size: AppButtonSize.medium,
+                        expand: false,
+                        onPressed: isDefault
+                            ? null
+                            : () => _setDefault(address),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -291,47 +320,64 @@ class _AddressesScreenState extends State<AddressesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.profileAddresses)),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Container(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppHeader(title: context.l10n.profileAddresses),
+      body: AnimatedSwitcher(
+        duration: AppMotion.of(context, AppMotion.base),
+        child: _loading
+            ? SkeletonShimmer(
+                key: const ValueKey('loading'),
+                child: ListView(
+                  physics: const NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF0F766E), Color(0xFF115E59)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                  children: const [
+                    Skeleton(height: 52, radius: AppRadius.lg),
+                    SizedBox(height: 12),
+                    Skeleton(height: 150, radius: AppRadius.lg),
+                    SizedBox(height: 12),
+                    Skeleton(height: 150, radius: AppRadius.lg),
+                  ],
+                ),
+              )
+            : ListView(
+                key: const ValueKey('content'),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.primarySoft,
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          context.l10n.addressBanner,
-                          style: AppFonts.jakarta(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                    child: Row(
+                      children: [
+                        const HugeIcon(
+                          icon: HugeIcons.strokeRoundedLocation01,
+                          size: 20,
+                          color: AppColors.primaryDeep,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            context.l10n.addressBanner,
+                            style: AppFonts.jakarta(
+                              color: AppColors.primaryDeep,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                _addressCard(ShippingAddressService.slotPrimary),
-                _addressCard(ShippingAddressService.slotSecondary),
-              ],
-            ),
+                  const SizedBox(height: 12),
+                  _addressCard(ShippingAddressService.slotPrimary),
+                  const SizedBox(height: 12),
+                  _addressCard(ShippingAddressService.slotSecondary),
+                ],
+              ),
+      ),
     );
   }
 }

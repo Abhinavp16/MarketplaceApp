@@ -1,7 +1,7 @@
-const { Product, Analytics, WebsiteSettings, Company, ProductInterest } = require('../models');
-const { NotFoundError } = require('../utils/errors');
+const { Product, Analytics, WebsiteSettings, Company, ProductInterest, ProductAlert } = require('../models');
+const { NotFoundError, BadRequestError } = require('../utils/errors');
 const { paginate, formatPaginationResponse } = require('../utils/helpers');
-const { PRODUCT_STATUS, ANALYTICS_EVENTS } = require('../utils/constants');
+const { PRODUCT_STATUS, ANALYTICS_EVENTS, ANALYTICS_SOURCES } = require('../utils/constants');
 const mongoose = require('mongoose');
 const {
   getPriceForUser,
@@ -22,14 +22,37 @@ const {
 } = require('../services/productSearchService');
 const { buildDiscountMap, discountsFor } = require('../services/productDiscountService');
 const { isLeadRole, sanitizeWatchSeconds } = require('../utils/leadInterest');
-const { buildSearchTerms, groupPattern, normalizeSearchText } = require('../utils/searchQuery');
+const { buildSearchTerms, escapeRegex, groupPattern, normalizeSearchText } = require('../utils/searchQuery');
 const logger = require('../utils/logger');
+const { comingSoonPayload, hidePriceIfNeeded, isComingSoon } = require('../utils/productAvailability');
+const { pricesForRole } = require('../utils/priceVisibility');
+const {
+  applyCustomerVisibility,
+  hiddenCatalogFor,
+  isProductHidden,
+} = require('../utils/customerVisibility');
+
+// Product fields the detail page may send. Anything else on the document
+// (scheduled-change audit, view/order counts, search helpers, raw variants)
+// stays on the server.
+const PRODUCT_DETAIL_FIELDS = [
+  'name', 'nameHindi', 'slug', 'description', 'shortDescription', 'category', 'categoryRef',
+  'subCategory', 'brand', 'tags', 'sku', 'priceUnit', 'packing', 'specifications', 'videoUrl',
+  'shippingTerms', 'metaTitle', 'metaDescription', 'status', 'isFeatured', 'isHot', 'company',
+  'rating', 'purchaseCountMin', 'purchaseCountMax', 'createdAt', 'updatedAt',
+];
+
+const pickProductDetailFields = (product) => Object.fromEntries(
+  PRODUCT_DETAIL_FIELDS
+    .filter((field) => product[field] !== undefined)
+    .map((field) => [field, product[field]])
+);
 
 const formatProductCard = (product, userRole, req, discounts = null) => {
   const pricing = getPriceForUser(product, userRole, null, discounts);
   const stock = getProductStockTotal(product);
 
-  return {
+  return pricesForRole(hidePriceIfNeeded({
     id: product._id,
     name: product.name,
     nameHindi: product.nameHindi,
@@ -53,7 +76,8 @@ const formatProductCard = (product, userRole, req, discounts = null) => {
     purchaseCountMin: product.purchaseCountMin,
     purchaseCountMax: product.purchaseCountMax,
     pendingPriceChange: getPendingPriceChangeForUser(product, userRole, null, discounts),
-  };
+    ...comingSoonPayload(product),
+  }), userRole);
 };
 
 // Products must include company, categoryRef and category for brand/category discounts.
@@ -140,7 +164,7 @@ exports.getProducts = async (req, res, next) => {
     // Filter by brand (checks both product.brand and product.company)
     if (brand) {
       const matchingCompanies = await Company.find({
-        name: { $regex: new RegExp(brand, 'i') }
+        name: { $regex: new RegExp(escapeRegex(brand), 'i') }
       }).select('_id');
       const companyIds = matchingCompanies.map(c => c._id);
       
@@ -148,7 +172,7 @@ exports.getProducts = async (req, res, next) => {
         ...(Array.isArray(query.$and) ? query.$and : []),
         {
           $or: [
-            { brand: { $regex: new RegExp(brand, 'i') } },
+            { brand: { $regex: new RegExp(escapeRegex(brand), 'i') } },
             { company: { $in: companyIds } },
           ],
         },
@@ -160,8 +184,17 @@ exports.getProducts = async (req, res, next) => {
     if (isTrueQuery(inStock)) query.stock = { $gt: 0 };
     if (isTrueQuery(featured)) query.isFeatured = true;
     if (isTrueQuery(hot)) query.isHot = true;
+    if (isTrueQuery(req.query.comingSoon)) {
+      // Still coming soon (an auto-launch date in the past means it's live).
+      query['comingSoon.enabled'] = true;
+      query.$and = [
+        ...(Array.isArray(query.$and) ? query.$and : []),
+        { $or: [{ 'comingSoon.autoLaunch': { $ne: true } }, { 'comingSoon.expectedDate': null }, { 'comingSoon.expectedDate': { $gt: new Date() } }] },
+      ];
+    }
 
     applyCategoryAccessToProductQuery(query, req.user);
+    await applyCustomerVisibility(query, req.user);
 
     console.log('getProducts final query:', JSON.stringify(query));
 
@@ -173,10 +206,12 @@ exports.getProducts = async (req, res, next) => {
       const sortOrder = sort.startsWith('-') ? -1 : 1;
       sortOption = { [sortField]: sortOrder };
     }
+    // Coming-soon products come after the ones that can be bought.
+    sortOption = { 'comingSoon.enabled': 1, ...sortOption };
 
     const [products, total] = await Promise.all([
       Product.find(query)
-        .select('name nameHindi slug shortDescription category brand mrp retailPrice wholesalePrice pendingRetailPrice pendingWholesalePrice priceChangeScheduledAt priceChangeEffectiveAt minWholesaleQuantity negotiationEnabled stock priceUnit packing images isFeatured isHot isNew rating purchaseCountMin purchaseCountMax company categoryRef')
+        .select('name nameHindi slug shortDescription category brand mrp retailPrice wholesalePrice pendingRetailPrice pendingWholesalePrice priceChangeScheduledAt priceChangeEffectiveAt minWholesaleQuantity minCustomerQuantity comingSoon negotiationEnabled stock priceUnit packing images isFeatured isHot isNew rating purchaseCountMin purchaseCountMax company categoryRef')
         .populate('company', 'name')
         .sort(sortOption)
         .skip(skip)
@@ -208,16 +243,19 @@ exports.getProductBySlug = async (req, res, next) => {
     }).lean();
 
     // If opened from cart/order history, ID may point to a non-active product.
-    // Allow ID lookup regardless of status so users can still view item details.
+    // Signed-in users can still open it by ID; guests only see active products.
     if (!product && param.match(/^[0-9a-fA-F]{24}$/)) {
-      product = await Product.findById(param).lean();
+      product = await Product.findOne(req.user
+        ? { _id: param }
+        : { _id: param, status: PRODUCT_STATUS.ACTIVE }).lean();
     }
 
     if (!product) {
       throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
     }
 
-    if (isCategoryExcludedForUser(req.user, product.category)) {
+    if (isCategoryExcludedForUser(req.user, product.category)
+      || isProductHidden(product, await hiddenCatalogFor(req.user))) {
       throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
     }
 
@@ -263,8 +301,12 @@ exports.getProductBySlug = async (req, res, next) => {
         .filter(Boolean);
     }
 
-    const responseData = {
-      ...product,
+    const notifyMe = req.user && isComingSoon(product)
+      ? Boolean(await ProductAlert.exists({ userId: req.user._id, productId: product._id, notifiedAt: null }))
+      : false;
+    const responseData = pricesForRole(hidePriceIfNeeded({
+      ...pickProductDetailFields(product),
+      _id: product._id,
       id: product._id,
       primaryImage: normalizeMediaUrl(product.primaryImage, req),
       images: Array.isArray(product.images)
@@ -274,13 +316,9 @@ exports.getProductBySlug = async (req, res, next) => {
       labels: resolvedLabels,
       stock: getProductStockTotal(product),
       pendingPriceChange: getPendingPriceChangeForUser(product, userRole, null, discounts),
-    };
-
-    // Remove raw price fields for non-admin users, but keep for wholesalers so they can see customer price
-    if (userRole !== 'admin' && userRole !== 'wholesaler') {
-      delete responseData.retailPrice;
-      delete responseData.wholesalePrice;
-    }
+      ...comingSoonPayload(product),
+      notifyMe,
+    }), userRole);
 
     res.json({
       success: true,
@@ -293,7 +331,10 @@ exports.getProductBySlug = async (req, res, next) => {
 
 exports.getCategories = async (req, res, next) => {
   try {
-    const categoryMatch = applyCategoryAccessToProductQuery({ status: PRODUCT_STATUS.ACTIVE }, req.user);
+    const categoryMatch = await applyCustomerVisibility(
+      applyCategoryAccessToProductQuery({ status: PRODUCT_STATUS.ACTIVE }, req.user),
+      req.user,
+    );
     const categories = await Product.aggregate([
       { $match: categoryMatch },
       {
@@ -374,13 +415,13 @@ exports.getFeaturedProducts = async (req, res, next) => {
   try {
     const userRole = req.user?.role || 'guest';
 
-    const query = applyCategoryAccessToProductQuery({
+    const query = await applyCustomerVisibility(applyCategoryAccessToProductQuery({
       status: PRODUCT_STATUS.ACTIVE,
       isFeatured: true,
-    }, req.user);
+    }, req.user), req.user);
 
     const products = await Product.find(query)
-      .select('name slug shortDescription category mrp retailPrice wholesalePrice pendingRetailPrice pendingWholesalePrice priceChangeScheduledAt priceChangeEffectiveAt minWholesaleQuantity negotiationEnabled stock priceUnit packing images isFeatured isHot isNew rating purchaseCountMin purchaseCountMax company categoryRef')
+      .select('name slug shortDescription category mrp retailPrice wholesalePrice pendingRetailPrice pendingWholesalePrice priceChangeScheduledAt priceChangeEffectiveAt minWholesaleQuantity minCustomerQuantity comingSoon negotiationEnabled stock priceUnit packing images isFeatured isHot isNew rating purchaseCountMin purchaseCountMax company categoryRef')
       .limit(10)
       .lean();
 
@@ -395,7 +436,7 @@ exports.getFeaturedProducts = async (req, res, next) => {
   }
 };
 
-const SEARCH_RESULT_FIELDS = 'name nameHindi slug shortDescription category brand mrp retailPrice wholesalePrice pendingRetailPrice pendingWholesalePrice priceChangeScheduledAt priceChangeEffectiveAt minWholesaleQuantity negotiationEnabled stock priceUnit packing images isHot isNew rating purchaseCountMin purchaseCountMax company categoryRef createdAt';
+const SEARCH_RESULT_FIELDS = 'name nameHindi slug shortDescription category brand mrp retailPrice wholesalePrice pendingRetailPrice pendingWholesalePrice priceChangeScheduledAt priceChangeEffectiveAt minWholesaleQuantity minCustomerQuantity comingSoon negotiationEnabled stock priceUnit packing images isHot isNew rating purchaseCountMin purchaseCountMax company categoryRef createdAt';
 
 // Relevance: words found in the product name (English or Hindi) score
 // highest, all words in the name score a bonus; description/category-only
@@ -426,7 +467,7 @@ async function runSearch(filter, termGroups, skip, limit) {
       ? Product.aggregate([
         { $match: castFilter },
         { $addFields: { _searchScore: searchScoreExpression(termGroups) } },
-        { $sort: { _searchScore: -1, createdAt: -1, _id: -1 } },
+        { $sort: { 'comingSoon.enabled': 1, _searchScore: -1, createdAt: -1, _id: -1 } },
         { $skip: skip },
         { $limit: limit },
         { $project: Object.fromEntries(SEARCH_RESULT_FIELDS.split(' ').map((field) => [field, 1])) },
@@ -434,7 +475,7 @@ async function runSearch(filter, termGroups, skip, limit) {
       : Product.find(filter)
         .select(SEARCH_RESULT_FIELDS)
         .populate('company', 'name')
-        .sort({ createdAt: -1, _id: -1 })
+        .sort({ 'comingSoon.enabled': 1, createdAt: -1, _id: -1 })
         .skip(skip)
         .limit(limit)
         .lean(),
@@ -562,6 +603,8 @@ exports.searchProducts = async (req, res, next) => {
     }
 
     applyCategoryAccessToProductQuery(query, req.user);
+    // Appended after the word conditions, so a relaxed search keeps it too.
+    await applyCustomerVisibility(query, req.user);
     if (inaccessibleCategories.length > 0) {
       query.$nor = [
         ...(query.$nor || []),
@@ -618,26 +661,41 @@ async function trackLeadSafely(fn) {
   }
 }
 
+// Analytics fields from the request, limited to known sources and short text.
+const KNOWN_SOURCES = new Set(Object.values(ANALYTICS_SOURCES));
+const shortText = (value, max) => (typeof value === 'string' && value ? value.slice(0, max) : undefined);
+const analyticsFields = (req) => ({
+  userId: req.user?._id || null,
+  source: KNOWN_SOURCES.has(req.body?.source) ? req.body.source : ANALYTICS_SOURCES.DIRECT,
+  sessionId: shortText(req.body?.sessionId, 100),
+  deviceInfo: {
+    platform: shortText(req.headers['x-platform'], 30),
+    appVersion: shortText(req.headers['x-app-version'], 30),
+  },
+});
+
+// Only real, listed products are tracked.
+const findTrackableProduct = async (id) => (
+  mongoose.isValidObjectId(id)
+    ? Product.findOne({ _id: id, status: PRODUCT_STATUS.ACTIVE }).select('_id').lean()
+    : null
+);
+
 exports.trackProductView = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { source, sessionId } = req.body;
+    const product = await findTrackableProduct(req.params.id);
+    if (!product) {
+      throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
+    }
 
-    const product = await Product.findByIdAndUpdate(id, { $inc: { viewCount: 1 } }).select('_id');
-
+    await Product.updateOne({ _id: product._id }, { $inc: { viewCount: 1 } });
     await Analytics.create({
-      productId: id,
-      userId: req.user?._id || null,
+      productId: product._id,
       eventType: ANALYTICS_EVENTS.VIEW,
-      source: source || 'direct',
-      sessionId,
-      deviceInfo: {
-        platform: req.headers['x-platform'],
-        appVersion: req.headers['x-app-version'],
-      },
+      ...analyticsFields(req),
     });
 
-    if (product && canTrackLead(req)) {
+    if (canTrackLead(req)) {
       await trackLeadSafely(() => recordLeadView(req.user._id, product._id));
     }
 
@@ -669,29 +727,27 @@ exports.trackProductWatchTime = async (req, res, next) => {
 
 exports.trackProductEvent = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { event, source, sessionId } = req.body;
+    const { event } = req.body;
 
     const allowedEvents = [ANALYTICS_EVENTS.CART_ADD, ANALYTICS_EVENTS.WISHLIST_ADD, ANALYTICS_EVENTS.SHARE];
     if (!allowedEvents.includes(event)) {
       return res.status(400).json({ success: false, message: 'Invalid event type' });
     }
 
+    const product = await findTrackableProduct(req.params.id);
+    if (!product) {
+      throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
+    }
+
     await Analytics.create({
-      productId: id,
-      userId: req.user?._id || null,
+      productId: product._id,
       eventType: event,
-      source: source || 'direct',
-      sessionId,
-      deviceInfo: {
-        platform: req.headers['x-platform'],
-        appVersion: req.headers['x-app-version'],
-      },
+      ...analyticsFields(req),
     });
 
     if (event === ANALYTICS_EVENTS.CART_ADD && canTrackLead(req)) {
       await trackLeadSafely(() => ProductInterest.updateOne(
-        { userId: req.user._id, productId: id },
+        { userId: req.user._id, productId: product._id },
         { $set: { lastCartAddAt: new Date() } },
       ));
     }
@@ -706,7 +762,7 @@ exports.getRelatedProducts = async (req, res, next) => {
   try {
     const { id } = req.params;
     const userRole = req.user?.role || 'guest';
-    const limit = parseInt(req.query.limit) || 8;
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 8, 1), 20);
 
     const isObjectId = require('mongoose').Types.ObjectId.isValid(id);
     let productQuery = { status: 'active' };
@@ -716,20 +772,21 @@ exports.getRelatedProducts = async (req, res, next) => {
       productQuery.slug = id;
     }
 
-    const currentProduct = await Product.findOne(productQuery).select('category _id');
+    const currentProduct = await Product.findOne(productQuery).select('category _id company categoryRef');
     if (!currentProduct) return res.json({ success: true, data: [] });
-    if (isCategoryExcludedForUser(req.user, currentProduct.category)) {
+    const hidden = await hiddenCatalogFor(req.user);
+    if (isCategoryExcludedForUser(req.user, currentProduct.category) || isProductHidden(currentProduct, hidden)) {
       return res.json({ success: true, data: [] });
     }
 
-    const relatedQuery = applyCategoryAccessToProductQuery({
+    const relatedQuery = await applyCustomerVisibility(applyCategoryAccessToProductQuery({
       status: 'active',
       category: currentProduct.category,
       _id: { $ne: currentProduct._id }
-    }, req.user);
+    }, req.user), req.user);
 
     const relatedProducts = await Product.find(relatedQuery)
-      .select('name nameHindi slug shortDescription category brand mrp retailPrice wholesalePrice pendingRetailPrice pendingWholesalePrice priceChangeScheduledAt priceChangeEffectiveAt minWholesaleQuantity negotiationEnabled stock priceUnit packing images rating isFeatured isHot isNew purchaseCountMin purchaseCountMax company categoryRef')
+      .select('name nameHindi slug shortDescription category brand mrp retailPrice wholesalePrice pendingRetailPrice pendingWholesalePrice priceChangeScheduledAt priceChangeEffectiveAt minWholesaleQuantity minCustomerQuantity comingSoon negotiationEnabled stock priceUnit packing images rating isFeatured isHot isNew purchaseCountMin purchaseCountMax company categoryRef')
       .populate('company', 'name')
       .limit(limit)
       .lean();
@@ -744,13 +801,13 @@ exports.getRelatedProducts = async (req, res, next) => {
 
 // @desc    List products with a scheduled (pending) price change
 // @route   GET /api/v1/products/scheduled-changes
-// @access  Private (any authenticated user; wholesale prices included)
+// @access  Private (wholesalers and admins; wholesale prices included)
 exports.getScheduledPriceChanges = async (req, res, next) => {
   try {
-    const products = await Product.find({
+    const products = await Product.find(applyCategoryAccessToProductQuery({
       status: PRODUCT_STATUS.ACTIVE,
       priceChangeEffectiveAt: { $ne: null },
-    })
+    }, req.user))
       .select('name slug wholesalePrice pendingWholesalePrice priceChangeEffectiveAt images')
       .sort({ priceChangeEffectiveAt: 1 })
       .limit(10)
@@ -771,6 +828,39 @@ exports.getScheduledPriceChanges = async (req, res, next) => {
         effectiveAt: p.priceChangeEffectiveAt,
       })),
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// "Notify me when available" on a coming-soon product (logged-in users).
+exports.subscribeNotifyMe = async (req, res, next) => {
+  try {
+    const product = await Product.findOne({ _id: req.params.id, status: PRODUCT_STATUS.ACTIVE })
+      .select('name comingSoon company categoryRef')
+      .lean();
+    if (!product || isProductHidden(product, await hiddenCatalogFor(req.user))) {
+      throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
+    }
+    if (!isComingSoon(product)) {
+      throw new BadRequestError('This product is already available', 'PRODUCT_NOT_COMING_SOON');
+    }
+    await ProductAlert.updateOne(
+      { userId: req.user._id, productId: product._id },
+      { $set: { notifiedAt: null } },
+      { upsert: true },
+    );
+    res.json({ success: true, data: { notifyMe: true } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.unsubscribeNotifyMe = async (req, res, next) => {
+  try {
+    await ProductAlert.deleteOne({ userId: req.user._id, productId: req.params.id });
+    res.json({ success: true, data: { notifyMe: false } });
   } catch (error) {
     next(error);
   }

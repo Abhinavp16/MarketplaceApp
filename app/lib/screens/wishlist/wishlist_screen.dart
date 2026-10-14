@@ -2,198 +2,109 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../widgets/app_image.dart';
 
 import '../../core/providers/wishlist_provider.dart';
-import '../../core/utils/number_formatter.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
+import '../../widgets/ui/ui.dart';
 import '../../l10n/l10n.dart';
 
 class WishlistScreen extends ConsumerWidget {
   const WishlistScreen({super.key});
 
-  static const Color primaryBlue = Color(0xFF0F766E);
-  static const Color backgroundWhite = Color(0xFFF8FAFC);
-  static const Color surfaceWhite = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF1E293B);
-  static const Color textSecondary = Color(0xFF64748B);
-  static const Color textMuted = Color(0xFF94A3B8);
-  static const Color borderLight = Color(0xFFE2E8F0);
-  static const Color redAccent = Color(0xFFEF4444);
-
-  String _formatPrice(dynamic price) {
-    if (price == null) return '0';
-    final num p = price is num ? price : num.tryParse(price.toString()) ?? 0;
-    return NumberFormatter.formatPrice(p);
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final wishlist = ref.watch(wishlistProvider);
+    final l10n = context.l10n;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.transparent,
       ),
       child: Scaffold(
-        backgroundColor: backgroundWhite,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: const Icon(
-                        Icons.arrow_back_ios_rounded,
-                        size: 20,
-                        color: textPrimary,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        context.l10n.wishlistTitle,
-                        textAlign: TextAlign.center,
-                        style: AppFonts.jakarta(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ),
-                    if (wishlist.items.isNotEmpty)
-                      GestureDetector(
-                        onTap: () => _showClearDialog(context, ref),
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: surfaceWhite,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: borderLight),
-                          ),
-                          child: const Icon(
-                            Icons.delete_outline_rounded,
-                            size: 18,
-                            color: textMuted,
-                          ),
-                        ),
-                      )
-                    else
-                      const SizedBox(width: 40),
-                  ],
-                ),
+        backgroundColor: AppColors.backgroundLight,
+        appBar: AppHeader(
+          title: l10n.wishlistTitle,
+          subtitle: wishlist.items.isNotEmpty
+              ? l10n.commonItemsCount(wishlist.items.length)
+              : null,
+          onBack: () => context.pop(),
+          actions: [
+            if (wishlist.items.isNotEmpty)
+              HeaderIconButton(
+                icon: HugeIcons.strokeRoundedDelete02,
+                tooltip: l10n.wishlistClearAll,
+                color: AppColors.textSecondary,
+                onPressed: () => _showClearDialog(context, ref),
               ),
-              if (wishlist.items.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: primaryBlue.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Text(
-                          context.l10n.commonItemsCount(wishlist.items.length),
-                          style: AppFonts.jakarta(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: primaryBlue,
-                          ),
-                        ),
-                      ),
-                    ],
+          ],
+        ),
+        body: AnimatedSwitcher(
+          duration: AppMotion.of(context, AppMotion.base),
+          switchInCurve: AppMotion.standard,
+          switchOutCurve: AppMotion.exit,
+          child: wishlist.items.isEmpty
+              ? KeyedSubtree(
+                  key: const ValueKey('empty'),
+                  child: _buildEmptyState(context),
+                )
+              : ListView.builder(
+                  key: const ValueKey('list'),
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    4,
+                    16,
+                    24 + MediaQuery.paddingOf(context).bottom,
                   ),
+                  itemCount: wishlist.items.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) return _buildSwipeHint(context);
+                    return _buildWishlistCard(
+                      context,
+                      ref,
+                      wishlist.items[index - 1],
+                    );
+                  },
                 ),
-              if (wishlist.items.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.swipe_left_rounded,
-                        size: 14,
-                        color: textMuted.withOpacity(0.6),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        context.l10n.wishlistSwipeToRemove,
-                        style: AppFonts.jakarta(fontSize: 11, color: textMuted),
-                      ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 12),
-              // Content
-              Expanded(
-                child: wishlist.items.isEmpty
-                    ? _buildEmptyState(context)
-                    : ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                        itemCount: wishlist.items.length,
-                        itemBuilder: (context, index) => _buildWishlistCard(
-                          context,
-                          ref,
-                          wishlist.items[index],
-                        ),
-                      ),
-              ),
-            ],
-          ),
         ),
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+  Widget _buildSwipeHint(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 4, 2, 12),
+      child: Row(
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: redAccent.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              Icons.favorite_outline_rounded,
-              size: 36,
-              color: redAccent.withOpacity(0.5),
-            ),
+          const HugeIcon(
+            icon: HugeIcons.strokeRoundedInformationCircle,
+            size: 16,
+            color: AppColors.textTertiary,
           ),
-          const SizedBox(height: 20),
-          Text(
-            context.l10n.wishlistEmptyTitle,
-            style: AppFonts.jakarta(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.wishlistEmptySubtitle,
-            textAlign: TextAlign.center,
-            style: AppFonts.jakarta(
-              fontSize: 14,
-              color: textMuted,
-              height: 1.5,
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              context.l10n.wishlistSwipeToRemove,
+              style: AppFonts.jakarta(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textTertiary,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return EmptyState(
+      icon: HugeIcons.strokeRoundedFavourite,
+      title: context.l10n.wishlistEmptyTitle,
+      message: context.l10n.wishlistEmptySubtitle,
     );
   }
 
@@ -202,54 +113,52 @@ class WishlistScreen extends ConsumerWidget {
     WidgetRef ref,
     WishlistItem item,
   ) {
+    final l10n = context.l10n;
     final hasMrp = item.mrp != null && item.mrp! > 0 && item.mrp != item.price;
-    final discount = hasMrp
-        ? (((item.mrp! - item.price) / item.mrp!) * 100).round()
-        : 0;
+    final name = pickLocalizedName(context, item.name, item.nameHindi);
 
-    return Dismissible(
-      key: Key(item.productId),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) =>
-          ref.read(wishlistProvider.notifier).remove(item.productId),
-      background: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: redAccent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 24),
-        child: const Icon(Icons.delete_rounded, color: Colors.white, size: 24),
-      ),
-      child: GestureDetector(
-        onTap: () => context.push('/product/${item.productId}'),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Dismissible(
+        key: Key(item.productId),
+        direction: DismissDirection.endToStart,
+        onDismissed: (_) =>
+            ref.read(wishlistProvider.notifier).remove(item.productId),
+        background: Container(
           decoration: BoxDecoration(
-            color: surfaceWhite,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderLight.withOpacity(0.7)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            color: AppColors.errorSoft,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
-          child: Row(
-            children: [
-              // Image
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 24),
+          child: const HugeIcon(
+            icon: HugeIcons.strokeRoundedDelete02,
+            color: AppColors.error,
+            size: 24,
+          ),
+        ),
+        child: Pressable(
+          onTap: () => context.push('/product/${item.productId}'),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          color: AppColors.surfaceLight,
+          semanticLabel: name,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                // Image
+                Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    color: AppColors.gray50,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  clipBehavior: Clip.antiAlias,
                   child: AppImage(
                     imageUrl: item.image ?? '',
                     blurHash: item.blurHash,
@@ -258,132 +167,85 @@ class WishlistScreen extends ConsumerWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              // Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      pickLocalizedName(context, item.name, item.nameHindi),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppFonts.jakarta(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: textPrimary,
-                        height: 1.3,
-                      ),
-                    ),
-                    if (item.category != null && item.category!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                const SizedBox(width: 14),
+                // Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        item.category!,
-                        style: AppFonts.jakarta(fontSize: 12, color: textMuted),
+                        name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.jakarta(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                          height: 1.3,
+                        ),
                       ),
-                    ],
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
+                      if (item.category != null &&
+                          item.category!.isNotEmpty) ...[
+                        const SizedBox(height: 3),
                         Text(
-                          '₹${_formatPrice(item.price)}',
+                          item.category!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: AppFonts.jakarta(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: textPrimary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textTertiary,
                           ),
                         ),
-                        if (hasMrp) ...[
-                          const SizedBox(width: 6),
-                          Text(
-                            '₹${_formatPrice(item.mrp)}',
-                            style: AppFonts.jakarta(
-                              fontSize: 12,
-                              color: textMuted,
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDCFCE7),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              context.l10n.commonPercentOff('$discount'),
-                              style: AppFonts.jakarta(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF16A34A),
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
-                    ),
-                  ],
-                ),
-              ),
-              // Remove button
-              GestureDetector(
-                onTap: () =>
-                    ref.read(wishlistProvider.notifier).remove(item.productId),
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: redAccent.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(10),
+                      const SizedBox(height: 8),
+                      PriceView(
+                        price: item.price,
+                        mrp: hasMrp ? item.mrp : null,
+                        size: 16,
+                        offLabel: (percent) =>
+                            l10n.commonPercentOff('$percent'),
+                      ),
+                    ],
                   ),
-                  child: Icon(
+                ),
+                const SizedBox(width: 4),
+                // Remove from the wishlist
+                IconButton(
+                  tooltip: l10n.uiRemoveFromWishlist,
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    ref.read(wishlistProvider.notifier).remove(item.productId);
+                  },
+                  style: IconButton.styleFrom(
+                    fixedSize: const Size(44, 44),
+                    backgroundColor: AppColors.errorSoft,
+                  ),
+                  icon: const Icon(
                     Icons.favorite_rounded,
-                    size: 18,
-                    color: redAccent,
+                    size: 20,
+                    color: AppColors.error,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _showClearDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          context.l10n.wishlistClearTitle,
-          style: AppFonts.jakarta(fontWeight: FontWeight.w700),
-        ),
-        content: Text(
-          context.l10n.wishlistClearMessage,
-          style: AppFonts.jakarta(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(context.l10n.commonCancel),
-          ),
-          TextButton(
-            onPressed: () {
-              ref.read(wishlistProvider.notifier).clear();
-              Navigator.pop(ctx);
-            },
-            child: Text(
-              context.l10n.wishlistClearAll,
-              style: AppFonts.jakarta(color: redAccent),
-            ),
-          ),
-        ],
-      ),
+  Future<void> _showClearDialog(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.wishlistClearTitle,
+      message: l10n.wishlistClearMessage,
+      confirmLabel: l10n.wishlistClearAll,
+      cancelLabel: l10n.commonCancel,
+      destructive: true,
+      icon: HugeIcons.strokeRoundedDelete02,
     );
+    if (confirmed) ref.read(wishlistProvider.notifier).clear();
   }
 }

@@ -4,18 +4,19 @@ Suggested presentation flow, capability map and known limitations. The final sal
 
 ## The problem it shows
 
-Dealers bargain over WhatsApp and phone, prices go out of date, the owner can't see what a salesperson promised, and the agreed deal is typed in again as an order. This demo runs that whole path in one place: dealer request, owner counter-offer, one linked order, fulfilment.
+Dealers bargain over WhatsApp and phone, prices go out of date, the owner can't see what a salesperson promised, and the agreed deal is typed in again as an order. This demo runs that whole path in one place: dealer requirement, owner counter-offer, one linked order, fulfilment.
 
 ## 3–5 minute walkthrough
 
-Prepare: `npm run demo:reset`, backend running, app installed and signed in as the wholesaler, admin panel signed in on a laptop.
+Prepare: `npm run demo:reset` in `backend/`, backend and admin running, the app signed in as the wholesaler on an emulator or phone, and the admin panel signed in on a laptop.
 
-1. **0:00–0:30 Problem.** Describe the WhatsApp/phone/spreadsheet situation above.
-2. **0:30–1:30 Dealer side (app).** Sign in as Sunrise Trade House. Browse Power Tools, open **18V Brushless Cordless Drill Driver** (Kestrel Works, list price ₹6,499, wholesale ₹5,200). Tap **Send Requirement**, enter quantity 20, target price ₹4,900 and a delivery message, and submit.
-3. **1:30–2:40 Owner side (admin).** Open **Deal Desk**. The request appears live with the dealer, product, listed and target price, and history. Send a chat message, counter at ₹5,050, then **Accept**.
-4. **2:40–3:30 Automatic handoff.** One order is created and linked to the deal. In the app the dealer sees the accepted deal and the order timeline. In admin: **Confirm payment**, then move the order to **Processing** and watch stock drop from 1,200 to 1,180.
-5. **3:30–4:30 Owner control.** Show Products and pricing, Customers, Wholesaler approvals (pending applicant: NewCo Traders), Orders, and the dashboard. Sign in as staff to show a restricted panel where deal approval is disabled.
-6. **4:30–5:00 Customization.** Use the table below.
+1. **0:00–0:30 Problem.** Describe the WhatsApp / phone / spreadsheet situation above.
+2. **0:30–1:30 Dealer side (app).** Sign in as Sunrise Trade House. Browse Power Tools, open **18V Brushless Cordless Drill Driver** (Kestrel Works, wholesale ₹5,200). Add 20 to the cart (add one or two more products to show a grouped requirement) and tap **Send Requirement** in the cart, with a short message. The requirement lands in **Deal Desk** with a progress tracker (Requested → Price talk → Agreed). A single product can also be sent from its own page.
+3. **1:30–2:40 Owner side (admin).** Open **Deal Desk**. The requirement appears live with the dealer, product, listed and target price. Send a chat message, counter the price (for example ₹5,050), then **Accept** with a delivery charge. (A second, already-prepared group, `REQ-2026-DEMO01`, shows the multi-product review panel.)
+4. **2:40–3:30 Automatic handoff.** One order is created and linked to the deal. The dealer sees it agreed in the app. In admin: confirm payment, move the order to **Processing**, and watch stock drop (1,200 → 1,180). Download the receipt PDF.
+5. **3:30–4:00 Coming Soon.** In the app, open a Coming Soon product (price hidden, expected date) and tap **Notify me**. In admin, switch the product live and show the "N customers will be notified" message.
+6. **4:00–4:40 Owner control.** Show products and pricing, **Import products** from an Excel file (`docs/catalog-import-sample.xlsx`), customers and wholesaler approvals, orders, and the dashboard. Sign in as staff to show a restricted panel where deal approval is disabled.
+7. **4:40–5:00 Customization.** Use the table below.
 
 After the run, reset (see the README) before the next prospect.
 
@@ -23,34 +24,35 @@ After the run, reset (see the README) before the next prospect.
 
 | Already works | Customized for a new client |
 |---|---|
-| Roles (owner, staff, wholesaler, customer); catalog, brands, categories, pricing and stock; realtime negotiation with chat and counter-offer; one order per accepted deal; order status timeline; staff restricted panel; in-app notifications; dashboard and analytics; Hindi/English app; one-click demo reset | Branding and legal text; catalog structure and data import; approval rules and who can approve; taxes/GST and invoices; payment gateway; WhatsApp, push, email and SMS; courier and ERP integration; reports; additional languages; hosting |
+| Roles (owner, staff, wholesaler, customer); catalog, brands, categories, pricing, packs and stock; Deal Desk with chat, counter-offer and delivery charge; grouped cart requirements; one order per accepted deal; order timeline and receipts; staff restricted panel; Coming Soon with Notify me; hidden brands and categories; in-app notifications; dashboard; Excel/CSV import; Hindi/English app; reset; per-client Docker deploy and data export | Branding and legal text; catalog structure and data import; approval rules and who can approve; taxes/GST and invoices; payment gateway; WhatsApp, push, email and SMS; courier and ERP integration; reports; more languages; hosting |
 
 ## Claims to avoid (what the system does not do)
 
-- Category restrictions are applied to catalog browsing, not to cart or order creation.
-- Registering as a wholesaler does not wait for approval in the current code. The demo uses a pre-approved account.
+- Category restrictions apply to catalog browsing; hidden brands and categories are hidden from customers, but this is not a security boundary for every endpoint.
+- The wholesaler account in the demo is pre-approved. Do not present live sign-up as approval-gated.
 - There is no online payment. The shop confirms payment manually.
-- Negotiations have an expiry date but nothing expires them automatically.
-- Only order, payment and staff actions are audited. Admin counters, price and product edits are not.
+- Requirements have an expiry date and declined ones are cleaned up after 5 days, but there is no email or SMS reminder.
+- Only order, payment and staff actions are audited; not every admin edit is.
+- Push notifications work only after a Firebase project is added (see `docs/FIREBASE_SETUP.md`). Until then, notifications are in-app only.
 
 ## Known limitations
 
-- **Runs locally.** No hosted link yet: hosting needs an account and owner to be decided. Until then, run it on the presenter's laptop with the APK on the presenter's phone or emulator.
-- **Android only.** iOS and Flutter web are out of scope. The APK is debug-signed; a release keystore is needed for distribution.
-- **No screen recording yet.** Screenshots are in `docs/screenshots/`. The on-screen message field in the app's Send Requirement sheet is covered by widget tests and the backend flow, but was not exercised by hand in the emulator.
-- **Presenter-driven.** Prospects do not get their own logins.
-- **Public site** is a rebranded template with placeholder content.
-- **Disabled by design:** push, email, WhatsApp, admin magic-link login (password login is used), staff deal approval.
-- **Some product names** truncate on small cards.
-- **Admin quirks:** the wholesaler map loads tiles from OpenStreetMap and needs internet. A few status colours shifted to the brand colour. Type-check and lint have pre-existing errors that don't block the build.
+- **Runs locally.** There is no hosted link. The Docker scripts in `deploy/` deploy a client on a server you provide, with your own MongoDB URL; they were tested on this machine with two throwaway clients, not on a public domain.
+- **Android only.** The APK is debug-signed. A release keystore is needed for distribution. There is no iOS or Flutter web build.
+- **Admin sign-in on deployed stacks** (DEMO_MODE off) uses a one-time link generated by `deploy/admin-login.sh`, because admin password login and the email link need SMTP. The admin login page still shows the demo-credentials hint; it is only valid in demo mode.
+- **Presenter-driven.** Prospects don't get their own logins.
+- **Public site** is a rebranded template with placeholder content. Its "Open in app" box is a placeholder because the app isn't published.
+- **Photos** are free-licence stock images. Several are general shots of the tool type, not exact matches (for example, the impact drill, the helmet, and the nylon hose and brass fittings). See `backend/assets/demo-images/CREDITS.md`.
+- **Fictional phone numbers** of the form `900000000x` are used for logins because the app validates 10-digit mobile numbers.
+- **Admin quirks:** the wholesaler map loads tiles from OpenStreetMap and needs internet; type-check passes, but lint still reports older errors; a few Playwright specs time out on slow machines unless run with `--workers=1`.
 - **Unreachable app screens** (old mock screens not linked from navigation) still hold generic placeholder text and stock image links.
-- **Fictional phone numbers** of the form `900000000x` are used for logins because the app validates 10-digit mobile numbers. They are placeholders, not real people.
-- **Photos** are free-licence stock images. Several product photos are general shots of the tool type, not exact matches (for example the impact drill and the helmet). See `backend/assets/demo-images/CREDITS.md`.
+- **Real push delivery** has not been tested; it needs your Firebase project.
 
 ## Technical review notes (for Adarsh)
 
-- Guard: `backend/src/config/demoGuard.js` (start-up), `assertDemoDatabase()` (seed, reset, tests).
-- Seed and fixtures: `backend/scripts/demo/`. End-to-end script: `backend/scripts/demo/e2e-flow.js`.
-- Demo-only changes: socket connections require a JWT; staff accept is blocked in demo mode; the client-specific catalog logic and contact constants were removed; CORS no longer allows `*.vercel.app`.
-- Endpoints added: `GET /api/v1/demo/info`, `POST /api/v1/admin/demo/reset`.
-- App: no hosted-URL fallback (shows a configuration screen without `API_BASE_URL`), no Firebase, app ID `com.demo.tradehub`.
+- **Safety rails:** `backend/src/config/demoGuard.js` (start-up), `assertDemoDatabase()` (seed, reset), `tests/helpers/testDb.js` (DB-backed tests refuse any database not named `...test...`). The guard refuses Atlas/hosted URLs, SMTP, and any Firebase project other than `DEMO_FIREBASE_PROJECT_ID`.
+- **Seed and fixtures:** `backend/scripts/demo/` (29 products, 12 requirements including groups, 9 orders, 4 Coming Soon products with subscribers, hidden catalog, a declined requirement, sent price-notice batch). End-to-end script: `backend/scripts/demo/e2e-flow.js`.
+- **Demo-only changes vs a live deployment:** admin password login allowed only in demo mode; staff approve/reject/counter blocked (owner-only); login rate limits off; error stacks never shown; Hindi-name generation and banner-media sweeps disabled.
+- **Endpoints added:** `GET /api/v1/demo/info`, `POST /api/v1/admin/demo/reset`, `POST /api/v1/admin/products/import`, `GET /api/v1/admin/products/import/template`.
+- **App:** no hosted-URL fallback (a configuration screen shows without `API_BASE_URL`), package `com.demo.demomart`, Firebase optional via `google-services.json` that is not committed.
+- **Deploy:** `deploy/README.md`. Each client is a separate Compose project (`demomart-<slug>`) with its own uploads volume and its own MongoDB URL; scripts never drop a database.

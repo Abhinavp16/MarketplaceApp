@@ -1,8 +1,8 @@
 {
-  "name": "marketplace-demo-site",
+  "name": "demomart-demo-site",
   "version": "0.1.0",
   "private": true,
-  "description": "Generic TradeHub Demo public website (synthetic data, demonstration only)",
+  "description": "Generic DemoMart public website demo (synthetic data, demonstration only)",
   "scripts": {
     "dev": "next dev --webpack -p 3001",
     "build": "next build",
@@ -13,14 +13,14 @@
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.2.0",
     "@hugeicons/react": "^1.1.6",
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "next": "^16.4.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "eslint": "9.39.1",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "^16.4.0",
     "tailwindcss": "^4"
   }
 }

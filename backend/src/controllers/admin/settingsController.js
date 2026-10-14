@@ -1,6 +1,12 @@
 const { Settings } = require('../../models');
 const { mobilePlatformSettingsSchemas } = require('../../validations');
 const { ValidationError } = require('../../utils/errors');
+const logger = require('../../utils/logger');
+const { withoutUnusedVideo } = require('../../utils/bannerMedia');
+const {
+  deleteReplacedBannerMedia,
+  sweepUnusedBannerMedia,
+} = require('../../services/bannerMediaCleanupService');
 
 exports.getSettings = async (req, res, next) => {
   try {
@@ -22,6 +28,18 @@ exports.updateSettings = async (req, res, next) => {
 
     if (!settings) {
       settings = new Settings({ _id: 'app_settings' });
+    }
+
+    // Banner media before the change, to delete files that stop being used.
+    const bannersChanged = req.body.heroBanners !== undefined || req.body.promoBanners !== undefined;
+    const bannersBefore = bannersChanged
+      ? {
+        heroBanners: (settings.heroBanners || []).map((banner) => banner.toObject?.() || banner),
+        promoBanners: (settings.promoBanners || []).map((banner) => banner.toObject?.() || banner),
+      }
+      : null;
+    if (Array.isArray(req.body.heroBanners)) {
+      req.body.heroBanners = req.body.heroBanners.map(withoutUnusedVideo);
     }
 
     const allowedFields = [
@@ -93,6 +111,20 @@ exports.updateSettings = async (req, res, next) => {
     };
 
     await settings.save();
+
+    if (bannersBefore) {
+      // Removed / replaced banner images and videos are deleted from storage,
+      // then any old upload no banner uses (e.g. cancelled). Never fails the save.
+      try {
+        await deleteReplacedBannerMedia(bannersBefore, {
+          heroBanners: settings.heroBanners,
+          promoBanners: settings.promoBanners,
+        });
+        await sweepUnusedBannerMedia();
+      } catch (error) {
+        logger.warn(`[BannerMedia] cleanup after save failed: ${error.message}`);
+      }
+    }
 
     res.json({
       success: true,

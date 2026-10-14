@@ -54,4 +54,4 @@ else
 fi
 
 echo "Replica set rs0 ready. Use:"
-echo "  MONGODB_URI=mongodb://127.0.0.1:$PORT/tradehub_demo?replicaSet=rs0"
+echo "  MONGODB_URI=mongodb://127.0.0.1:$PORT/demomart_demo?replicaSet=rs0"

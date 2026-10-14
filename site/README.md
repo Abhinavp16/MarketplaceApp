@@ -1,7 +1,7 @@
-# TradeHub Demo - public website
+# DemoMart - public website
 
 Generic Next.js (App Router, Tailwind v4) marketing and catalogue site for the fictional
-"TradeHub Distribution Pvt Ltd (Demo)". It is one part of an isolated sales-demo suite; all
+"DemoMart Distribution Pvt Ltd (Demo)". It is one part of an isolated sales-demo suite; all
 content, brands, prices and contact details are synthetic.
 
 ## Run
@@ -16,7 +16,8 @@ npm run lint
 ```
 
 The demo backend is expected at `http://localhost:5050/api/v1`. The site still builds and renders
-(with empty states) when the backend is down.
+(with empty states) when the backend is down. Demo images are served by the backend from
+`http://localhost:5050/uploads/demo/*` (allowed by the CSP and `images.remotePatterns`).
 
 ## Environment
 
@@ -33,6 +34,26 @@ Every call is fail-soft (network errors and non-2xx responses resolve to empty d
 slugs, product IDs and featured products are not hardcoded; whatever the API returns is rendered.
 Bundled tiles in `public/demo/categories` are used only as image fallbacks for the four demo category slugs
 (`power-tools`, `hand-tools`, `fasteners-fittings`, `safety-gear`).
+
+## Features (aligned with the live marketing site's 13 Oct UI)
+
+- Floating glass-pill navbar that hides on scroll down, returns on scroll up and shows a scroll-progress bar
+  (`components/SiteNavbar.js`); site-wide icons come from Hugeicons via `components/Icon.js`.
+- Dithered canvas glow on the home stats cards (`components/DitherField.js`).
+- Insights: `lib/insights.js` is the data source for three generic placeholder articles
+  (`/insights/choosing-a-supplier`, `/insights/inventory-basics`, `/insights/bulk-ordering-tips`),
+  rendered by `components/InsightCard.js` on the `/insights` listing (featured + list) and the home
+  "Latest Insights" section (3 posts + view all).
+- Shared product pages `/products/[slug]` carry Open Graph metadata. A featured product is shown when the slug
+  matches one; otherwise `lib/app-product.js` falls back to the public API (`GET /products/:slug`), so any
+  active product can be linked. Coming-soon products show a "Coming Soon" badge with the price hidden.
+  The site has no cart or order actions.
+- `components/OpenInApp.js`: the demo app is unpublished, so there are no store links, no app-link
+  (AASA / assetlinks) routes and no `apple-itunes-app` banner; the box shows "Demo only - no mobile app is published".
+- Security headers in `next.config.mjs`: CSP (the API origin from `NEXT_PUBLIC_API_BASE_URL` and
+  `http://localhost:5050` allowed for connect/img/media; `unsafe-eval` only in dev), `X-Frame-Options`,
+  `nosniff`, `Referrer-Policy`, `Permissions-Policy`, and HSTS in production builds only.
+- Next.js 16.4 / React 19.2.
 
 ## What is placeholder
 
@@ -58,6 +79,7 @@ Bundled tiles in `public/demo/categories` are used only as image fallbacks for t
   third-party fonts are loaded.
 - Robots: `<meta name="robots" content="noindex,nofollow">` and `robots.txt` disallow all. There is no
   sitemap or structured data.
+- No mobile app is published, so product pages show a "Demo only" note instead of store buttons.
 - Images from the API are rendered with plain `<img>` tags (ESLint `no-img-element` warnings are expected).
   `next.config.mjs` allows `localhost:5050` for `next/image` should you switch.
 - Static assets live under `/demo/*`; other root-relative image paths returned by the API are resolved

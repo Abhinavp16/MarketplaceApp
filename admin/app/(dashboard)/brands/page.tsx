@@ -43,6 +43,7 @@ import {
 import { apiFetch } from "@/lib/api"
 import { toast } from "sonner"
 import { DiscountBadge, DiscountFields } from "@/components/discount-fields"
+import { HiddenFromCustomersBadge, HideFromCustomersSwitch } from "@/components/hide-from-customers"
 import {
     EMPTY_DISCOUNT_FORM,
     formatDiscountSummary,
@@ -63,6 +64,7 @@ interface Company {
     createdAt: string
     customerDiscountPercent?: number | null
     wholesalerDiscountPercent?: number | null
+    hideFromCustomers?: boolean
 }
 
 export default function BrandsPage() {
@@ -96,6 +98,7 @@ export default function BrandsPage() {
     const [isUploadingLogo, setIsUploadingLogo] = useState(false)
     const [discounts, setDiscounts] = useState<DiscountFormValues>(EMPTY_DISCOUNT_FORM)
     const [discountsUnavailable, setDiscountsUnavailable] = useState(false)
+    const [hideFromCustomers, setHideFromCustomers] = useState(false)
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -174,6 +177,7 @@ export default function BrandsPage() {
         setLogoPublicId("")
         setDiscounts(EMPTY_DISCOUNT_FORM)
         setDiscountsUnavailable(false)
+        setHideFromCustomers(false)
         setIsDialogOpen(true)
     }
 
@@ -185,6 +189,7 @@ export default function BrandsPage() {
         setLogoPublicId(company.logo?.publicId || "")
         setDiscounts(toDiscountFormValues(company))
         setDiscountsUnavailable(!hasDiscountFields(company))
+        setHideFromCustomers(company.hideFromCustomers === true)
         setIsDialogOpen(true)
     }
 
@@ -242,6 +247,7 @@ export default function BrandsPage() {
                 description: description.trim() || undefined,
                 logo: logoUrl.trim() ? { url: logoUrl.trim(), publicId: logoPublicId || undefined } : undefined,
                 ...(discountsUnavailable ? {} : toDiscountPayload(discounts)),
+                hideFromCustomers,
             }
 
             const endpoint = editingCompany
@@ -371,7 +377,12 @@ export default function BrandsPage() {
                         </div>
                     )}
                 </TableCell>
-                <TableCell className="font-medium text-white">{company.name}</TableCell>
+                <TableCell className="font-medium text-white">
+                    <div className="flex flex-wrap items-center gap-2">
+                        {company.name}
+                        <HiddenFromCustomersBadge hidden={company.hideFromCustomers} />
+                    </div>
+                </TableCell>
                 <TableCell className="text-gray-400">{company.slug}</TableCell>
                 <TableCell className="max-w-[200px] truncate text-gray-400">{company.description || '-'}</TableCell>
                 <TableCell>
@@ -439,6 +450,7 @@ export default function BrandsPage() {
                         <p className="text-sm text-gray-500">/{company.slug}</p>
                     </div>
                     <DiscountBadge summary={formatDiscountSummary(company)} />
+                    <HiddenFromCustomersBadge hidden={company.hideFromCustomers} />
                     {company.description && <p className="line-clamp-2 text-sm text-gray-400">{company.description}</p>}
                     <div className="flex items-center gap-2 border-t border-[#333] pt-3 text-xs font-medium text-[#818cf8]">
                         <FolderTree className="h-4 w-4" />
@@ -668,6 +680,8 @@ export default function BrandsPage() {
                             unavailable={discountsUnavailable}
                             helperText="Applies to every product of this brand and overrides category discounts. Leave empty to use category discounts."
                         />
+
+                        <HideFromCustomersSwitch kind="brand" checked={hideFromCustomers} onCheckedChange={setHideFromCustomers} />
                     </div>
                     
                     <DialogFooter>

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/models/app_update_config.dart';
-import 'package:tradehub_demo/core/navigation/app_navigator_key.dart';
-import 'package:tradehub_demo/core/providers/app_update_provider.dart';
-import 'package:tradehub_demo/core/services/app_update_service.dart';
-import 'package:tradehub_demo/l10n/l10n.dart';
+import 'package:demomart_demo/core/models/app_update_config.dart';
+import 'package:demomart_demo/core/navigation/app_navigator_key.dart';
+import 'package:demomart_demo/core/providers/app_update_provider.dart';
+import 'package:demomart_demo/core/services/app_update_service.dart';
+import 'package:demomart_demo/l10n/l10n.dart';
 
 class _FakeUpdateGateway implements AppUpdateGateway {
   final List<AppUpdateCheckResult> results = [];

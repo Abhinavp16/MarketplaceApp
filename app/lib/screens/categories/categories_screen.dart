@@ -4,14 +4,20 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../core/providers/guest_mode_provider.dart';
 
 import '../../core/config/api_config.dart';
 import '../../core/services/storage_service.dart';
+import '../../core/utils/packing.dart';
 import '../../widgets/pending_price_change_notice.dart';
-import '../../widgets/product_image_placeholder.dart';
+import '../../widgets/ui/catalog_price_text.dart';
+import '../../widgets/ui/product_cart_stepper.dart';
+import '../../widgets/ui/ui.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../l10n/l10n.dart';
+import '../../core/utils/coming_soon.dart';
 
 enum _CatalogStage { categories, subcategories, products }
 
@@ -52,14 +58,6 @@ class CategoriesScreen extends ConsumerStatefulWidget {
 }
 
 class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
-  static const Color primaryBlue = Color(0xFF134E4A);
-  static const Color backgroundWhite = Color(0xFFF8FAFC);
-  static const Color surfaceWhite = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF0F172A);
-  static const Color textSecondary = Color(0xFF475569);
-  static const Color textMuted = Color(0xFF64748B);
-  static const Color borderLight = Color(0xFFF1F5F9);
-
   late final Dio _dio =
       Dio(
           BaseOptions(
@@ -91,6 +89,10 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   bool _isLoadingCategories = true;
   bool _isLoadingProducts = false;
   bool _productLoadFailed = false;
+  bool _brandsLoadFailed = false;
+  bool _categoriesLoadFailed = false;
+  // Which sub-category chip was last scrolled into view.
+  String? _ensuredChipToken;
   int _selectedBrandIndex = -1;
   int _selectedCategoryIndex = -1;
   _CatalogStage _stage = _CatalogStage.categories;
@@ -229,6 +231,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       setState(() {
         _brands = brands;
         _isLoadingBrands = false;
+        _brandsLoadFailed = false;
       });
       await _openRequestedDestination();
     } catch (e) {
@@ -238,8 +241,26 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         _brands = [];
         _isLoadingBrands = false;
         _isLoadingCategories = false;
+        _brandsLoadFailed = true;
       });
     }
+  }
+
+  void _retryBrands() {
+    setState(() {
+      _isLoadingBrands = true;
+      _isLoadingCategories = true;
+      _brandsLoadFailed = false;
+    });
+    _fetchBrands();
+  }
+
+  void _retryCategories() {
+    if (_selectedBrandIndex < 0 || _selectedBrandIndex >= _brands.length) {
+      _retryBrands();
+      return;
+    }
+    _selectBrand(_selectedBrandIndex, force: true);
   }
 
   int _requestedBrandIndex() {
@@ -321,6 +342,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         _selectedBrandIndex = -1;
         _categories = [];
         _isLoadingCategories = false;
+        _categoriesLoadFailed = false;
       });
       return;
     }
@@ -360,6 +382,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       _isLoadingProducts = false;
       _productLoadFailed = false;
       _isLoadingCategories = true;
+      _categoriesLoadFailed = false;
     });
 
     final cached = _categoryCache[cacheKey];
@@ -391,6 +414,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       setState(() {
         _categories = [];
         _isLoadingCategories = false;
+        _categoriesLoadFailed = true;
       });
     }
   }
@@ -469,6 +493,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       _showingDirectCategoryProducts = false;
       _products = [];
       _isLoadingCategories = false;
+      _categoriesLoadFailed = false;
       _expandedCategories.clear();
     });
 
@@ -532,6 +557,16 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       _productLoadFailed = false;
     });
     _fetchProductsForCategoryAndSubcategory(cat, subcategory);
+  }
+
+  /// "Other products": the category's own products, outside any sub-category.
+  void _onDirectProductsSelected(Map<String, dynamic> category) {
+    setState(() {
+      _selectedSubcategory = null;
+      _stage = _CatalogStage.products;
+      _showingDirectCategoryProducts = true;
+    });
+    _fetchProductsForCategory(category);
   }
 
   void _onBackToSubcategories() {
@@ -641,32 +676,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
 
       if (!mounted || requestGeneration != _productRequestGeneration) return;
       setState(() {
-        _products = allItems.map<Map<String, dynamic>>((item) {
-          final name = item['name']?.toString() ?? '';
-          return <String, dynamic>{
-            'id': item['id']?.toString() ?? item['_id']?.toString() ?? '',
-            'name': name,
-            'nameHindi': item['nameHindi']?.toString() ?? '',
-            'category': item['category']?.toString() ?? '',
-            'price': catalogPriceForAudience(
-              Map<String, dynamic>.from(item as Map),
-              isCustomerPreview: ref.read(guestModeProvider),
-            ),
-            'mrp': item['mrp'] ?? 0,
-            'image': ApiConfig.normalizeMediaUrl(
-              item['primaryImage']?.toString() ?? '',
-            ),
-            'inStock': item['inStock'] != false,
-            'shortDescription': item['shortDescription']?.toString() ?? '',
-            'rating': item['averageRating'] ?? item['rating'] ?? 4.5,
-            'reviewCount':
-                item['ratingCount'] ??
-                item['reviewCount'] ??
-                item['reviews'] ??
-                '',
-            'pendingPriceChange': item['pendingPriceChange'],
-          };
-        }).toList()..sort(_compareProductsByPrice);
+        _products = allItems.map<Map<String, dynamic>>(_mapProduct).toList()
+          ..sort(_compareProductsByPrice);
 
         _isLoadingProducts = false;
       });
@@ -752,32 +763,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
 
       if (!mounted || requestGeneration != _productRequestGeneration) return;
       setState(() {
-        _products = allItems.map<Map<String, dynamic>>((item) {
-          final name = item['name']?.toString() ?? '';
-          return <String, dynamic>{
-            'id': item['id']?.toString() ?? item['_id']?.toString() ?? '',
-            'name': name,
-            'nameHindi': item['nameHindi']?.toString() ?? '',
-            'category': item['category']?.toString() ?? '',
-            'price': catalogPriceForAudience(
-              Map<String, dynamic>.from(item as Map),
-              isCustomerPreview: ref.read(guestModeProvider),
-            ),
-            'mrp': item['mrp'] ?? 0,
-            'image': ApiConfig.normalizeMediaUrl(
-              item['primaryImage']?.toString() ?? '',
-            ),
-            'inStock': item['inStock'] != false,
-            'shortDescription': item['shortDescription']?.toString() ?? '',
-            'rating': item['averageRating'] ?? item['rating'] ?? 4.5,
-            'reviewCount':
-                item['ratingCount'] ??
-                item['reviewCount'] ??
-                item['reviews'] ??
-                '',
-            'pendingPriceChange': item['pendingPriceChange'],
-          };
-        }).toList()..sort(_compareProductsByPrice);
+        _products = allItems.map<Map<String, dynamic>>(_mapProduct).toList()
+          ..sort(_compareProductsByPrice);
 
         _isLoadingProducts = false;
       });
@@ -792,6 +779,41 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         });
       }
     }
+  }
+
+  /// Card data for one product from the list API. Pack fields and minimums
+  /// are kept so the card's Add follows the same rules as the other lists.
+  Map<String, dynamic> _mapProduct(Map<String, dynamic> item) {
+    final name = item['name']?.toString() ?? '';
+    return <String, dynamic>{
+      'id': item['id']?.toString() ?? item['_id']?.toString() ?? '',
+      'name': name,
+      'nameHindi': item['nameHindi']?.toString() ?? '',
+      'category': item['category']?.toString() ?? '',
+      'brand': item['brand']?.toString() ?? '',
+      'price': catalogPriceForAudience(
+        Map<String, dynamic>.from(item),
+        isCustomerPreview: ref.read(guestModeProvider),
+      ),
+      'mrp': item['mrp'] ?? 0,
+      'image': ApiConfig.normalizeMediaUrl(
+        item['primaryImage']?.toString() ?? '',
+      ),
+      'inStock': item['inStock'] != false,
+      'comingSoon': item['comingSoon'] == true,
+      'priceHidden': item['priceHidden'] == true,
+      'expectedDate': item['expectedDate'],
+      'shortDescription': item['shortDescription']?.toString() ?? '',
+      // Real ratings only: no stars when the product has none.
+      'rating': item['averageRating'] ?? item['rating'],
+      'reviewCount':
+          item['ratingCount'] ?? item['reviewCount'] ?? item['reviews'] ?? '',
+      'minWholesaleQuantity': item['minWholesaleQuantity'],
+      'minCustomerQuantity': item['minCustomerQuantity'],
+      'priceUnit': item['priceUnit'],
+      'packing': item['packing'],
+      'pendingPriceChange': item['pendingPriceChange'],
+    };
   }
 
   void _retryProductLoad() {
@@ -827,45 +849,27 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     return num.tryParse(value?.toString() ?? '') ?? 0;
   }
 
-  String _formatPrice(dynamic price) {
-    if (price == null) return '0';
-    final num p = price is num ? price : num.tryParse(price.toString()) ?? 0;
-
-    // If price is 1 lakh or more, show in "L" format
-    if (p >= 100000) {
-      final lakhs = p / 100000;
-      if (lakhs >= 10) {
-        return '${lakhs.toStringAsFixed(0)}L';
-      } else {
-        return '${lakhs.toStringAsFixed(2)}L';
-      }
-    }
-
-    // Show full number for amounts below 1 lakh (e.g., 6455 instead of 6.5K)
-    return p.toStringAsFixed(0);
-  }
-
   IconData _categoryIcon(String name) {
     final lower = name.toLowerCase();
-    if (lower.contains('tractor')) return Icons.agriculture_rounded;
-    if (lower.contains('harvest')) return Icons.grass_rounded;
+    if (lower.contains('tractor')) return HugeIcons.strokeRoundedTractor;
+    if (lower.contains('harvest')) return HugeIcons.strokeRoundedPlant02;
     if (lower.contains('irrigat') || lower.contains('pump')) {
-      return Icons.water_drop_rounded;
+      return HugeIcons.strokeRoundedDroplet;
     }
     if (lower.contains('seed') || lower.contains('plant')) {
-      return Icons.eco_rounded;
+      return HugeIcons.strokeRoundedPlant01;
     }
     if (lower.contains('fertil') || lower.contains('chemic')) {
-      return Icons.science_rounded;
+      return HugeIcons.strokeRoundedTestTube01;
     }
     if (lower.contains('tool') || lower.contains('equip')) {
-      return Icons.build_rounded;
+      return HugeIcons.strokeRoundedWrench01;
     }
-    if (lower.contains('spray')) return Icons.shower_rounded;
+    if (lower.contains('spray')) return HugeIcons.strokeRoundedDroplet;
     if (lower.contains('storage') || lower.contains('silo')) {
-      return Icons.warehouse_rounded;
+      return HugeIcons.strokeRoundedWarehouse;
     }
-    return Icons.category_rounded;
+    return HugeIcons.strokeRoundedGridView;
   }
 
   Future<void> _handleRefresh() async {
@@ -989,72 +993,103 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     return false;
   }
 
+  // ---- Layout ----
+
+  /// Opened as /brand/:id rather than as the Categories tab.
+  bool get _isRoute => widget.controller == null;
+
+  /// Space under scrolling content: the tab bar floats over the tab version.
+  // Inside the Home tabs the floating nav covers the bottom; the tab's
+  // MediaQuery bottom padding includes it.
+  double get _bottomInset =>
+      (_isRoute ? 24 : 100) + MediaQuery.paddingOf(context).bottom;
+
+  double get _textScale =>
+      (MediaQuery.textScalerOf(context).scale(14) / 14).clamp(1.0, 1.6);
+
+  Map<String, dynamic>? get _selectedBrand =>
+      _selectedBrandIndex >= 0 && _selectedBrandIndex < _brands.length
+      ? _brands[_selectedBrandIndex]
+      : null;
+
+  void _openSearch() {
+    final onSearchTap = widget.onSearchTap;
+    if (onSearchTap != null) {
+      onSearchTap();
+      return;
+    }
+    context.go('/home', extra: {'tab': 1});
+  }
+
+  /// Header back on brand pages: up one level like the system back, then
+  /// leave the page.
+  void _onHeaderBack() {
+    if (_handleBack()) return;
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/home');
+    }
+  }
+
+  Widget _switcher(Object key, Widget child, {Offset begin = Offset.zero}) {
+    return AnimatedSwitcher(
+      duration: AppMotion.of(context, AppMotion.base),
+      switchInCurve: AppMotion.standard,
+      switchOutCurve: AppMotion.exit,
+      layoutBuilder: (current, previous) => Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.topCenter,
+        children: [...previous, ?current],
+      ),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: begin,
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      ),
+      child: KeyedSubtree(key: ValueKey(key), child: child),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Object bodyKey;
+    final Widget body;
+    if (_isLoadingBrands) {
+      bodyKey = 'loading';
+      body = _buildLoadingLayout();
+    } else if (_brandsLoadFailed) {
+      bodyKey = 'brands-error';
+      body = _buildBrandsError();
+    } else if (_brands.isEmpty) {
+      bodyKey = 'no-brands';
+      body = _buildNoBrands();
+    } else {
+      bodyKey = 'catalog';
+      body = _buildCatalogLayout();
+    }
+
     final content = AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.transparent,
       ),
+      // White behind the header and the brand rail; the main panel is the
+      // grey area with a rounded top-left corner.
       child: Scaffold(
-        backgroundColor: backgroundWhite,
+        backgroundColor: AppColors.surfaceLight,
+        // The panels run to the bottom edge (behind the Home tabs' floating
+        // nav); their lists keep their last items clear via [_bottomInset].
         body: SafeArea(
+          bottom: false,
           child: Column(
             children: [
-              _buildHeader(),
-              // Main content
-              Expanded(
-                child: _isLoadingBrands
-                    ? const Center(
-                        child: CircularProgressIndicator(color: primaryBlue),
-                      )
-                    : _brands.isEmpty
-                    ? RefreshIndicator(
-                        onRefresh: _handleRefresh,
-                        color: primaryBlue,
-                        child: ListView(
-                          children: [
-                            const SizedBox(height: 200),
-                            Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.category_outlined,
-                                    size: 48,
-                                    color: textMuted.withOpacity(0.5),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    context.l10n.categoryNoBrands,
-                                    style: AppFonts.outfit(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: textMuted,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Row(
-                        children: [
-                          // The brand rail remains visible at every catalog stage.
-                          _buildSidebar(),
-                          // Vertical divider
-                          Container(width: 1, color: borderLight),
-                          // Right panel drills through category, subcategory, product.
-                          Expanded(
-                            child: RefreshIndicator(
-                              onRefresh: _handleRefresh,
-                              color: primaryBlue,
-                              child: _buildRightPanel(),
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
+              _isRoute ? _buildBrandHeader() : _buildTabHeader(),
+              Expanded(child: _switcher(bodyKey, body)),
             ],
           ),
         ),
@@ -1071,251 +1106,157 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  context.l10n.categoryTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppFonts.outfit(
-                    fontSize: 28,
-                    height: 1.0,
-                    fontWeight: FontWeight.w900,
-                    color: textPrimary,
-                    letterSpacing: -0.6,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap:
-                    widget.onSearchTap ??
-                    () => context.go('/home', extra: {'tab': 1}),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: surfaceWhite,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: borderLight),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.search_rounded,
-                    color: primaryBlue,
-                    size: 22,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          SizedBox(
-            height: 6,
-            child: Stack(
-              alignment: Alignment.centerLeft,
-              children: [
-                Container(
-                  height: 1,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(999),
-                    gradient: LinearGradient(
-                      colors: [
-                        borderLight.withValues(alpha: 0.0),
-                        borderLight,
-                        borderLight.withValues(alpha: 0.65),
-                        borderLight.withValues(alpha: 0.0),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 118,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(999),
-                    gradient: LinearGradient(
-                      colors: [
-                        primaryBlue,
-                        const Color(0xFF4F7DFF),
-                        primaryBlue.withValues(alpha: 0.0),
-                      ],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: primaryBlue.withValues(alpha: 0.18),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSidebar() {
+  Widget _buildTabHeader() {
+    final l10n = context.l10n;
     return SizedBox(
-      width: 88,
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: _brands.length,
-        itemBuilder: (context, index) {
-          final brand = _brands[index];
-          final isSelected = _selectedBrandIndex == index;
-          final imageUrl = brand['logo']?.toString() ?? '';
-
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-            child: GestureDetector(
-              onTap: () => _selectBrand(index),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isSelected ? primaryBlue : surfaceWhite,
-                  border: Border.all(
-                    color: isSelected ? primaryBlue : borderLight,
-                    width: isSelected ? 2 : 1,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: primaryBlue.withOpacity(0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? Colors.white.withOpacity(0.2)
-                            : const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: imageUrl.isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: imageUrl,
-                                fit: BoxFit.cover,
-                                placeholder: (_, __) => Icon(
-                                  Icons.storefront_rounded,
-                                  size: 20,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : textSecondary,
-                                ),
-                                errorWidget: (_, __, ___) => Icon(
-                                  Icons.storefront_rounded,
-                                  size: 20,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : textSecondary,
-                                ),
-                              )
-                            : Icon(
-                                Icons.storefront_rounded,
-                                size: 20,
-                                color: isSelected
-                                    ? Colors.white
-                                    : textSecondary,
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _brandDisplayName(brand),
-                      style: AppFonts.outfit(
-                        fontSize: 9,
-                        fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w600,
-                        color: isSelected ? Colors.white : textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+      height: 64,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 10, 0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.categoryTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.jakarta(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.4,
                 ),
               ),
             ),
-          );
-        },
+            HeaderIconButton(
+              icon: HugeIcons.strokeRoundedSearch01,
+              tooltip: l10n.commonSearch,
+              onPressed: _openSearch,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildRightPanel() {
-    if (_isLoadingCategories) {
-      return const Center(
-        child: CircularProgressIndicator(color: primaryBlue, strokeWidth: 2),
-      );
-    }
-    if (_categories.isEmpty) return _buildEmptyCategoryPanel();
-    if (_stage == _CatalogStage.categories || _selectedCategoryIndex < 0) {
-      return _buildCategoryGrid();
-    }
-    final cat = _categories[_selectedCategoryIndex];
-    final subs = _subcategoriesOf(cat);
-    if (_stage == _CatalogStage.subcategories) {
-      return _buildSubcategoryGrid(cat, subs);
-    }
-    return _buildProductGrid();
+  /// Brand pages: back, the brand's logo and name, search.
+  Widget _buildBrandHeader() {
+    final l10n = context.l10n;
+    final brand = _selectedBrand;
+    final requested = widget.brandName?.trim() ?? '';
+    final title = brand != null
+        ? _brandDisplayName(brand)
+        : (requested.isNotEmpty && requested != widget.brandId
+              ? requested
+              : l10n.categoryTitle);
+    return SizedBox(
+      height: 64,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: Row(
+          children: [
+            AppBackButton(onPressed: _onHeaderBack),
+            const SizedBox(width: 10),
+            _BrandLogo(url: brand?['logo']?.toString() ?? '', size: 40),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.jakarta(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            HeaderIconButton(
+              icon: HugeIcons.strokeRoundedSearch01,
+              tooltip: l10n.commonSearch,
+              onPressed: _openSearch,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildEmptyCategoryPanel() {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
+  Widget _buildLoadingLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 180),
-        Icon(
-          Icons.category_outlined,
-          size: 48,
-          color: textMuted.withOpacity(0.4),
+        _buildRailSkeleton(),
+        Expanded(child: _mainPanel(_buildCategorySkeleton())),
+      ],
+    );
+  }
+
+  Widget _buildBrandsError() {
+    final l10n = context.l10n;
+    return RefreshIndicator(
+      onRefresh: _handleRefresh,
+      color: AppColors.primary,
+      child: _scrollableState(
+        EmptyState(
+          icon: HugeIcons.strokeRoundedWifiError01,
+          title: l10n.catBrandsLoadError,
+          message: l10n.catLoadErrorHint,
+          actionLabel: l10n.commonRetry,
+          onAction: _retryBrands,
+          tone: ChipTone.neutral,
         ),
-        const SizedBox(height: 12),
-        Center(
-          child: Text(
-            _selectedBrandIndex == -1
-                ? context.l10n.categoryBrandNotFound
-                : context.l10n.categoryNoCategoriesForBrand,
-            textAlign: TextAlign.center,
-            style: AppFonts.outfit(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: textMuted,
+      ),
+    );
+  }
+
+  Widget _buildNoBrands() {
+    return RefreshIndicator(
+      onRefresh: _handleRefresh,
+      color: AppColors.primary,
+      child: _scrollableState(
+        EmptyState(
+          icon: HugeIcons.strokeRoundedStore01,
+          title: context.l10n.categoryNoBrands,
+          tone: ChipTone.neutral,
+        ),
+      ),
+    );
+  }
+
+  /// An empty or error state that can still be pulled to refresh.
+  Widget _scrollableState(Widget child) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(bottom: _bottomInset),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: (constraints.maxHeight - _bottomInset).clamp(
+              0,
+              double.infinity,
+            ),
+          ),
+          child: Center(child: child),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCatalogLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // The brand rail stays visible at every catalog stage.
+        _buildBrandRail(),
+        // The right panel drills through category, sub-category, products.
+        Expanded(
+          child: _mainPanel(
+            RefreshIndicator(
+              onRefresh: _handleRefresh,
+              color: AppColors.primary,
+              child: _buildRightPanel(),
             ),
           ),
         ),
@@ -1323,64 +1264,353 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildCategoryGrid() {
-    final brand =
-        _selectedBrandIndex >= 0 && _selectedBrandIndex < _brands.length
-        ? _brands[_selectedBrandIndex]
-        : const <String, dynamic>{};
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  /// The grey area right of the brand rail, rounded where it meets the
+  /// header and the rail.
+  Widget _mainPanel(Widget child) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(AppRadius.xl),
+      ),
+      child: ColoredBox(color: AppColors.backgroundLight, child: child),
+    );
+  }
+
+  // ---- Brand rail ----
+
+  static const _railDecoration = BoxDecoration(color: AppColors.surfaceLight);
+
+  Widget _buildBrandRail() {
+    return Container(
+      width: 88,
+      decoration: _railDecoration,
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.only(top: 8, bottom: _bottomInset),
+        itemCount: _brands.length,
+        itemBuilder: (context, index) => _buildBrandRailItem(index),
+      ),
+    );
+  }
+
+  Widget _buildBrandRailItem(int index) {
+    final brand = _brands[index];
+    final selected = _selectedBrandIndex == index;
+    final name = _brandDisplayName(brand);
+    final duration = AppMotion.of(context, AppMotion.base);
+    return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Row(
-            children: [
-              Expanded(
+          padding: const EdgeInsets.fromLTRB(8, 3, 6, 3),
+          child: Semantics(
+            selected: selected,
+            child: Pressable(
+              onTap: () => _selectBrand(index),
+              haptic: true,
+              semanticLabel: name,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              color: selected ? AppColors.primarySoft : Colors.transparent,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      _brandDisplayName(brand),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppFonts.outfit(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: textPrimary,
-                      ),
+                    _BrandLogo(
+                      url: brand['logo']?.toString() ?? '',
+                      size: 48,
+                      highlighted: selected,
                     ),
-                    Text(
-                      context.l10n.categorySelectCategory,
-                      style: AppFonts.outfit(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: textMuted,
+                    const SizedBox(height: 6),
+                    AnimatedDefaultTextStyle(
+                      duration: duration,
+                      curve: AppMotion.standard,
+                      style: AppFonts.jakarta(
+                        fontSize: 11,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
+                        color: selected
+                            ? AppColors.primaryDeep
+                            : AppColors.textSecondary,
+                        height: 1.25,
+                      ),
+                      child: Text(
+                        name,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
               ),
-              _buildCountBadge(
-                context.l10n.categoryCategoriesCount(_categories.length),
-              ),
-            ],
+            ),
           ),
+        ),
+        // Selected brand: a short bar on the rail's left edge.
+        Positioned(
+          left: 0,
+          top: 20,
+          bottom: 20,
+          child: AnimatedContainer(
+            duration: duration,
+            curve: AppMotion.standard,
+            width: selected ? 3 : 0,
+            decoration: const BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.horizontal(right: Radius.circular(3)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRailSkeleton() {
+    return Container(
+      width: 88,
+      decoration: _railDecoration,
+      child: SkeletonShimmer(
+        child: ListView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(top: 12),
+          children: [
+            for (var i = 0; i < 8; i++)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 9),
+                child: Column(
+                  children: [
+                    Skeleton(width: 48, height: 48, radius: AppRadius.md),
+                    SizedBox(height: 8),
+                    Skeleton(width: 50, height: 10),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---- Right panel ----
+
+  Widget _buildRightPanel() {
+    if (_stage != _CatalogStage.products) _ensuredChipToken = null;
+    final Object key;
+    final Widget child;
+    if (_isLoadingCategories) {
+      key = 'loading';
+      child = _buildCategorySkeleton();
+    } else if (_categoriesLoadFailed) {
+      key = 'error';
+      child = _buildCategoryLoadError();
+    } else if (_categories.isEmpty) {
+      key = 'empty';
+      child = _buildEmptyCategoryPanel();
+    } else if (_stage == _CatalogStage.categories ||
+        _selectedCategoryIndex < 0) {
+      key = 'categories';
+      child = _buildCategoryGrid();
+    } else if (_stage == _CatalogStage.subcategories) {
+      final cat = _categories[_selectedCategoryIndex];
+      key = 'subcategories-$_selectedCategoryIndex';
+      child = _buildSubcategoryGrid(cat, _subcategoriesOf(cat));
+    } else {
+      key = 'products-$_selectedCategoryIndex';
+      child = _buildProductStage();
+    }
+    return _switcher(
+      '$_selectedBrandIndex|$key',
+      child,
+      begin: const Offset(0.04, 0),
+    );
+  }
+
+  Widget _buildPanelHeader({
+    required String title,
+    String? subtitle,
+    String? count,
+    VoidCallback? onBack,
+  }) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(onBack != null ? 8 : 16, 12, 12, 8),
+      child: Row(
+        children: [
+          if (onBack != null) ...[
+            AppBackButton(onPressed: onBack),
+            const SizedBox(width: 8),
+          ],
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFonts.jakarta(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                if (subtitle != null && subtitle.isNotEmpty)
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppFonts.jakarta(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (count != null) ...[
+            const SizedBox(width: 8),
+            StatusChip(label: count, tone: ChipTone.neutral, dense: true),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyCategoryPanel() {
+    return _scrollableState(
+      EmptyState(
+        icon: HugeIcons.strokeRoundedGridView,
+        title: _selectedBrandIndex == -1
+            ? context.l10n.categoryBrandNotFound
+            : context.l10n.categoryNoCategoriesForBrand,
+        tone: ChipTone.neutral,
+        compact: true,
+      ),
+    );
+  }
+
+  Widget _buildCategoryLoadError() {
+    final l10n = context.l10n;
+    return _scrollableState(
+      EmptyState(
+        icon: HugeIcons.strokeRoundedWifiError01,
+        title: l10n.catCategoriesLoadError,
+        message: l10n.catLoadErrorHint,
+        actionLabel: l10n.commonRetry,
+        onAction: _retryCategories,
+        tone: ChipTone.neutral,
+        compact: true,
+      ),
+    );
+  }
+
+  int _tileColumns(double width) => width >= 700 ? 3 : 2;
+
+  double _tileExtent(double maxWidth, int columns) {
+    final width = (maxWidth - 24 - 10 * (columns - 1)) / columns;
+    final imageHeight = (width - 16) * 0.72;
+    return imageHeight + 28 + (34 + 2 + 16) * _textScale;
+  }
+
+  SliverGridDelegate _tileGrid(double maxWidth) {
+    final columns = _tileColumns(maxWidth);
+    return SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: columns,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      mainAxisExtent: _tileExtent(maxWidth, columns),
+    );
+  }
+
+  Widget _buildCategorySkeleton() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 12, 12),
+              child: SkeletonShimmer(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Skeleton(width: 120, height: 16),
+                          SizedBox(height: 6),
+                          Skeleton(width: 84, height: 11),
+                        ],
+                      ),
+                    ),
+                    Skeleton(width: 64, height: 22, radius: AppRadius.pill),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                gridDelegate: _tileGrid(constraints.maxWidth),
+                itemCount: 8,
+                itemBuilder: (_, _) => Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: const SkeletonShimmer(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Skeleton(
+                            height: double.infinity,
+                            radius: AppRadius.md,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Skeleton(width: 80, height: 12),
+                        SizedBox(height: 6),
+                        Skeleton(width: 48, height: 10),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryGrid() {
+    final l10n = context.l10n;
+    final brand = _selectedBrand ?? const <String, dynamic>{};
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildPanelHeader(
+          // Brand pages already name the brand in the page header.
+          title: _isRoute
+              ? l10n.categorySelectCategory
+              : _brandDisplayName(brand),
+          subtitle: _isRoute ? null : l10n.categorySelectCategory,
+          count: l10n.categoryCategoriesCount(_categories.length),
         ),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final catalogColumns = constraints.maxWidth >= 700 ? 3 : 2;
               return GridView.builder(
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 100),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: catalogColumns,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 0.86,
-                ),
+                padding: EdgeInsets.fromLTRB(12, 4, 12, _bottomInset),
+                gridDelegate: _tileGrid(constraints.maxWidth),
                 itemCount: _categories.length,
                 itemBuilder: (context, index) {
                   final category = _categories[index];
@@ -1391,11 +1621,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                     category['directProductCount'],
                   ).toInt();
                   final countText = subcategoryCount > 0
-                      ? context.l10n.categorySubcategoriesCount(
-                          subcategoryCount,
-                        )
-                      : context.l10n.commonItemsCount(directCount);
-                  return _buildCatalogCard(
+                      ? l10n.categorySubcategoriesCount(subcategoryCount)
+                      : l10n.commonItemsCount(directCount);
+                  return _buildCatalogTile(
                     name: _getDisplayCategoryName(category),
                     imageUrl: category['image']?.toString() ?? '',
                     countText: countText,
@@ -1411,118 +1639,80 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildCountBadge(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: primaryBlue.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: Text(
-        label,
-        style: AppFonts.outfit(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: primaryBlue,
-        ),
-      ),
+  Widget _tileIcon(IconData icon, {double size = 28}) {
+    return Center(
+      child: HugeIcon(icon: icon, size: size, color: AppColors.primary),
     );
   }
 
-  Widget _buildCatalogCard({
+  Widget _buildCatalogTile({
     required String name,
     required String imageUrl,
     required String countText,
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return Pressable(
       onTap: onTap,
+      haptic: true,
+      semanticLabel: '$name, $countText',
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      color: AppColors.surfaceLight,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: surfaceWhite,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderLight),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: AppColors.border),
         ),
+        padding: const EdgeInsets.all(8),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDFA),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.gray50,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                clipBehavior: Clip.antiAlias,
+                // The photo fills the tile edge to edge; the grey only shows
+                // behind the icon while it loads or when there's no photo.
                 child: imageUrl.isNotEmpty
                     ? CachedNetworkImage(
                         imageUrl: ApiConfig.normalizeMediaUrl(imageUrl),
                         fit: BoxFit.cover,
-                        placeholder: (_, __) =>
-                            Icon(icon, color: primaryBlue, size: 24),
-                        errorWidget: (_, __, ___) =>
-                            Icon(icon, color: primaryBlue, size: 24),
+                        width: double.infinity,
+                        height: double.infinity,
+                        // Plain grey while the photo loads, no icon.
+                        placeholder: (_, _) => const SizedBox.shrink(),
+                        errorWidget: (_, _, _) => _tileIcon(icon),
                       )
-                    : Icon(icon, color: primaryBlue, size: 26),
+                    : _tileIcon(icon),
               ),
             ),
             const SizedBox(height: 8),
             Text(
               name,
-              style: AppFonts.outfit(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: textPrimary,
-              ),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+              style: AppFonts.jakarta(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+                height: 1.25,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
               countText,
-              style: AppFonts.outfit(
-                fontSize: 11,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppFonts.jakarta(
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: textMuted,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: primaryBlue,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    context.l10n.commonView,
-                    style: AppFonts.outfit(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 12,
-                    color: Colors.white,
-                  ),
-                ],
+                color: AppColors.textTertiary,
+                height: 1.3,
               ),
             ),
           ],
@@ -1535,110 +1725,53 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     Map<String, dynamic> category,
     List<Map<String, dynamic>> subcategories,
   ) {
+    final l10n = context.l10n;
     final directProductCount = _numericValue(
       category['directProductCount'],
     ).toInt();
     final hasDirectProducts = directProductCount > 0;
+    final brand = _selectedBrand;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8, 12, 16, 8),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: _onBackToCategories,
-                icon: const Icon(
-                  Icons.arrow_back_rounded,
-                  color: textPrimary,
-                  size: 20,
-                ),
-                style: IconButton.styleFrom(
-                  backgroundColor: surfaceWhite,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    side: const BorderSide(color: borderLight),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _getDisplayCategoryName(category),
-                      style: AppFonts.outfit(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: textPrimary,
-                      ),
-                    ),
-                    Text(
-                      _selectedBrandIndex >= 0 &&
-                              _selectedBrandIndex < _brands.length
-                          ? _brandDisplayName(_brands[_selectedBrandIndex])
-                          : context.l10n.categorySelectType,
-                      style: AppFonts.outfit(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _buildCountBadge(
-                context.l10n.categoryTypesCount(subcategories.length),
-              ),
-            ],
-          ),
+        _buildPanelHeader(
+          onBack: _onBackToCategories,
+          title: _getDisplayCategoryName(category),
+          subtitle: brand != null
+              ? _brandDisplayName(brand)
+              : l10n.categorySelectType,
+          count: l10n.categoryTypesCount(subcategories.length),
         ),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final catalogColumns = constraints.maxWidth >= 700 ? 3 : 2;
               return GridView.builder(
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 100),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: catalogColumns,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 0.86,
-                ),
+                padding: EdgeInsets.fromLTRB(12, 4, 12, _bottomInset),
+                gridDelegate: _tileGrid(constraints.maxWidth),
                 itemCount: subcategories.length + (hasDirectProducts ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (hasDirectProducts && index == 0) {
-                    return _buildCatalogCard(
-                      name: context.l10n.categoryOtherProducts,
+                    return _buildCatalogTile(
+                      name: l10n.categoryOtherProducts,
                       imageUrl: category['image']?.toString() ?? '',
-                      countText: context.l10n.commonItemsCount(
-                        directProductCount,
-                      ),
-                      icon: Icons.inventory_2_outlined,
-                      onTap: () {
-                        setState(() {
-                          _selectedSubcategory = null;
-                          _stage = _CatalogStage.products;
-                          _showingDirectCategoryProducts = true;
-                        });
-                        _fetchProductsForCategory(category);
-                      },
+                      countText: l10n.commonItemsCount(directProductCount),
+                      icon: HugeIcons.strokeRoundedPackage,
+                      onTap: () => _onDirectProductsSelected(category),
                     );
                   }
 
                   final subcategoryIndex = index - (hasDirectProducts ? 1 : 0);
                   final subcategory = subcategories[subcategoryIndex];
-                  return _buildCatalogCard(
+                  return _buildCatalogTile(
                     name: localizedName(context, subcategory),
                     imageUrl: subcategory['image']?.toString() ?? '',
-                    countText: context.l10n.commonItemsCount(
+                    countText: l10n.commonItemsCount(
                       _numericValue(subcategory['productCount']).toInt(),
                     ),
-                    icon: Icons.category_rounded,
+                    icon: HugeIcons.strokeRoundedGridView,
                     onTap: () => _onSubcategorySelected(subcategory),
                   );
                 },
@@ -1650,493 +1783,400 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildBackHeader(String title, String subtitle) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 12, 16, 8),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: _onBackToSubcategories,
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-              color: textPrimary,
-              size: 20,
-            ),
-            style: IconButton.styleFrom(
-              backgroundColor: surfaceWhite,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: const BorderSide(color: borderLight),
-              ),
-            ),
+  // ---- Products ----
+
+  /// Products of a sub-category (or the category's own products), with the
+  /// category's sub-categories as a chip row on top so shoppers can move
+  /// between them without going back.
+  Widget _buildProductStage() {
+    final l10n = context.l10n;
+    final category = _categories[_selectedCategoryIndex];
+    final subcategories = _subcategoriesOf(category);
+    final directCount = _numericValue(category['directProductCount']).toInt();
+    final inSubcategory = _selectedSubcategory != null;
+    final selectedChipId = inSubcategory
+        ? 'sub:${_selectedSubcategory!['id']}'
+        : 'direct';
+    final brand = _selectedBrand;
+    final loaded = !_isLoadingProducts && !_productLoadFailed;
+    final bodyState = _isLoadingProducts
+        ? 'loading'
+        : (_productLoadFailed ? 'failed' : 'ready');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildPanelHeader(
+          onBack: _onBackToSubcategories,
+          title: _getDisplayCategoryName(category),
+          subtitle: brand != null ? _brandDisplayName(brand) : null,
+          count: loaded ? l10n.commonItemsCount(_products.length) : null,
+        ),
+        if (subcategories.isNotEmpty)
+          _buildSubcategoryChips(
+            category,
+            subcategories,
+            directCount > 0,
+            selectedChipId,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: textPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (subtitle.isNotEmpty)
-                  Text(
-                    subtitle,
-                    style: AppFonts.outfit(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: textMuted,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
-            ),
+        Expanded(
+          child: _switcher(
+            '$selectedChipId|$bodyState',
+            _buildProductBody(inSubcategory),
+            begin: const Offset(0, 0.02),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: primaryBlue.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Text(
-              context.l10n.commonItemsCount(_products.length),
-              style: AppFonts.outfit(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: primaryBlue,
-              ),
-            ),
-          ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubcategoryChips(
+    Map<String, dynamic> category,
+    List<Map<String, dynamic>> subcategories,
+    bool hasDirectProducts,
+    String selectedChipId,
+  ) {
+    final l10n = context.l10n;
+    final chips = <Widget>[
+      if (hasDirectProducts)
+        _buildSubcategoryChip(
+          id: 'direct',
+          label: l10n.categoryOtherProducts,
+          imageUrl: category['image']?.toString() ?? '',
+          icon: HugeIcons.strokeRoundedPackage,
+          selectedChipId: selectedChipId,
+          onTap: () => _onDirectProductsSelected(category),
+        ),
+      for (final subcategory in subcategories)
+        _buildSubcategoryChip(
+          id: 'sub:${subcategory['id']}',
+          label: localizedName(context, subcategory),
+          imageUrl: subcategory['image']?.toString() ?? '',
+          icon: HugeIcons.strokeRoundedGridView,
+          selectedChipId: selectedChipId,
+          onTap: () => _onSubcategorySelected(subcategory),
+        ),
+    ];
+    return SizedBox(
+      height: 58,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
+        child: Row(
+          children: [
+            for (var i = 0; i < chips.length; i++) ...[
+              if (i > 0) const SizedBox(width: 8),
+              chips[i],
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildProductGrid() {
-    if (_isLoadingProducts) {
-      return const Center(
-        child: CircularProgressIndicator(color: primaryBlue, strokeWidth: 2),
-      );
-    }
-
-    final bool inSubcategory = _selectedSubcategory != null;
-    final String headerTitle = inSubcategory
-        ? localizedName(context, _selectedSubcategory)
-        : (_categories.isNotEmpty
-              ? _getDisplayCategoryName(_categories[_selectedCategoryIndex])
-              : '');
-    final String headerSubtitle = inSubcategory && _categories.isNotEmpty
-        ? _getDisplayCategoryName(_categories[_selectedCategoryIndex])
-        : (_selectedBrandIndex >= 0 && _selectedBrandIndex < _brands.length
-              ? _brandDisplayName(_brands[_selectedBrandIndex])
-              : '');
-
-    if (_productLoadFailed) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildBackHeader(headerTitle, headerSubtitle),
-          Expanded(
-            child: Center(
-              child: Column(
+  Widget _buildSubcategoryChip({
+    required String id,
+    required String label,
+    required String imageUrl,
+    required IconData icon,
+    required String selectedChipId,
+    required VoidCallback onTap,
+  }) {
+    final selected = id == selectedChipId;
+    final token = '$_selectedCategoryIndex|$id';
+    final duration = AppMotion.of(context, AppMotion.base);
+    return Builder(
+      builder: (chipContext) {
+        if (selected && _ensuredChipToken != token) {
+          // Bring the chosen sub-category into view when the row opens.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!chipContext.mounted || _ensuredChipToken == token) return;
+            _ensuredChipToken = token;
+            Scrollable.ensureVisible(
+              chipContext,
+              alignment: 0.5,
+              duration: duration,
+              curve: AppMotion.standard,
+            );
+          });
+        }
+        return Semantics(
+          selected: selected,
+          child: Pressable(
+            onTap: () {
+              if (!selected) onTap();
+            },
+            haptic: true,
+            semanticLabel: label,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            color: selected ? AppColors.primarySoft : AppColors.surfaceLight,
+            child: AnimatedContainer(
+              duration: duration,
+              curve: AppMotion.standard,
+              height: 44,
+              padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                border: Border.all(
+                  color: selected ? AppColors.primary : AppColors.border,
+                  width: selected ? 1.4 : 1,
+                ),
+              ),
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.cloud_off_rounded,
-                    size: 48,
-                    color: textMuted.withOpacity(0.5),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    context.l10n.categoryLoadProductsError,
-                    style: AppFonts.outfit(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: textMuted,
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? AppColors.surfaceLight
+                          : AppColors.gray50,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
+                    clipBehavior: Clip.antiAlias,
+                    padding: const EdgeInsets.all(3),
+                    child: imageUrl.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: ApiConfig.normalizeMediaUrl(imageUrl),
+                            fit: BoxFit.contain,
+                            placeholder: (_, _) => const SizedBox.shrink(),
+                            errorWidget: (_, _, _) =>
+                                _tileIcon(icon, size: 18),
+                          )
+                        : _tileIcon(icon, size: 18),
                   ),
-                  const SizedBox(height: 12),
-                  FilledButton.icon(
-                    onPressed: _retryProductLoad,
-                    icon: const Icon(Icons.refresh_rounded, size: 18),
-                    label: Text(context.l10n.commonRetry),
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 150),
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppFonts.jakarta(
+                        fontSize: 13,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
+                        color: selected
+                            ? AppColors.primaryDeep
+                            : AppColors.textPrimary,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-        ],
-      );
-    }
-
-    if (_products.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildBackHeader(headerTitle, headerSubtitle),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.inventory_2_outlined,
-                    size: 48,
-                    color: textMuted.withOpacity(0.4),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    inSubcategory
-                        ? context.l10n.categoryNoProductsInSubcategory
-                        : context.l10n.categoryNoProductsInCategory,
-                    style: AppFonts.outfit(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: textMuted,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextButton.icon(
-                    onPressed: _onBackToSubcategories,
-                    icon: const Icon(Icons.arrow_back_rounded, size: 16),
-                    label: Text(
-                      inSubcategory
-                          ? context.l10n.categoryBackToTypes
-                          : context.l10n.categoryBackToCategories,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isTablet = constraints.maxWidth >= 700;
-        final gridColumns = isTablet
-            ? (constraints.maxWidth >= 1000 ? 4 : 3)
-            : 2;
-        final gridSpacing = isTablet ? 14.0 : 10.0;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildBackHeader(headerTitle, headerSubtitle),
-            // Products grid
-            Expanded(
-              child: GridView.builder(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                padding: EdgeInsets.fromLTRB(
-                  isTablet ? 18 : 12,
-                  4,
-                  isTablet ? 18 : 12,
-                  100,
-                ),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: gridColumns,
-                  crossAxisSpacing: gridSpacing,
-                  mainAxisSpacing: gridSpacing,
-                  childAspectRatio: isTablet ? 0.72 : 0.48,
-                ),
-                itemCount: _products.length,
-                itemBuilder: (context, index) =>
-                    _buildProductCard(_products[index]),
-              ),
-            ),
-          ],
         );
       },
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product) {
-    final hasMrp =
-        product['mrp'] != null &&
-        product['mrp'] != product['price'] &&
-        (product['mrp'] as num) > 0;
-    final rating = product['rating'];
-    final discount = hasMrp
-        ? (((product['mrp'] as num) - (product['price'] as num)) /
-                  (product['mrp'] as num) *
-                  100)
-              .round()
-        : 0;
-
-    return GestureDetector(
-      onTap: () => context.push('/product/${product['id']}'),
-      child: Container(
-        decoration: BoxDecoration(
-          color: surfaceWhite,
-          borderRadius: BorderRadius.circular(4),
-          // border: Border.all(color: borderLight, width: 1), // Removed outer border
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
+  Widget _buildProductBody(bool inSubcategory) {
+    final l10n = context.l10n;
+    if (_isLoadingProducts) return _buildProductSkeleton();
+    if (_productLoadFailed) {
+      return _scrollableState(
+        EmptyState(
+          icon: HugeIcons.strokeRoundedWifiError01,
+          title: l10n.categoryLoadProductsError,
+          actionLabel: l10n.commonRetry,
+          onAction: _retryProductLoad,
+          tone: ChipTone.neutral,
+          compact: true,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            Expanded(
-              flex:
-                  22, // Reduced from 3 to 2.2 (Integer multiplied by 10 for safety)
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(4),
-                ),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    product['image'] != null &&
-                            product['image'].toString().isNotEmpty
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: CachedNetworkImage(
-                              imageUrl: product['image'],
-                              fit: BoxFit.contain,
-                              placeholder: (_, __) => ProductImagePlaceholder(
-                                category: product['category']?.toString() ?? '',
-                                name: product['name']?.toString() ?? '',
-                              ),
-                              errorWidget: (_, __, ___) =>
-                                  ProductImagePlaceholder(
-                                    category:
-                                        product['category']?.toString() ?? '',
-                                    name: product['name']?.toString() ?? '',
-                                  ),
-                            ),
-                          )
-                        : ProductImagePlaceholder(
-                            category: product['category']?.toString() ?? '',
-                            name: product['name']?.toString() ?? '',
-                          ),
-                    if (discount > 0)
-                      Positioned(
-                        top: 6,
-                        left: 6,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF16A34A).withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          child: Text(
-                            context.l10n.commonPercentOff('$discount'),
-                            style: AppFonts.outfit(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (product['inStock'] == false)
-                      Positioned.fill(
-                        child: Container(
-                          color: Colors.white.withOpacity(0.7),
-                          alignment: Alignment.center,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black87,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            child: Text(
-                              context.l10n.commonOutOfStock,
-                              style: AppFonts.outfit(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 20, // Re-scaled to match 2.2:2.0 as 22:20
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(4),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height:
-                            44, // More compact but still fits 3 lines tightly
-                        child: Text(
-                          _getDisplayName(product),
-                          style: AppFonts.outfit(
-                            fontSize: 12.5,
-                            fontWeight:
-                                FontWeight.w600, // Make it a bit more readable
-                            color: textPrimary,
-                            height: 1.2,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(height: 1), // Reduced gap
-                      // Star rating visualization (Showing always as requested)
-                      Row(
-                        children: [
-                          Text(
-                            rating is num
-                                ? rating.toDouble().toStringAsFixed(1)
-                                : (double.tryParse(
-                                        rating?.toString() ?? '',
-                                      )?.toStringAsFixed(1) ??
-                                      '4.5'),
-                            style: AppFonts.jakarta(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              color: textPrimary,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Row(
-                            children: List.generate(5, (index) {
-                              final rv = (rating != null)
-                                  ? ((rating is num)
-                                        ? rating.toDouble()
-                                        : double.tryParse(rating.toString()) ??
-                                              0.0)
-                                  : 0.0;
-                              final starIndex = index + 1;
-                              if (rv >= starIndex) {
-                                return const Icon(
-                                  Icons.star_rounded,
-                                  size: 14,
-                                  color: Color(0xFFF59E0B),
-                                );
-                              } else if (rv >= starIndex - 0.5) {
-                                return const Icon(
-                                  Icons.star_half_rounded,
-                                  size: 14,
-                                  color: Color(0xFFF59E0B),
-                                );
-                              } else {
-                                return const Icon(
-                                  Icons.star_outline_rounded,
-                                  size: 14,
-                                  color: Color(0xFFCBD5E1),
-                                );
-                              }
-                            }),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 2,
-                      ), // Significantly reduced gap to move price up
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              '₹${_formatPrice(product['price'])}',
-                              style: AppFonts.outfit(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                color: textPrimary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (hasMrp) ...[
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                '₹${_formatPrice(product['mrp'])}',
-                                style: AppFonts.outfit(
-                                  fontSize: 10,
-                                  color: const Color(0xFFEF4444),
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      PendingPriceChangeNotice(
-                        pendingPriceChange:
-                            product['pendingPriceChange']
-                                as Map<String, dynamic>?,
-                        compact: true,
-                        primaryColor: textPrimary,
-                        accentColor: const Color(0xFFB45309),
-                        backgroundColor: const Color(0xFFFFF7ED),
-                      ),
-                      const SizedBox(
-                        height: 6,
-                      ), // Replaces Spacer for predictable height
-                      SizedBox(
-                        width: double.infinity,
-                        height: 26, // Reduced button height
-                        child: ElevatedButton(
-                          onPressed: () =>
-                              context.push('/product/${product['id']}'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryBlue,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.zero,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          child: Text(
-                            context.l10n.categoryViewProduct,
-                            style: AppFonts.jakarta(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+      );
+    }
+    if (_products.isEmpty) {
+      return _scrollableState(
+        EmptyState(
+          icon: HugeIcons.strokeRoundedPackageSearch,
+          title: inSubcategory
+              ? l10n.categoryNoProductsInSubcategory
+              : l10n.categoryNoProductsInCategory,
+          actionLabel: inSubcategory
+              ? l10n.categoryBackToTypes
+              : l10n.categoryBackToCategories,
+          onAction: _onBackToSubcategories,
+          tone: ChipTone.neutral,
+          compact: true,
+        ),
+      );
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final grid = _productGrid(constraints.maxWidth);
+        return GridView.builder(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          padding: EdgeInsets.fromLTRB(
+            grid.padding,
+            4,
+            grid.padding,
+            _bottomInset,
+          ),
+          gridDelegate: grid.delegate,
+          itemCount: _products.length,
+          itemBuilder: (context, index) => _buildProductCard(_products[index]),
+        );
+      },
+    );
+  }
+
+  Widget _buildProductSkeleton() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final grid = _productGrid(constraints.maxWidth);
+        return GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(grid.padding, 4, grid.padding, 12),
+          gridDelegate: grid.delegate,
+          itemCount: grid.columns * 3,
+          itemBuilder: (_, _) => const SkeletonProductCard(),
+        );
+      },
+    );
+  }
+
+  /// Grid for product cards. The card's height is the square image plus its
+  /// text block, so rows line up and nothing overflows.
+  ({int columns, double padding, SliverGridDelegate delegate}) _productGrid(
+    double maxWidth,
+  ) {
+    final isTablet = maxWidth >= 700;
+    final columns = isTablet ? (maxWidth >= 1000 ? 4 : 3) : 2;
+    final spacing = isTablet ? 14.0 : 10.0;
+    final padding = isTablet ? 18.0 : 12.0;
+    final cardWidth =
+        (maxWidth - padding * 2 - spacing * (columns - 1)) / columns;
+    final hasPackNote = _products.any((p) => packInfoOf(p).isPack);
+    final hasPending = _products.any((p) => p['pendingPriceChange'] is Map);
+    // Name (2 lines), rating, price (up to 2 lines), pack note, price notice.
+    final text =
+        2 +
+        34 +
+        20 +
+        38 +
+        (hasPackNote ? 16 : 0) +
+        (hasPending ? 46 : 0) +
+        12;
+    // Image, card padding, stepper.
+    final extent = (cardWidth - 12) + 12 + 10 + 42 + text * _textScale;
+    return (
+      columns: columns,
+      padding: padding,
+      delegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columns,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: spacing,
+        mainAxisExtent: extent,
+      ),
+    );
+  }
+
+  Widget _buildProductCard(Map<String, dynamic> product) {
+    final l10n = context.l10n;
+    final id = product['id']?.toString() ?? '';
+    final price = _numericValue(product['price']);
+    final mrp = _numericValue(product['mrp']);
+    final hasDiscount = mrp > 0 && price < mrp;
+    final rawRating = product['rating'];
+    final rating = rawRating is num
+        ? rawRating.toDouble()
+        : double.tryParse(rawRating?.toString() ?? '');
+    final reviewCount = int.tryParse('${product['reviewCount'] ?? ''}');
+    final pending = product['pendingPriceChange'];
+    final inStock = product['inStock'] != false;
+    final image = product['image']?.toString() ?? '';
+    final packParts = catalogPackParts(l10n, product, price);
+
+    return ProductCard(
+      name: _getDisplayName(product),
+      price: price,
+      mrp: hasDiscount ? mrp : null,
+      unit: catalogUnitSuffix(l10n, product),
+      packNote: packParts?.label,
+      packPrice: packParts?.price,
+      imageUrl: image,
+      category: product['category']?.toString() ?? '',
+      // Stars only for products that have a rating.
+      rating: (rating ?? 0) > 0 ? rating : null,
+      reviewCount: reviewCount,
+      inStock: inStock,
+      soldOutLabel: l10n.commonOutOfStock,
+      offLabel: (percent) => l10n.commonPercentOff('$percent'),
+      comingSoon: isComingSoonProduct(product),
+      comingSoonPrice: isPriceHidden(product) ? l10n.comingSoonPrice : null,
+      extra: pending is Map<String, dynamic>
+          ? PendingPriceChangeNotice(
+              pendingPriceChange: pending,
+              compact: true,
+            )
+          : null,
+      onTap: () => context.push('/product/$id'),
+      action: ProductCartStepper(
+        productId: id,
+        product: product,
+        name: product['name']?.toString() ?? '',
+        nameHindi: product['nameHindi']?.toString(),
+        brand: product['brand']?.toString(),
+        category: product['category']?.toString(),
+        price: price,
+        mrp: hasDiscount ? mrp : null,
+        image: image,
+        inStock: inStock,
+      ),
+    );
+  }
+}
+
+/// A brand's logo on a white tile, or a shop icon when it has none.
+class _BrandLogo extends StatelessWidget {
+  const _BrandLogo({
+    required this.url,
+    required this.size,
+    this.highlighted = false,
+  });
+
+  final String url;
+  final double size;
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback = Center(
+      child: HugeIcon(
+        icon: HugeIcons.strokeRoundedStore01,
+        size: size * 0.42,
+        color: highlighted ? AppColors.primary : AppColors.textTertiary,
+      ),
+    );
+    return AnimatedContainer(
+      duration: AppMotion.of(context, AppMotion.base),
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(
+          color: highlighted
+              ? AppColors.primary.withValues(alpha: 0.4)
+              : AppColors.border,
         ),
       ),
+      clipBehavior: Clip.antiAlias,
+      padding: EdgeInsets.all(size * 0.08),
+      child: url.isEmpty
+          ? fallback
+          : CachedNetworkImage(
+              imageUrl: url,
+              fit: BoxFit.contain,
+              placeholder: (_, _) => fallback,
+              errorWidget: (_, _, _) => fallback,
+            ),
     );
   }
 }

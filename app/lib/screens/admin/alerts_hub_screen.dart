@@ -13,9 +13,9 @@ class _AlertsHubScreenState extends State<AlertsHubScreen> {
   int _selectedNavIndex = 1;
 
   // Colors from design
-  static const Color primary = Color(0xFF46ec13);
-  static const Color backgroundLight = Color(0xFFf6f8f6);
-  static const Color textDark = Color(0xFF111b0d);
+  static const Color primary = Color(0xFF2DD4BF);
+  static const Color backgroundLight = Color(0xFFF3F8F7);
+  static const Color textDark = Color(0xFF0F2422);
   static const Color urgent = Color(0xFFff3b30);
   static const Color warning = Color(0xFFffcc00);
   static const Color info = Color(0xFF007aff);
@@ -370,7 +370,7 @@ class _AlertsHubScreenState extends State<AlertsHubScreen> {
                                           ? (action.textColor ?? textDark)
                                           : textDark,
                                       elevation: 0,
-                                      shape: RoundedRectangleBorder(
+                                      shape: RoundedSuperellipseBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),

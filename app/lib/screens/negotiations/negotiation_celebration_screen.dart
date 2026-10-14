@@ -5,10 +5,10 @@ class NegotiationCelebrationScreen extends StatelessWidget {
   const NegotiationCelebrationScreen({super.key});
 
   // Colors from design
-  static const Color primary = Color(0xFF46ec13);
-  static const Color backgroundLight = Color(0xFFf6f8f6);
-  static const Color textDark = Color(0xFF111b0d);
-  static const Color backgroundDark = Color(0xFF142210);
+  static const Color primary = Color(0xFF2DD4BF);
+  static const Color backgroundLight = Color(0xFFF3F8F7);
+  static const Color textDark = Color(0xFF0F2422);
+  static const Color backgroundDark = Color(0xFF0B1514);
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +282,7 @@ class NegotiationCelebrationScreen extends StatelessWidget {
                         foregroundColor: backgroundDark,
                         elevation: 8,
                         shadowColor: primary.withOpacity(0.3),
-                        shape: RoundedRectangleBorder(
+                        shape: RoundedSuperellipseBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -311,7 +311,7 @@ class NegotiationCelebrationScreen extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: textDark,
                         side: BorderSide(color: primary.withOpacity(0.3), width: 2),
-                        shape: RoundedRectangleBorder(
+                        shape: RoundedSuperellipseBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),

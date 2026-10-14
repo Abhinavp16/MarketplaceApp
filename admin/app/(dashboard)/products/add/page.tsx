@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentProps } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -73,6 +73,14 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { apiFetch, buildApiUrl } from "@/lib/api";
 import { EffectivePricePreview } from "@/components/effective-price-preview";
+import {
+  PackPreview,
+  StockInPacks,
+  baseUnitSuffix,
+  packingHint,
+} from "@/components/pack-preview";
+import { getPackInfo, packLabel, packQuantityText } from "@/lib/pack-size";
+import { ComingSoonFields, comingSoonPayload, toDateInputValue } from "@/components/coming-soon-fields";
 import { HINDI_AUTO_NOTE, SuggestHindiButton } from "@/components/hindi-name-tools";
 
 interface Category {
@@ -146,10 +154,17 @@ function isPresetPriceUnit(value?: string | null) {
   );
 }
 
+// Only a path inside this panel: "//host", "/\\host" and other tricks that
+// browsers read as another site fall back to the product list.
 function getSafeReturnPath(value: string | null) {
-  return value?.startsWith("/") && !value.startsWith("//")
-    ? value
-    : "/products";
+  if (!value || !value.startsWith("/") || /[\\\u0000-\u001f]/.test(value)) return "/products";
+  try {
+    const base = "https://panel.invalid";
+    const url = new URL(value, base);
+    return url.origin === base ? `${url.pathname}${url.search}${url.hash}` : "/products";
+  } catch {
+    return "/products";
+  }
 }
 
 interface ProductImage {
@@ -219,10 +234,18 @@ const productSchema = z.object({
   minWholesaleQuantity: z
     .string()
     .refine((val) => !isNaN(Number(val)), "Must be a number"),
+  minCustomerQuantity: z
+    .string()
+    .refine((val) => !isNaN(Number(val)), "Must be a number")
+    .default("1"),
   negotiationEnabled: z.boolean().default(true),
   status: z.enum(["active", "draft", "archived"]),
   isFeatured: z.boolean().default(false),
   isHot: z.boolean().default(false),
+  comingSoonEnabled: z.boolean().default(false),
+  comingSoonShowPrice: z.boolean().default(true),
+  comingSoonExpectedDate: z.string().optional().default(""),
+  comingSoonAutoLaunch: z.boolean().default(false),
   company: z.string().optional(),
   videoUrl: z.string().optional(),
   shippingTerms: z.string().optional(),
@@ -269,6 +292,9 @@ export default function AddProductPage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
   const [isCustomPriceUnit, setIsCustomPriceUnit] = useState(false);
+  // Coming Soon: people waiting, and whether it was coming soon when loaded.
+  const [notifyCount, setNotifyCount] = useState(0);
+  const [wasComingSoon, setWasComingSoon] = useState(false);
   const [lockedCategoryId, setLockedCategoryId] = useState<string | null>(null);
   const isCategoryLocked = !isEditMode && lockedCategoryId !== null;
 
@@ -292,20 +318,28 @@ export default function AddProductPage() {
       stock: "0",
       lowStockThreshold: "5",
       minWholesaleQuantity: "10",
+      minCustomerQuantity: "1",
       negotiationEnabled: true,
       status: "active",
       isFeatured: false,
       isHot: false,
+      comingSoonEnabled: false,
+      comingSoonShowPrice: true,
+      comingSoonExpectedDate: "",
+      comingSoonAutoLaunch: false,
       company: "",
       videoUrl: "",
       shippingTerms:
-        "Delivery, payment, and return arrangements depend on the product, order, and location. Contact TradeHub Demo to confirm the applicable terms before payment or dispatch.",
+        "Delivery, payment, and return arrangements depend on the product, order, and location. Contact DemoMart to confirm the applicable terms before payment or dispatch.",
       labelIds: [],
       rating: "4.5",
       purchaseCountMin: "0",
       purchaseCountMax: "0",
     },
   });
+  // Packet / coil / bundle products: prices, stock and customer minimum are
+  // per piece or meter; Min Wholesale Qty is in packs (lib/pack-size.ts).
+  const pack = getPackInfo(form.watch("priceUnit"), form.watch("packing"));
 
   useEffect(() => {
     const initData = async () => {
@@ -364,6 +398,8 @@ export default function AddProductPage() {
       const product = data.data;
 
       if (!product) throw new Error("Product data is empty");
+      setNotifyCount(Number(product.notifyCount || 0));
+      setWasComingSoon(Boolean(product.isComingSoonNow));
 
       const productCompanyId = product.company?._id || product.company || "";
       const matchedCategory = loadedCategories.find((category) => {
@@ -420,10 +456,15 @@ export default function AddProductPage() {
         stock: String(product.stock || "0"),
         lowStockThreshold: String(product.lowStockThreshold ?? "5"),
         minWholesaleQuantity: String(product.minWholesaleQuantity || "10"),
+        minCustomerQuantity: String(product.minCustomerQuantity || "1"),
         negotiationEnabled: product.negotiationEnabled !== false,
         status: product.status || "draft",
         isFeatured: product.isFeatured || false,
         isHot: product.isHot || false,
+        comingSoonEnabled: Boolean(product.comingSoon?.enabled),
+        comingSoonShowPrice: product.comingSoon?.showPrice !== false,
+        comingSoonExpectedDate: toDateInputValue(product.comingSoon?.expectedDate),
+        comingSoonAutoLaunch: Boolean(product.comingSoon?.autoLaunch),
         company: product.company?._id || product.company || "none",
         videoUrl: product.videoUrl || "",
         shippingTerms: product.shippingTerms || "",
@@ -776,9 +817,11 @@ export default function AddProductPage() {
         stock: Number(values.stock),
         lowStockThreshold: Number(values.lowStockThreshold || 5),
         minWholesaleQuantity: Number(values.minWholesaleQuantity),
+        minCustomerQuantity: Math.max(1, Number(values.minCustomerQuantity) || 1),
         negotiationEnabled: values.negotiationEnabled,
         isFeatured: values.isFeatured,
         isHot: values.isHot,
+        comingSoon: comingSoonPayload(values),
         company: selectedCategoryCompany || null,
         labelIds: normalizedLabelIds,
         images: normalizedImages,
@@ -826,9 +869,13 @@ export default function AddProductPage() {
         throw new Error(errorMessage);
       }
 
+      const saved = await response.json().catch(() => ({}));
+      const notified = Number(saved?.launchNotified || 0);
       toast.success(
         isEditMode
-          ? "Product updated successfully"
+          ? notified > 0
+            ? `Product updated — ${notified} ${notified === 1 ? "customer was" : "customers were"} notified it's available`
+            : "Product updated successfully"
           : "Product created successfully",
       );
       router.push(returnPath);
@@ -1746,9 +1793,22 @@ export default function AddProductPage() {
                               className="bg-[#0D0D0D] border-[#333] text-white"
                             />
                           </FormControl>
-                          <FormDescription className="text-gray-500">
-                            Packaging or pack size shown to customers.
-                          </FormDescription>
+                          {(() => {
+                            const hint = packingHint(
+                              form.watch("priceUnit"),
+                              field.value,
+                            );
+                            return (
+                              <FormDescription
+                                className={
+                                  hint.warn ? "text-amber-400" : "text-gray-500"
+                                }
+                                data-testid="packing-hint"
+                              >
+                                {hint.text}
+                              </FormDescription>
+                            );
+                          })()}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1761,7 +1821,9 @@ export default function AddProductPage() {
                       name="stock"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-white">Stock</FormLabel>
+                          <FormLabel className="text-white">
+                            Stock{baseUnitSuffix(pack)}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1770,6 +1832,11 @@ export default function AddProductPage() {
                               className="bg-[#0D0D0D] border-[#333] text-white"
                             />
                           </FormControl>
+                          <StockInPacks
+                            info={pack}
+                            stock={String(field.value ?? "")}
+                            onStockChange={field.onChange}
+                          />
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1780,7 +1847,7 @@ export default function AddProductPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-white">
-                            Low Stock Threshold
+                            Low Stock Threshold{baseUnitSuffix(pack)}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -1804,6 +1871,9 @@ export default function AddProductPage() {
                         <FormItem>
                           <FormLabel className="text-white">
                             Min Wholesale Qty
+                            {pack.packUnit
+                              ? ` (${packLabel(pack.packUnit, 2).toLowerCase()})`
+                              : ""}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -1813,6 +1883,18 @@ export default function AddProductPage() {
                               className="bg-[#0D0D0D] border-[#333] text-white"
                             />
                           </FormControl>
+                          {pack.packUnit && (
+                            <FormDescription className="text-gray-500">
+                              ={" "}
+                              {packQuantityText(
+                                pack,
+                                Math.max(1, Number(field.value) || 1) *
+                                  pack.size,
+                              )}
+                              . Wholesalers buy whole{" "}
+                              {packLabel(pack.packUnit, 2).toLowerCase()} only.
+                            </FormDescription>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1840,6 +1922,45 @@ export default function AddProductPage() {
                       )}
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="minCustomerQuantity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white">
+                            Min Customer Qty{baseUnitSuffix(pack)}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={1}
+                              placeholder="1"
+                              {...field}
+                              className="bg-[#0D0D0D] border-[#333] text-white"
+                            />
+                          </FormControl>
+                          <FormDescription className="text-gray-500">
+                            {pack.contentUnit === "meter"
+                              ? "Smallest cut length a customer can order, e.g. 10."
+                              : "Smallest quantity a customer can order."}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <PackPreview
+                    priceUnit={form.watch("priceUnit")}
+                    packing={form.watch("packing")}
+                    retailPrice={form.watch("retailPrice")}
+                    wholesalePrice={form.watch("wholesalePrice")}
+                    stock={form.watch("stock")}
+                    minWholesaleQuantity={form.watch("minWholesaleQuantity")}
+                    minCustomerQuantity={form.watch("minCustomerQuantity")}
+                  />
 
                   <FormField
                     control={form.control}
@@ -2098,6 +2219,15 @@ export default function AddProductPage() {
                         </FormItem>
                       );
                     }}
+                  />
+
+                  <ComingSoonFields
+                    // react-hook-form's newer Control typing is invariant; the card only binds its own flat fields.
+                    control={form.control as unknown as ComponentProps<typeof ComingSoonFields>["control"]}
+                    enabled={form.watch("comingSoonEnabled")}
+                    hasDate={Boolean(form.watch("comingSoonExpectedDate"))}
+                    notifyCount={notifyCount}
+                    wasComingSoon={wasComingSoon}
                   />
 
                   {/* Featured & Hot Product Toggles */}

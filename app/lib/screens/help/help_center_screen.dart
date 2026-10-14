@@ -6,8 +6,8 @@ class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
 
   // Colors from design
-  static const Color primary = Color(0xFF46ec13);
-  static const Color backgroundLight = Color(0xFFf6f8f6);
+  static const Color primary = Color(0xFF2DD4BF);
+  static const Color backgroundLight = Color(0xFFF3F8F7);
   static const Color slate900 = Color(0xFF0f172a);
   static const Color slate400 = Color(0xFF94a3b8);
   static const Color slate200 = Color(0xFFe2e8f0);
@@ -260,7 +260,6 @@ class HelpCenterScreen extends StatelessWidget {
           ),
         ],
       ),
-
     );
   }
 

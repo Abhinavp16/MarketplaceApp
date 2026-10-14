@@ -16,7 +16,7 @@ export default function AboutSection({ productImages = fallbackProductImages }) 
                         Comprehensive <br /> Distribution Solutions
                     </h2>
                     <p className="mt-7 max-w-xl text-base leading-8 text-text-secondary sm:text-lg">
-                        TradeHub Demo is a fictional distributor. This placeholder text stands in for a short company introduction: who you serve, what you supply, and how ordering works for retailers, dealers and bulk buyers.
+                        DemoMart is a fictional distributor. This placeholder text stands in for a short company introduction: who you serve, what you supply, and how ordering works for retailers, dealers and bulk buyers.
                     </p>
 
                     <div className="mt-10 space-y-4">

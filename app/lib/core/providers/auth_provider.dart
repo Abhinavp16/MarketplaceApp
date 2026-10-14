@@ -64,6 +64,10 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final ApiClient _apiClient;
 
+  /// Runs at the start of [logout], while the session is still valid (the app
+  /// uses it to unregister this device's push token). Must not throw.
+  Future<void> Function()? onBeforeLogout;
+
   AuthNotifier(this._apiClient) : super(AuthState()) {
     _checkAuthStatus();
   }
@@ -450,6 +454,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    try {
+      await onBeforeLogout?.call();
+    } catch (_) {}
     // ✓ NEW: Stop proactive refresh on logout
     TokenRefreshService().stopProactiveRefresh();
 

@@ -1,0 +1,15 @@
+SKU,Name,Hindi Name,Brand,Category,Subcategory,Description,Short Description,MRP,Retail Price,Wholesale Price,Min Wholesale Qty,Min Customer Qty,Unit,Packing,Pack Type,Pack Size,Stock,Low Stock Alert,Status,Negotiation,Featured,Hot,Tags,Internal Notes
+DM-OK-001,"Cobalt Drill Bit Set 19 pc, HSS (Case)",,Kestrel Works,Power Tools > Drills & Drivers,,A correct row for comparison.,,1899,1549,1190,,,set,,,,90,,active,,,,,ignored by the import
+,Row without a SKU,,Anvilpoint,Hand Tools > Wrenches & Pliers,,,,100,90,70,,,,,,,,,,,,,,ignored by the import
+DM-DUP-001,Pipe Wrench 14 inch,,Anvilpoint,Hand Tools > Wrenches & Pliers,,First use of this SKU.,,1299,1099,850,,,,,,,40,,,,,,,ignored by the import
+DM-DUP-001,Pipe Wrench 18 inch,,Anvilpoint,Hand Tools > Wrenches & Pliers,,Second use of the same SKU.,,1599,1349,1050,,,,,,,25,,,,,,,ignored by the import
+DM-BRD-001,Spirit Level 600 mm,,Zenith Tools,Hand Tools > Measuring & Marking,,Brand does not exist.,,499,429,320,,,,,,,,,,,,,,ignored by the import
+DM-CAT-001,Welding Rod E6013 (Pack),,Kestrel Works,Power Tools > Welding,,Category does not exist under the brand.,,349,299,230,,,,,,,,,,,,,,ignored by the import
+DM-PRC-001,Cutting Disc 100 mm,,Kestrel Works,Power Tools > Grinders & Sanders,,Prices that are not valid.,,abc,-5,12,,,,,,,,,,,,,,ignored by the import
+DM-PRC-002,"Flap Disc 100 mm, 60 Grit",,Kestrel Works,Power Tools > Grinders & Sanders,,"Only warnings: retail above MRP, wholesale above retail.",,99,120,130,,,,,,,500,,,,,,,ignored by the import
+DM-STK-001,Tile Cutter 600 mm,,Kestrel Works,Power Tools > Saws,,"Stock must be a whole number; status must be active, draft or archived.",,3999,3499,2900,,,,,,,12.5,,live,,,,,ignored by the import
+DM-PCK-001,Plastic Wall Plug 8 mm,,Anvilpoint,Fasteners & Fittings > Screws & Anchors,,"Pack Size must be 2 or more and Pack Type must be Packet, Coil or Bundle.",,2,1.5,1,,,,,Roll,1,,,,,,,,ignored by the import
+DM-PCK-002,Cable Tie 200 mm (Packet),,Anvilpoint,Fasteners & Fittings > Cables & Rope,,Packet without a pack size.,,2,1.5,1,,,,,Packet,,,,,,,,,ignored by the import
+DM-NAM-001,"18V Brushless Cordless Drill Driver, 13 mm Chuck (2 x 2.0 Ah)",,Kestrel Works,Power Tools > Drills & Drivers,,Same name as an existing product (KW-DRL-18V).,,7499,6499,5200,,,,,,,,,,,,,,ignored by the import
+DM-NAM-002,,,Anvilpoint,Hand Tools > Wrenches & Pliers,,Name is missing.,,100,90,70,,,,,,,,,,,,,,ignored by the import
+BAD SKU!,Hacksaw Frame 300 mm,,Anvilpoint,Hand Tools > Wrenches & Pliers,,SKU with spaces and symbols.,,349,299,230,,,,,,,,,,maybe,,,,ignored by the import

@@ -1,5 +1,4 @@
-const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
 const sharp = require('sharp');
 const { User, RefreshToken, MagicLinkToken } = require('../models');
 const { saveBuffer } = require('../config/storage');
@@ -11,10 +10,16 @@ const { sanitizeUser } = require('../utils/helpers');
 const { recordAudit } = require('../services/auditService');
 const { currentLegalAcceptance } = require('../config/legalAcceptance');
 const { notifyAdmins } = require('../services/adminNotificationService');
+const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../utils/jwtTokens');
+const { INDIAN_MOBILE_PATTERN } = require('../utils/phoneValidation');
+const { isDemoMode } = require('../config/demoGuard');
 
 // Admin magic-link recipients come from ADMIN_EMAILS only (no built-in defaults).
 const DEFAULT_ADMIN_EMAILS = '';
 const STAFF_SESSION_MS = 6 * 60 * 60 * 1000;
+// Admins sign in with an email link; their session ends after 12 hours
+// however often the refresh token is rotated.
+const ADMIN_SESSION_MS = 12 * 60 * 60 * 1000;
 
 function getMagicLinkPanelUrl() {
   const configuredUrl = String(process.env.ADMIN_PANEL_URL || process.env.FRONTEND_URL || '').trim();
@@ -37,23 +42,16 @@ const generateTokens = async (userId, deviceInfo, sessionExpiresAt = null) => {
     ...(sessionExpiry ? { sessionExpiresAt: sessionExpiry.toISOString() } : {}),
   };
 
-  const accessToken = jwt.sign(
+  const accessToken = signAccessToken(
     tokenPayload,
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m', jwtid: uuidv4() }
+    process.env.JWT_ACCESS_EXPIRY || '15m',
   );
 
-  const refreshToken = jwt.sign(
-    { ...tokenPayload, type: 'refresh' },
-    process.env.JWT_SECRET,
-    {
-      // jwtid keeps refresh tokens unique even for logins within the same second
-      // (RefreshToken.token is a unique index).
-      jwtid: uuidv4(),
-      expiresIn: sessionExpiry
-        ? Math.max(1, Math.floor((sessionExpiry.getTime() - Date.now()) / 1000))
-        : (process.env.JWT_REFRESH_EXPIRY || '7d'),
-    }
+  const refreshToken = signRefreshToken(
+    tokenPayload,
+    sessionExpiry
+      ? Math.max(1, Math.floor((sessionExpiry.getTime() - Date.now()) / 1000))
+      : (process.env.JWT_REFRESH_EXPIRY || '7d'),
   );
 
   const expiresAt = sessionExpiry || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -170,7 +168,10 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).select('+passwordHash');
-    if (!user) {
+    // Admins sign in only with the email link; a password never opens an
+    // admin account (same answer as a wrong password, so nothing is revealed).
+    // DEMO ONLY: the demo has no SMTP, so the demo admin may use a password.
+    if (!user || (user.role === USER_ROLES.ADMIN && !isDemoMode())) {
       throw new UnauthorizedError('Invalid credentials', 'AUTH_INVALID_CREDENTIALS');
     }
 
@@ -253,7 +254,9 @@ exports.loginWithPhone = async (req, res, next) => {
     const { phone, password, expectedRole } = req.body;
 
     const user = await User.findOne({ phone }).select('+passwordHash');
-    if (!user) {
+    // Phone login is for customers and wholesalers. Admins use the email link
+    // and members the member login (which keeps their 6-hour session limit).
+    if (!user || ![USER_ROLES.BUYER, USER_ROLES.WHOLESALER].includes(user.role)) {
       throw new UnauthorizedError('Invalid credentials', 'AUTH_INVALID_CREDENTIALS');
     }
 
@@ -370,7 +373,7 @@ exports.refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    const decoded = verifyRefreshToken(refreshToken);
 
     const storedToken = await RefreshToken.findOne({
       token: refreshToken,
@@ -400,19 +403,33 @@ exports.refreshToken = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       next(new UnauthorizedError('Refresh token expired', 'REFRESH_TOKEN_EXPIRED'));
+    } else if (error.name === 'JsonWebTokenError') {
+      next(new UnauthorizedError('Invalid refresh token', 'INVALID_REFRESH_TOKEN'));
     } else {
       next(error);
     }
   }
 };
 
+// Ends a session: its refresh token stops working. Works with just the
+// refresh token, so signing out still ends the session after the short-lived
+// access token has expired.
 exports.logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
-    if (refreshToken) {
+    let ownerId = req.user?._id || null;
+    if (!ownerId && typeof refreshToken === 'string' && refreshToken) {
+      try {
+        ownerId = verifyRefreshToken(refreshToken).userId;
+      } catch {
+        ownerId = null; // Not a valid refresh token: nothing to end.
+      }
+    }
+
+    if (ownerId && typeof refreshToken === 'string' && refreshToken) {
       await RefreshToken.updateOne(
-        { token: refreshToken, userId: req.user._id },
+        { token: refreshToken, userId: ownerId },
         { isRevoked: true }
       );
     }
@@ -455,7 +472,14 @@ exports.updateProfile = async (req, res, next) => {
 
     if (name) user.name = name;
     if (avatar !== undefined) user.avatar = avatar;
-    if (phone) user.phone = phone;
+    if (phone && phone !== user.phone) {
+      // A new number must be a 10-digit Indian mobile, like at registration.
+      // (Saving the profile with the number already on file always works.)
+      if (!INDIAN_MOBILE_PATTERN.test(phone)) {
+        throw new BadRequestError('Enter a valid 10-digit mobile number', 'INVALID_PHONE');
+      }
+      user.phone = phone;
+    }
     if (address !== undefined) user.address = address;
 
     await user.save();
@@ -510,13 +534,21 @@ exports.uploadProfileAvatar = async (req, res, next) => {
   }
 };
 
+const MAX_FCM_TOKENS_PER_USER = 10;
+const MAX_FCM_TOKEN_LENGTH = 4096;
+
 exports.registerFcmToken = async (req, res, next) => {
   try {
     const { fcmToken } = req.body;
     const user = req.user;
 
+    if (typeof fcmToken !== 'string' || !fcmToken || fcmToken.length > MAX_FCM_TOKEN_LENGTH) {
+      throw new BadRequestError('A valid FCM token is required', 'INVALID_FCM_TOKEN');
+    }
+
     if (!user.fcmTokens.includes(fcmToken)) {
-      user.fcmTokens.push(fcmToken);
+      // Keep the newest few devices only.
+      user.fcmTokens = [...user.fcmTokens, fcmToken].slice(-MAX_FCM_TOKENS_PER_USER);
       await user.save();
     }
 
@@ -674,7 +706,11 @@ exports.verifyMagicLink = async (req, res, next) => {
     user.lastLoginAt = new Date();
     await user.save();
 
-    const tokens = await generateTokens(user._id, req.headers['user-agent']);
+    const tokens = await generateTokens(
+      user._id,
+      req.headers['user-agent'],
+      new Date(Date.now() + ADMIN_SESSION_MS),
+    );
     await MagicLinkToken.deleteMany({ email: record.email, used: false });
 
     res.json({

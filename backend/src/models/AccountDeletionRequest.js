@@ -68,6 +68,11 @@ const accountDeletionRequestSchema = new mongoose.Schema({
     default: null,
     maxlength: 1000,
   },
+  // When admins were reminded that this request is due soon / overdue.
+  reminders: {
+    dueSoonAt: { type: Date, default: null },
+    overdueAt: { type: Date, default: null },
+  },
   events: [deletionEventSchema],
 }, {
   timestamps: true,

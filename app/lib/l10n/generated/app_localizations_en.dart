@@ -9,11 +9,11 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get aboutBrand => 'TradeHub Demo';
+  String get aboutBrand => 'DemoMart';
 
   @override
   String get aboutDescription =>
-      'TradeHub Demo is a demonstration marketplace that shows how retailers, wholesalers, and buyers can work together on one platform. You can discover products, place orders, negotiate bulk deals, and manage delivery from one app. All data in this environment is synthetic.';
+      'DemoMart is a demonstration marketplace that shows how retailers, wholesalers, and buyers can work together on one platform. You can discover products, place orders, negotiate bulk deals, and manage delivery from one app. All data in this environment is synthetic.';
 
   @override
   String get aboutFeatureCatalogue =>
@@ -27,13 +27,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Direct contact with the business support team';
 
   @override
-  String get aboutFeatureDispatch => 'Sales and dispatch coordination';
+  String get aboutFeatureDispatch =>
+      'City-based sales and dispatch coordination';
 
   @override
   String get aboutTagline => 'Distribution made simple';
 
   @override
-  String get aboutTitle => 'About TradeHub Demo';
+  String get aboutTitle => 'About DemoMart';
 
   @override
   String get aboutWhatYouCanDo => 'What you can do';
@@ -226,6 +227,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get apiErrorInvalidQuantity => 'Please enter a valid quantity.';
 
   @override
+  String get apiErrorPackQuantity =>
+      'This product is sold in whole packets, coils or bundles only.';
+
+  @override
+  String get apiErrorMinCustomerQuantity =>
+      'Please order at least the minimum quantity.';
+
+  @override
+  String get apiErrorProductComingSoon =>
+      'This product is coming soon and can\'t be ordered yet.';
+
+  @override
+  String get apiErrorProductUnavailable =>
+      'This product isn\'t available right now.';
+
+  @override
   String get apiErrorMinWholesaleQuantity =>
       'Please order at least the minimum wholesale quantity.';
 
@@ -265,7 +282,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Too many requests. Please wait a moment and try again.';
 
   @override
-  String get appTitle => 'TradeHub Demo';
+  String get appTitle => 'DemoMart';
 
   @override
   String get authBusinessNameHint => 'Your shop or company name';
@@ -329,7 +346,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authHaveAccount => 'Already have an account? ';
 
   @override
-  String get authJoinSubtitle => 'Join TradeHub Demo today';
+  String get authJoinSubtitle => 'Join DemoMart today';
 
   @override
   String get authNameHint => 'Enter your name';
@@ -360,7 +377,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authSignIn => 'Sign In';
 
   @override
-  String get authSignInSubtitle => 'Sign in to continue to TradeHub Demo';
+  String get authSignInSubtitle => 'Sign in to continue to DemoMart';
 
   @override
   String get authSignUp => 'Sign Up';
@@ -480,7 +497,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String cartIssueOutOfStock(String product) {
-    return '$product is out of stock';
+    return '$product is sold out';
   }
 
   @override
@@ -504,7 +521,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get cartItemOutOfStock => 'Out of stock — please remove this item';
+  String get cartItemOutOfStock => 'Sold out — please remove this item';
 
   @override
   String get cartItemUnavailable => 'This product is currently unavailable';
@@ -573,6 +590,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cartStockIssuesTitle => 'Stock Issues';
+
+  @override
+  String get cartSendingRequirement => 'Sending requirement...';
+
+  @override
+  String cartRequirementSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Requirement sent for $count products',
+      one: 'Requirement sent for 1 product',
+    );
+    return '$_temp0. DemoMart will reply in Deal Desk.';
+  }
+
+  @override
+  String cartRequirementBlockedItems(String names) {
+    return 'Remove these items to send the requirement: $names';
+  }
 
   @override
   String get cartTitle => 'Shopping Cart';
@@ -660,7 +696,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkoutApprovalNote =>
-      'We’ll notify you after the TradeHub Demo team reviews your order.';
+      'We’ll notify you after the DemoMart team reviews your order.';
 
   @override
   String get checkoutAwaitingApproval => 'Awaiting Approval';
@@ -769,6 +805,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonDate => 'Date';
 
   @override
+  String get comingSoonBadge => 'Coming Soon';
+
+  @override
+  String comingSoonExpected(String date) {
+    return 'Expected $date';
+  }
+
+  @override
+  String get comingSoonPrice => 'Price coming soon';
+
+  @override
+  String get comingSoonNotifyMe => 'Notify me when available';
+
+  @override
+  String get comingSoonNotifying => 'We\'ll notify you';
+
+  @override
+  String get comingSoonNotifyOn =>
+      'We\'ll let you know as soon as it\'s available.';
+
+  @override
+  String get comingSoonNotifyOff => 'You won\'t be notified for this product.';
+
+  @override
+  String get comingSoonLoginToNotify =>
+      'Log in to get notified when it\'s available.';
+
+  @override
+  String get homeComingSoonSection => 'Coming Soon';
+
+  @override
+  String get homeComingSoonSubtitle =>
+      'Launching soon. Tap Notify me to hear first.';
+
+  @override
   String get commonDelete => 'Delete';
 
   @override
@@ -829,7 +900,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonOptional => 'Optional';
 
   @override
-  String get commonOutOfStock => 'Out of Stock';
+  String get commonOutOfStock => 'Sold Out';
 
   @override
   String get commonPerUnit => '/unit';
@@ -1107,11 +1178,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get conversionUploadProof => 'Upload proof images';
 
   @override
-  String get dealAcceptedByPlatform => 'Accepted by TradeHub Demo';
+  String get dealAcceptedByPlatform => 'Accepted by DemoMart';
 
   @override
   String dealAcceptedByPlatformName(String name) {
-    return 'Accepted by TradeHub Demo: $name';
+    return 'Accepted by DemoMart: $name';
   }
 
   @override
@@ -1132,7 +1203,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dealCurrentPricePerUnit => 'Current Price/unit';
 
   @override
-  String get dealDeclinedByPlatform => 'Declined by TradeHub Demo';
+  String get dealDeclinedByPlatform => 'Declined by DemoMart';
 
   @override
   String get dealEnterMessage => 'Please enter a message';
@@ -1155,11 +1226,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dealFieldPhone => 'Phone';
 
   @override
-  String get dealPlatform => 'TradeHub Demo';
+  String get dealPlatform => 'DemoMart';
 
   @override
   String dealPlatformActor(String name) {
-    return 'TradeHub Demo: $name';
+    return 'DemoMart: $name';
   }
 
   @override
@@ -1249,7 +1320,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dealStatusAccepted => 'Accepted';
 
   @override
-  String get dealStatusNewPriceFromPlatform => 'New Price from TradeHub Demo';
+  String get dealStatusNewPriceFromPlatform => 'New Price from DemoMart';
 
   @override
   String get dealStatusNewPriceReceived => 'New Price Received';
@@ -1401,17 +1472,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideStep3Body =>
-      'After your order is created, share its receipt with the TradeHub Demo team so they can coordinate the next step.';
+      'After your order is created, share its receipt with the DemoMart team so they can coordinate the next step.';
 
   @override
   String get guideStep3Title => 'Send your order receipt';
 
   @override
   String get guideStep4Body =>
-      'Complete payment at the shop or using QR or bank details provided by the TradeHub Demo team. Your order status is updated after admin verification.';
+      'Complete payment at the shop or using QR or bank details provided by the DemoMart team. Your order status is updated after admin verification.';
 
   @override
-  String get guideStep4Title => 'Pay through the TradeHub Demo team';
+  String get guideStep4Title => 'Pay through the DemoMart team';
 
   @override
   String get guideTip =>
@@ -1427,7 +1498,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpAppTagline => 'Distribution made simple';
 
   @override
-  String get helpBrandName => 'TradeHub Demo';
+  String get helpBrandName => 'DemoMart';
 
   @override
   String get helpCallUs => 'Call Us';
@@ -1554,13 +1625,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBannerShopNow => 'Shop Now';
 
   @override
-  String get homeBrandFirstWord => 'TradeHub';
+  String get homeBrandFirstWord => 'Demo';
 
   @override
-  String get homeBrandName => 'TradeHub Demo';
+  String get homeBrandName => 'DemoMart';
 
   @override
-  String get homeBrandSecondWord => 'Demo';
+  String get homeBrandSecondWord => 'Mart';
 
   @override
   String get homeBrandTagline => 'Grow Together  •  Trade Better';
@@ -1652,6 +1723,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeCurrentLabel => 'Current:';
+
+  @override
+  String get dealDeliveryNote =>
+      '+ Delivery charges, if any, will be added by DemoMart when your order is confirmed.';
+
+  @override
+  String get dealDeliveryOnConfirmation => 'Added on confirmation';
+
+  @override
+  String get dealEstimatedTotal => 'Estimated total';
+
+  @override
+  String get dealOrderBeingPrepared => 'DemoMart is preparing your order';
+
+  @override
+  String get dealAwaitingOrderConfirmation =>
+      'Accepted. DemoMart will create your order and confirm delivery charges.';
+
+  @override
+  String dealDeskRequirementGroup(String number, int count, String total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products',
+      one: '1 product',
+    );
+    return 'Requirement $number · $_temp0 · ₹$total';
+  }
 
   @override
   String get homeDealDeskTitle => 'Deal Desk';
@@ -1898,8 +1997,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homePartnershipsTitle =>
-      'AUTHORIZED REPRESENTATIVE & PARTNERSHIPS';
+  String get homePartnershipsTitle => 'PARTNERSHIPS';
 
   @override
   String get homePayableTotal => 'Payable Total';
@@ -2043,7 +2141,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSampleReview1Text =>
-      'TradeHub Demo has completely changed how I source my stock. The bulk pricing and quality are unbeatable.';
+      'DemoMart has completely changed how I source my stock. The bulk pricing and quality are unbeatable.';
 
   @override
   String get homeSampleReview2Name => 'Priya Sharma';
@@ -2053,7 +2151,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSampleReview2Text =>
-      'As a retailer, I need reliable delivery and authentic brands. The service on TradeHub Demo is a lifesaver for my business.';
+      'As a retailer, I need reliable delivery and authentic brands. The service on DemoMart is a lifesaver for my business.';
 
   @override
   String get homeSampleReview3Name => 'Amit Patel';
@@ -2063,7 +2161,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSampleReview3Text =>
-      'I\'ve been using TradeHub Demo for a year now. It has greatly simplified how I manage large orders and track inventory.';
+      'I\'ve been using DemoMart for a year now. It has greatly simplified how I manage large orders and track inventory.';
 
   @override
   String get homeSampleReview4Name => 'Anjali Singh';
@@ -2073,7 +2171,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSampleReview4Text =>
-      'The variety of products on TradeHub Demo is impressive. Truly a one-stop shop for wholesale buying.';
+      'The variety of products on DemoMart is impressive. Truly a one-stop shop for wholesale buying.';
 
   @override
   String get homeSaveAddress => 'Save Address';
@@ -2305,7 +2403,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legalWarrantyPolicy => 'Warranty Policy';
 
   @override
-  String get localNotificationBrand => 'TradeHub Demo';
+  String get localNotificationBrand => 'DemoMart';
 
   @override
   String get localNotificationCountdownChannel =>
@@ -2320,7 +2418,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get localNotificationGeneralChannelDescription =>
-      'General notifications for TradeHub Demo';
+      'General notifications for DemoMart';
 
   @override
   String get localNotificationPriceUpdateActive =>
@@ -2358,7 +2456,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get negotiationsNewPriceFromPlatformLabel =>
-      'New Price from TradeHub Demo:';
+      'New Price from DemoMart:';
 
   @override
   String get negotiationsNoDate => 'No date';
@@ -2446,7 +2544,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderSuccessDeliveryNote =>
-      'Contact TradeHub Demo to confirm arrangements';
+      'Contact DemoMart to confirm arrangements';
 
   @override
   String get orderSuccessMessage =>
@@ -2618,6 +2716,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyKeepAccount => 'Keep account';
 
   @override
+  String get privacyRejectedNoReason =>
+      'Contact us if you have any questions. You can send a new request below.';
+
+  @override
+  String privacyRejectedReason(String reason) {
+    return 'Reason from DemoMart: $reason';
+  }
+
+  @override
+  String get privacyRejectedTitle => 'Your last deletion request was declined';
+
+  @override
   String get privacyRequestBody =>
       'After Member verification, we complete deletion within 30 days. Restricted financial records may be retained only for legal, tax, payment, fraud-prevention, dispute, or warranty obligations.';
 
@@ -2652,6 +2762,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productAddToCart => 'Add to Cart';
 
   @override
+  String get productCartShort => 'Cart';
+
+  @override
+  String get productViewCart => 'View Cart';
+
+  @override
   String get productAddToCartDisabledPreview =>
       'Add to Cart disabled in preview mode';
 
@@ -2668,7 +2784,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productBadgeSale => 'SALE';
 
   @override
-  String get productBrandFallback => 'TradeHub Demo';
+  String get productBrandFallback => 'DemoMart';
 
   @override
   String productBrandValue(String brand) {
@@ -2694,7 +2810,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productBulkUpiNote =>
-      'Bulk orders require manual UPI verification before processing.';
+      'Bulk orders require manual payment verification before processing.';
 
   @override
   String get productBuyNow => 'Buy Now';
@@ -2775,7 +2891,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productOnlyPlatformCanConfirm =>
-      'Only TradeHub Demo can confirm the deal';
+      'Only DemoMart can confirm the deal';
 
   @override
   String get productPlaceholderControlPanel => 'Control Panel';
@@ -2902,12 +3018,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String productShareText(String name, String url) {
-    return 'Check out $name on TradeHub Demo!\n\n$url';
+    return 'Check out $name on DemoMart!\n\n$url';
   }
 
   @override
   String productShareTextWithPrice(String name, String price, String url) {
-    return 'Check out $name - ₹$price on TradeHub Demo!\n\n$url';
+    return 'Check out $name - ₹$price on DemoMart!\n\n$url';
   }
 
   @override
@@ -2915,7 +3031,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productShippingTermsDefault =>
-      'Delivery, payment, and return arrangements depend on the product, order, and location. Contact TradeHub Demo to confirm the applicable terms before payment or dispatch.';
+      'Delivery, payment, and return arrangements depend on the product, order, and location. Contact DemoMart to confirm the applicable terms before payment or dispatch.';
 
   @override
   String get productShowLess => 'Show less';
@@ -3301,16 +3417,525 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wishlistTitle => 'My Wishlist';
 
   @override
-  String get productRequirementMessageLabel =>
-      'MESSAGE / DELIVERY REQUIREMENT (OPTIONAL)';
+  String productPiecesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pieces',
+      one: '1 piece',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get productRequirementMessageHint =>
-      'e.g. preferred delivery date, packaging or site details';
+  String productMetersCount(String count) {
+    return '$count m';
+  }
 
   @override
-  String get productRequirementMessageReview => 'Message';
+  String productPacketsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Packets',
+      one: '1 Packet',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get negotiationBuyerMessage => 'Message';
+  String productCoilsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Coils',
+      one: '1 Coil',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productBundlesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Bundles',
+      one: '1 Bundle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productPackWithContents(String pack, String contents) {
+    return '$pack ($contents)';
+  }
+
+  @override
+  String productPackPrice(String pack, String price) {
+    return '$pack = ₹$price';
+  }
+
+  @override
+  String productCardPack(String unit, String contents) {
+    return '$unit $contents';
+  }
+
+  @override
+  String productPcsCount(int count) {
+    return '$count pcs';
+  }
+
+  @override
+  String get productUnitCoil => 'Coil';
+
+  @override
+  String get productUnitBundle => 'Bundle';
+
+  @override
+  String productMinOrderQuantity(String quantity) {
+    return 'Minimum order: $quantity';
+  }
+
+  @override
+  String productPacketContainsPieces(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pieces',
+      one: '1 piece',
+    );
+    return '1 Packet contains $_temp0';
+  }
+
+  @override
+  String productPacketContains(String contents) {
+    return '1 Packet contains $contents';
+  }
+
+  @override
+  String get uiDecreaseQuantity => 'Decrease quantity';
+
+  @override
+  String get uiIncreaseQuantity => 'Increase quantity';
+
+  @override
+  String get uiUndo => 'Undo';
+
+  @override
+  String uiItemRemoved(String name) {
+    return '$name removed';
+  }
+
+  @override
+  String get uiAddToWishlist => 'Add to wishlist';
+
+  @override
+  String get uiRemoveFromWishlist => 'Remove from wishlist';
+
+  @override
+  String get uiPerMeter => '/m';
+
+  @override
+  String get uiPerPiece => '/pc';
+
+  @override
+  String get cartPlaceOrderRequest => 'Place order request';
+
+  @override
+  String get cartClearTitle => 'Clear your cart?';
+
+  @override
+  String get cartClearMessage => 'Every item in your cart will be removed.';
+
+  @override
+  String get cartClearConfirm => 'Clear cart';
+
+  @override
+  String get cartItemTotal => 'Item total';
+
+  @override
+  String cartYouSave(String amount) {
+    return 'You save ₹$amount';
+  }
+
+  @override
+  String get cartViewBreakup => 'View breakup';
+
+  @override
+  String get cartHideBreakup => 'Hide breakup';
+
+  @override
+  String get cartBillTitle => 'Bill details';
+
+  @override
+  String get cartQtySheetTitle => 'Enter quantity';
+
+  @override
+  String cartQtyPackCount(String unit) {
+    return '$unit count';
+  }
+
+  @override
+  String get cartQtyEnter => 'Please enter a quantity';
+
+  @override
+  String get cartQtyUpdate => 'Update quantity';
+
+  @override
+  String get cartQtyTapToEdit => 'Tap to type the quantity';
+
+  @override
+  String get ordActionTitle => 'What you need to do';
+
+  @override
+  String get ordNeedHelp => 'Need help with this order?';
+
+  @override
+  String get ordNeedHelpSubtitle => 'Talk to the DemoMart team directly';
+
+  @override
+  String get ordStepUpcoming => 'Upcoming';
+
+  @override
+  String get ordDeliveredTitle => 'Your order was delivered';
+
+  @override
+  String ordPlacedOn(String date) {
+    return 'Placed on $date';
+  }
+
+  @override
+  String get ordTransporterLabel => 'Transporter / Courier';
+
+  @override
+  String get ordLrNumberLabel => 'LR / Tracking number';
+
+  @override
+  String get ordHideDetails => 'Hide details';
+
+  @override
+  String get ordCancelledTitle => 'This order was cancelled';
+
+  @override
+  String get dealNeedsReply => 'Needs your reply';
+
+  @override
+  String dealNeedsReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count deals need your reply',
+      one: '1 deal needs your reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dealPriceYours => 'Your price';
+
+  @override
+  String get dealPricePlatform => 'DemoMart\'s price';
+
+  @override
+  String get dealPriceAgreed => 'Agreed price';
+
+  @override
+  String get dealAwaitingPrice => 'Awaiting reply';
+
+  @override
+  String get dealToday => 'Today';
+
+  @override
+  String get dealYesterday => 'Yesterday';
+
+  @override
+  String get dealQuickBetterPrice => 'Can you do a better price?';
+
+  @override
+  String get dealQuickDeliveryTime => 'What is the delivery time?';
+
+  @override
+  String get dealQuickConfirmStock => 'Please confirm stock';
+
+  @override
+  String get dealQuickRepliesLabel => 'Quick replies';
+
+  @override
+  String get dealExplainerTitle => 'How Deal Desk works';
+
+  @override
+  String get dealSummaryShowDetails => 'Show details';
+
+  @override
+  String get dealSummaryHideDetails => 'Hide details';
+
+  @override
+  String get dealStepRequested => 'Requested';
+
+  @override
+  String get dealStepTalking => 'Price talk';
+
+  @override
+  String get dealStepAgreed => 'Agreed';
+
+  @override
+  String get dealStepOrder => 'Order';
+
+  @override
+  String get dealOfferPerUnit => 'Per unit';
+
+  @override
+  String get dealSend => 'Send';
+
+  @override
+  String get accLogoutTitle => 'Log out?';
+
+  @override
+  String get accLogoutMessage =>
+      'You can log in again anytime with your phone number and password.';
+
+  @override
+  String get accUpgradeBenefitsTitle => 'What you get as a wholesaler';
+
+  @override
+  String get accBenefitDealerPrices => 'Dealer prices on wholesale products';
+
+  @override
+  String get accBenefitDealDesk => 'Ask for a better price on Deal Desk';
+
+  @override
+  String get accBenefitBulkPacks => 'Buy in full packets, coils and bundles';
+
+  @override
+  String get accBenefitCartRequirement =>
+      'Send your whole cart as one requirement';
+
+  @override
+  String get accStepBusiness => 'Business';
+
+  @override
+  String get accStepLocation => 'Shop location';
+
+  @override
+  String get accStepProof => 'Proof photos';
+
+  @override
+  String accStepOf(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get accReviewNote =>
+      'Our team reviews every application before approving it. You\'ll see the status here.';
+
+  @override
+  String get accTrackSubmitted => 'Submitted';
+
+  @override
+  String get accTrackUnderReview => 'Under review';
+
+  @override
+  String get accTrackApproved => 'Approved';
+
+  @override
+  String get accTrackNeedsChanges => 'Needs changes';
+
+  @override
+  String get accGstInvalidFormat =>
+      'Enter a valid 15-character GSTIN, e.g. 22AAAAA0000A1Z5';
+
+  @override
+  String get authTroubleSignIn => 'Trouble signing in?';
+
+  @override
+  String get authContactSupport => 'Contact support';
+
+  @override
+  String get homeTrustTrustedByDealers => 'Trusted by dealers';
+
+  @override
+  String get homeTrustGstInvoice => 'GST invoice';
+
+  @override
+  String get homeTrustGenuineBrands => 'Genuine brands';
+
+  @override
+  String get homeTrustCallUs => 'Call us';
+
+  @override
+  String get catBrandsLoadError => 'Couldn\'t load brands';
+
+  @override
+  String get catCategoriesLoadError => 'Couldn\'t load categories';
+
+  @override
+  String get catLoadErrorHint =>
+      'Check your internet connection and try again.';
+
+  @override
+  String get catPerMeterShort => '/m';
+
+  @override
+  String get catPerPieceShort => '/pc';
+
+  @override
+  String get pdpKeySpecs => 'Key specs';
+
+  @override
+  String get pdpFeatures => 'Features';
+
+  @override
+  String pdpYouSave(String amount) {
+    return 'You save $amount';
+  }
+
+  @override
+  String get pdpViewFullScreen => 'View full screen';
+
+  @override
+  String pdpImageOf(int current, int total) {
+    return 'Image $current of $total';
+  }
+
+  @override
+  String get searchRemoveFilter => 'Remove filter';
+
+  @override
+  String get homeLogoutConfirmTitle => 'Log out?';
+
+  @override
+  String get homeLogoutConfirmMessage =>
+      'You\'ll need to log in again to see your orders and place new ones.';
+
+  @override
+  String get profileStatOrders => 'Orders';
+
+  @override
+  String get profileStatDeals => 'Active deals';
+
+  @override
+  String profileMemberSince(String date) {
+    return 'Member since $date';
+  }
+
+  @override
+  String get profileYourOrder => 'Your order';
+
+  @override
+  String profileMoreOrdersInProgress(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count more in progress',
+      one: '+1 more in progress',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileUpgradeCta => 'Apply now';
+
+  @override
+  String profileAddressesSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count saved addresses',
+      one: '1 saved address',
+      zero: 'No saved address yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileNotificationsSubtitle => 'Updates about your orders';
+
+  @override
+  String get profileAccountPrivacySubtitle => 'Your data and account deletion';
+
+  @override
+  String get profileLegalSubtitle => 'Privacy, terms, shipping and refunds';
+
+  @override
+  String profileUnreadCount(int count) {
+    return '$count unread';
+  }
+
+  @override
+  String get profileUpgradeContinue => 'Continue';
+
+  @override
+  String get homeGreeting => 'Namaste 🙏';
+
+  @override
+  String homeGreetingName(String name) {
+    return 'Namaste, $name 🙏';
+  }
+
+  @override
+  String get homeHeadlineCustomer => 'What does your business need today?';
+
+  @override
+  String get homeHeadlineDealer => 'What would you like to restock today?';
+
+  @override
+  String get homeShopByCategory => 'Shop by category';
+
+  @override
+  String get homeAllCategoriesTile => 'All';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all read';
+
+  @override
+  String get notificationsToday => 'Today';
+
+  @override
+  String get notificationsYesterday => 'Yesterday';
+
+  @override
+  String get notificationsEarlier => 'Earlier';
+
+  @override
+  String get notificationsFilterAll => 'All';
+
+  @override
+  String get notificationsFilterOrders => 'Orders';
+
+  @override
+  String get notificationsFilterDeals => 'Deals';
+
+  @override
+  String get notificationsFilterOffers => 'Offers';
+
+  @override
+  String get notificationsFilterEmpty => 'Nothing here yet';
+
+  @override
+  String get notificationsLoadFailed => 'Couldn\'t load your notifications';
+
+  @override
+  String get notificationsLoadFailedHint =>
+      'Check your connection and try again.';
+
+  @override
+  String get notificationsActionTrackOrder => 'Track order';
+
+  @override
+  String get notificationsActionViewOrders => 'View orders';
+
+  @override
+  String get notificationsActionOpenDeal => 'Open deal';
+
+  @override
+  String get notificationsActionViewOrder => 'View order';
+
+  @override
+  String get dealYourTurn => 'your turn';
+
+  @override
+  String get uiMuteVideo => 'Mute video';
+
+  @override
+  String get uiUnmuteVideo => 'Turn on video sound';
 }

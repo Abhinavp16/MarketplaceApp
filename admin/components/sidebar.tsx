@@ -31,6 +31,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
 import { useMemo, useSyncExternalStore } from "react"
+import { endSession } from "@/lib/api"
 import { useAdminNotifications } from "@/lib/hooks/useAdminNotifications"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -144,9 +145,7 @@ function useAdminSidebarState() {
   const pageTitle = useMemo(() => getAdminPageTitle(pathname), [pathname])
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("user")
+    endSession()
     toast.success("Logged out successfully")
     router.push("/login")
   }
@@ -175,10 +174,10 @@ function SidebarBrand({ portalLabel = "Admin Portal" }: { portalLabel?: string }
   return (
     <Link href="/" className="flex items-center gap-3 px-5 py-5 transition-colors hover:bg-slate-50">
       <span className="flex h-9 w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-slate-200 shadow-sm dark:ring-[#334155]">
-        <Image src="/icon.svg" alt="TradeHub Demo" width={36} height={36} className="h-full w-full object-cover" priority />
+        <Image src="/icon.svg" alt="DemoMart" width={36} height={36} className="h-full w-full object-cover" priority />
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-sm font-bold tracking-tight text-slate-900">TradeHub Demo</span>
+        <span className="block truncate text-sm font-bold tracking-tight text-slate-900">DemoMart</span>
         <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{portalLabel}</span>
       </span>
     </Link>
@@ -298,7 +297,7 @@ export function MobileAdminNav() {
     <div className="-mx-4 -mt-4 border-b border-slate-200 bg-white sm:-mx-5 sm:-mt-5 md:hidden">
       <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-600">TradeHub Demo</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-600">DemoMart</div>
           <h1 className="truncate text-lg font-bold text-slate-900">{pageTitle}</h1>
         </div>
 
@@ -366,6 +365,7 @@ const memberNavGroups: NavGroup[] = [
       { href: "/member/products", label: "PRODUCTS", icon: Package01Icon },
       { href: "/member/orders", label: "ORDERS", icon: DeliveryTruck01Icon },
       { href: "/member/negotiations", label: "DEAL DESK", icon: Message01Icon },
+      { href: "/member/leads", label: "LEADS", icon: UserSearch01Icon },
     ],
   },
 ]
@@ -384,11 +384,7 @@ function useMemberSidebarState() {
   const mounted = useSyncExternalStore(subscribe, () => true, () => false)
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("user")
-    localStorage.removeItem("loginAt")
-    localStorage.removeItem("sessionExpiresAt")
+    endSession()
     toast.success("Logged out successfully")
     router.push("/login")
   }
@@ -475,7 +471,7 @@ export function MobileMemberNav() {
   return (
     <div className="-mx-4 -mt-4 border-b border-slate-200 bg-white sm:-mx-5 sm:-mt-5 md:hidden">
       <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
-        <div className="min-w-0"><div className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-600">TradeHub Demo</div><h1 className="truncate text-lg font-bold text-slate-900">{pageTitle}</h1></div>
+        <div className="min-w-0"><div className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-600">DemoMart</div><h1 className="truncate text-lg font-bold text-slate-900">{pageTitle}</h1></div>
         <Sheet>
           <SheetTrigger asChild>
             <Button type="button" variant="outline" size="icon" className="h-10 w-10 shrink-0 rounded-md border-slate-200 bg-white text-slate-700 shadow-none hover:bg-slate-50">

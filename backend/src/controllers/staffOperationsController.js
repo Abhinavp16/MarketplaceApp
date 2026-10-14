@@ -13,6 +13,11 @@ const { isDemoMode } = require('../config/demoGuard');
 const DEMO_APPROVAL_MESSAGE = 'Approval is reserved for the business owner in this demo';
 const DEMO_APPROVAL_CODE = 'DEMO_APPROVAL_RESERVED';
 
+// Demo: only the business owner (admin) may decline a requirement or a requirement group.
+exports.demoOwnerOnly = (req, res, next) => (
+  isDemoMode() ? next(new ForbiddenError(DEMO_APPROVAL_MESSAGE, DEMO_APPROVAL_CODE)) : next()
+);
+
 async function notifyWholesaler(userId, templateKey, params, data) {
   try {
     await notificationService.sendLocalizedToUser(userId, templateKey, params, data);
@@ -207,6 +212,11 @@ exports.acceptNegotiation = async (req, res, next) => {
     // Demo: only the business owner (admin) may approve a negotiation.
     if (isDemoMode()) throw new ForbiddenError(DEMO_APPROVAL_MESSAGE, DEMO_APPROVAL_CODE);
     assertStaffNegotiationAction(negotiation);
+    // Members can't turn a deal into a free order; an open deal needs a price.
+    const isOpen = [NEGOTIATION_STATUS.PENDING, NEGOTIATION_STATUS.COUNTERED].includes(negotiation.status);
+    if (isOpen && !(Number(negotiation.finalPricePerUnit ?? negotiation.currentPricePerUnit) > 0)) {
+      throw new BadRequestError('This deal has no price yet. Send a counter offer first.', 'DEAL_PRICE_REQUIRED');
+    }
 
     const staffName = req.user.name || req.user.username || 'Member';
     const { acceptNegotiationAndCreateOrder } = require('../services/negotiationOrderService');
@@ -216,6 +226,7 @@ exports.acceptNegotiation = async (req, res, next) => {
       message: req.body.message,
       shippingAddress: req.body.shippingAddress,
       customerNote: req.body.customerNote,
+      deliveryCharge: req.body.deliveryCharge,
       io: req.app.locals.io,
     });
     if (!order) {
@@ -244,6 +255,9 @@ exports.counterNegotiation = async (req, res, next) => {
       throw new ForbiddenError(DEMO_APPROVAL_MESSAGE, DEMO_APPROVAL_CODE);
     }
     assertStaffNegotiationAction(negotiation);
+    if (!(Number(req.body.pricePerUnit) > 0)) {
+      throw new BadRequestError('Enter a price above ₹0', 'INVALID_PRICE');
+    }
 
     const totalPrice = negotiation.requestedQuantity * req.body.pricePerUnit;
     negotiation.history.push({

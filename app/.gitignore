@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Debug symbols from scripts/build-release.sh (keep a copy, never commit)
+release-symbols/

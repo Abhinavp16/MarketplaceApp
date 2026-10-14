@@ -1,12 +1,10 @@
-# TradeHub Demo - Flutter customer app (Android)
+# DemoMart - Flutter customer app (Android)
 
-A generic, sanitized demo of a distribution / wholesale marketplace app. It talks
-to the TradeHub Demo backend and shows **synthetic data only**. The app itself
-shows no demo strip; the admin panel and site still carry the
-"Demonstration Environment" notice.
+A generic demo of a distribution / wholesale marketplace app. It talks to the
+DemoMart backend and shows **synthetic data only**.
 
-- Brand: TradeHub Demo - "Distribution made simple"
-- Android application id / namespace: `com.demo.tradehub`
+- Brand: DemoMart - "Distribution made simple"
+- Android application id / namespace: `com.demo.demomart`
 - iOS and web targets were deliberately removed (Android only)
 
 ## Requirements
@@ -45,7 +43,7 @@ Password for all accounts: `Demo@12345`
 |-------------|----------------------------------------------------|------------------------------|
 | Buyer       | This app, login screen, role toggle **Customer**   | phone `9000000003`           |
 | Wholesaler  | This app, login screen, role toggle **Wholesaler** | phone `9000000002`           |
-| Admin       | Admin console (not this app)                       | email `admin@tradehub.example` |
+| Admin       | Admin console (not this app)                       | email `admin@demomart.example` |
 
 Login fields (confirmed from `lib/screens/auth/auth_screen.dart` and
 `lib/core/providers/auth_provider.dart`): the app has a single phone + password
@@ -54,25 +52,52 @@ form (`POST /auth/login-phone` with `phone`, `password`, `expectedRole` =
 `expectedRole`; choose the toggle that matches the account. Admins do not use
 this app.
 
-## What was changed from the original client app
+## What is demo-only / differs from a production app
 
-- Removed: hard-coded production API URL, Firebase / FCM (no google-services
-  plugin/JSON, no `firebase_*` packages, no push-token registration - only
-  in-app and local notifications remain), store-listing redirects (the
-  mandatory-update check is disabled), WhatsApp actions (wa.me links, receipt
-  share to WhatsApp, the Android WhatsApp method channel), the client keystore
-  reference, client contact details, client brand sorting rules, partner-brand
-  list and city entries, and all client legal text.
-- Added: central brand constants (`lib/core/config/brand_config.dart`), the
-  configuration-required screen, generic launcher icons / logo / launch image (generated), placeholder legal
-  texts (`assets/legal/demo_*.txt`, all marked "Demo placeholder"), a new
-  optional **Message / delivery requirement** field on the wholesaler
-  "Send Requirement" sheet (sent as `message`, capped at 500 characters and shown
-  in the negotiation detail screen when the API returns it).
-- Renamed: the old customer "demo mode" is now "preview mode" (guest preview) so
-  it is not confused with the demo environment.
-- Theme: brand primary changed to deep teal (`#0F766E`) in
-  `lib/core/theme/app_theme.dart` (plus the hard-coded former brand blue).
+- No built-in backend URL: it comes only from `--dart-define=API_BASE_URL`.
+- Push (Firebase Cloud Messaging) is off until you add your own `google-services.json`
+  (see "Push notifications (optional)"); without it, notifications arrive through the
+  in-app notification centre (`/notifications/my`) and local notifications.
+- No store listings: the mandatory-update check is disabled
+  (`AppUpdateService.isEnabled = false`).
+- No WhatsApp actions: order receipts are shared through the system share sheet
+  and order details can be copied; help screens offer call and e-mail.
+- Shared product links use the placeholder host `demo.demomart.example`
+  (`lib/core/services/deep_link_service.dart`). The Android intent filter is a
+  plain, unverified one (the domain is not real), so there is no verified App
+  Link behaviour.
+- Generic brand constants live in `lib/core/config/brand_config.dart`; legal
+  texts are placeholders (`assets/legal/demo_*.txt`).
+- Theme: the design system (`lib/core/theme/app_theme.dart`, `lib/widgets/ui/*`,
+  shaders in `shaders/`) uses a teal palette (primary `#0F766E`).
+- Launcher icons, `assets/images/logo.png` and `assets/images/wholesale_worker.png`
+  are simple generated artwork; replace them with real artwork for a real product.
+- The old customer "demo mode" wording is "preview mode" (guest preview), so it
+  is not confused with the demo environment.
+
+## Push notifications (optional)
+
+Push is implemented (`lib/core/services/firebase_push_service.dart`) but disabled by default.
+`main()` calls `FirebasePushService.bootstrap()`; if Firebase cannot initialise (no
+`google-services.json`, or `--dart-define=ENABLE_PUSH=false`) the app keeps `NoopPushService`
+(`pushServiceProvider`, `lib/core/services/notification_service.dart`) and logs it once in debug.
+Nothing else changes and nothing crashes.
+
+To turn it on, follow `../docs/FIREBASE_SETUP.md`: create a Firebase project, add an Android app
+with id `com.demo.demomart` and download `google-services.json` into `android/app/`. The file is
+gitignored; when it exists the Google services Gradle plugin is applied automatically
+(`android/app/build.gradle.kts`), otherwise the build skips it.
+
+What it does: asks for the notification permission through the existing onboarding flow, registers
+the FCM token with `POST /notifications/register-token` (retries, refreshes on token rotation) and
+unregisters it with `POST /notifications/unregister-token` just before logout. Foreground messages
+are shown with `LocalNotificationService`, taps (also from the terminated state) go through
+`NotificationNavigationService.handlePayload`, and `firebaseMessagingBackgroundHandler` is the
+top-level background entry point. Tokens are printed in debug builds only.
+
+Push data the app reads: `type` (for example `product_launched`, `order_update`,
+`negotiation_countered`, `price_change_campaign_*`, `ROLE_UPDATED`) plus `productId`,
+`negotiationId`, `orderId`, `effectiveAt`, `title` and `body`.
 
 ## Release signing
 
@@ -84,14 +109,9 @@ it (see https://docs.flutter.dev/deployment/android#sign-the-app).
 
 ## Known limitations
 
-- Push notifications are not available (no Firebase). Notifications appear in the
-  in-app notification centre and as local notifications only.
-- The mandatory-update flow is disabled (`AppUpdateService.isEnabled = false`).
 - Some unrouted mock screens (e.g. landing, shipment detail, admin alerts hub)
   still contain generic placeholder text and third-party stock image URLs; they
   are not reachable from the app.
 - Product imagery, brands and categories come entirely from the backend seed
   data; generic icon placeholders are used when an image is missing.
 - Map tiles use the public OpenStreetMap tile server.
-- Generated Android launcher icons are simple PIL-drawn monograms; replace them
-  with proper artwork for a real product.

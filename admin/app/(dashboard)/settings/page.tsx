@@ -25,8 +25,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { FormSkeleton } from "@/components/ui/skeleton"
 import { ResetDemoCard } from "@/components/reset-demo"
 
-const ANDROID_STORE_URL = "https://play.google.com/store/apps/details?id=com.example.tradehubdemo"
-const IOS_STORE_URL = "https://apps.apple.com/app/tradehub-demo/id0000000000"
+const ANDROID_STORE_URL = "https://play.google.com/store/apps/details?id=com.example.demomart"
+const IOS_STORE_URL = "https://apps.apple.com/app/demomart/id0000000000"
 
 const mobilePlatformSchema = (expectedStoreUrl: string) => z.object({
     enabled: z.boolean(),
@@ -102,7 +102,7 @@ const mobilePlatformDefaults = (storeUrl: string) => ({
     latestBuildNumber: 0,
     storeUrl,
     title: "Update Required",
-    message: "A new version of TradeHub Demo is required. Please update the app to continue.",
+    message: "A new version of DemoMart is required. Please update the app to continue.",
 })
 
 export default function SettingsPage() {
@@ -848,7 +848,7 @@ export default function SettingsPage() {
                                         <FormItem>
                                             <FormLabel className="text-white">UPI Display Name</FormLabel>
                                             <FormControl>
-                                                <Input className="border-[#333] bg-[#0D0D0D] text-white" placeholder="TradeHub Distribution Pvt Ltd (Demo)" {...field} value={field.value || ""} />
+                                                <Input className="border-[#333] bg-[#0D0D0D] text-white" placeholder="DemoMart Distribution Pvt Ltd (Demo)" {...field} value={field.value || ""} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

@@ -1,5 +1,6 @@
 const {
   AccountDeletionRequest,
+  AdminNotification,
   Cart,
   DeviceToken,
   MagicLinkToken,
@@ -47,7 +48,7 @@ async function createRequestForUser({ user, source }) {
   return { request, alreadyPending: false };
 }
 
-async function completeRequest({ requestId, adminUserId, staffNote = '' }) {
+async function completeRequest({ requestId, adminUserId, staffNote = '', identityVerified = false }) {
   const request = await AccountDeletionRequest.findById(requestId);
   if (!request) {
     throw new NotFoundError('Deletion request not found', 'DELETION_REQUEST_NOT_FOUND');
@@ -56,11 +57,20 @@ async function completeRequest({ requestId, adminUserId, staffNote = '' }) {
     throw new ConflictError('Only pending or in-review requests can be completed', 'DELETION_REQUEST_NOT_ACTIONABLE');
   }
 
+  // A website request needs the admin to confirm they verified the account
+  // holder, either earlier (when moving it to review) or now.
   if (request.source === 'website' && !request.identityVerification?.verifiedAt) {
-    throw new BadRequestError(
-      'A website deletion request must be verified by a Member before completion',
-      'DELETION_REQUEST_VERIFICATION_REQUIRED'
-    );
+    if (identityVerified !== true) {
+      throw new BadRequestError(
+        'Confirm that you verified this website request with the account holder before completing it',
+        'DELETION_REQUEST_VERIFICATION_REQUIRED'
+      );
+    }
+    request.identityVerification = {
+      verifiedAt: new Date(),
+      verifiedBy: adminUserId,
+      method: 'staff-confirmed',
+    };
   }
 
   const user = await User.findById(request.userId).select('+passwordHash');
@@ -83,6 +93,11 @@ async function completeRequest({ requestId, adminUserId, staffNote = '' }) {
     originalEmail ? MagicLinkToken.deleteMany({ email: originalEmail }) : Promise.resolve(),
     deleteDirectory(`avatars/${anonymizedIdentifier}`),
     deleteDirectory(`private/proofs/${anonymizedIdentifier}`),
+    // Admin alerts about this person (orders, deals, this request) carry
+    // their name and phone; the request itself keeps the audit trail.
+    AdminNotification.deleteMany({
+      $or: [{ 'actor.id': userId }, { 'metadata.userId': String(userId) }],
+    }),
   ]);
 
   // Orders and payments are intentionally retained as restricted financial records.
@@ -95,6 +110,7 @@ async function completeRequest({ requestId, adminUserId, staffNote = '' }) {
   user.googleId = undefined;
   user.passwordHash = undefined;
   user.fcmTokens = [];
+  user.hiddenBrands = [];
   user.phoneVerified = false;
   user.marketingConsent = false;
   user.consentTimestamp = null;
@@ -129,7 +145,7 @@ async function completeRequest({ requestId, adminUserId, staffNote = '' }) {
   request.events.push({
     action: 'completed',
     byUserId: adminUserId,
-    note: 'Account access revoked and direct profile, cart, device-token, notification, negotiation, avatar, and business-proof data removed or anonymized. Financial records are retained under the approved retention schedule.',
+    note: 'Account access revoked and direct profile, cart, device-token, notification, negotiation, avatar, business-proof and admin-alert data removed or anonymized. Financial records are retained under the approved retention schedule.',
   });
   await request.save();
 

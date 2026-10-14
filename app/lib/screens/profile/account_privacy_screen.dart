@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers/auth_provider.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/ui/ui.dart';
 
 class AccountPrivacyScreen extends ConsumerStatefulWidget {
   const AccountPrivacyScreen({super.key});
@@ -43,23 +46,15 @@ class _AccountPrivacyScreenState extends ConsumerState<AccountPrivacyScreen> {
   }
 
   Future<void> _requestDeletion() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(dialogContext.l10n.privacyDialogTitle),
-        content: Text(dialogContext.l10n.privacyDialogBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(dialogContext.l10n.privacyKeepAccount),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700),
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(dialogContext.l10n.privacyRequestDeletion),
-          ),
-        ],
-      ),
+    final l10n = context.l10n;
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.privacyDialogTitle,
+      message: l10n.privacyDialogBody,
+      confirmLabel: l10n.privacyRequestDeletion,
+      cancelLabel: l10n.privacyKeepAccount,
+      destructive: true,
+      icon: HugeIcons.strokeRoundedDelete02,
     );
     if (confirmed != true) return;
 
@@ -109,70 +104,95 @@ class _AccountPrivacyScreenState extends ConsumerState<AccountPrivacyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF134E4A);
-    const textPrimary = Color(0xFF0F172A);
-    const textSecondary = Color(0xFF475569);
     final status = _request?['status']?.toString();
     final canCancel = status == 'pending';
+    final rejectionNote = (_request?['staffNote'] ?? '').toString().trim();
     final l10n = context.l10n;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          l10n.privacyTitle,
-          style: AppFonts.jakarta(fontWeight: FontWeight.w700),
-        ),
-      ),
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _InfoCard(
-                  icon: Icons.security_outlined,
-                  color: primary,
-                  title: l10n.privacyControlsTitle,
-                  body: l10n.privacyControlsBody(
-                    'demo.tradehub.example/delete-account',
+    final Widget body;
+    if (_isLoading) {
+      body = const _PrivacySkeleton(key: ValueKey('loading'));
+    } else {
+      body = ListView(
+        key: const ValueKey('content'),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        children: [
+          _InfoCard(
+            icon: HugeIcons.strokeRoundedShield01,
+            title: l10n.privacyControlsTitle,
+            body: l10n.privacyControlsBody(
+              'demo.demomart.example/delete-account',
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (_error != null) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.errorSoft,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const HugeIcon(
+                    icon: HugeIcons.strokeRoundedAlert02,
+                    size: 18,
+                    color: AppColors.error,
                   ),
-                ),
-                const SizedBox(height: 16),
-                if (_error != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  const SizedBox(width: 8),
+                  Expanded(
                     child: Text(
                       _error!,
-                      style: AppFonts.jakarta(color: const Color(0xFF991B1B)),
+                      style: AppFonts.jakarta(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.error,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
                 ],
-                if (status == 'pending' || status == 'in_review')
-                  _RequestStatusCard(
-                    status: status == 'in_review'
-                        ? l10n.privacyStatusUnderReview
-                        : l10n.privacyStatusReceived,
-                    isComplete: false,
-                    dueDate: _formatDate(_request?['dueAt']),
-                  )
-                else if (status == 'completed')
-                  _RequestStatusCard(
-                    status: l10n.privacyStatusCompleted,
-                    isComplete: true,
-                    dueDate: _formatDate(_request?['completedAt']),
-                  )
-                else ...[
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          if (status == 'pending' || status == 'in_review')
+            _RequestStatusCard(
+              status: status == 'in_review'
+                  ? l10n.privacyStatusUnderReview
+                  : l10n.privacyStatusReceived,
+              isComplete: false,
+              dueDate: _formatDate(_request?['dueAt']),
+            )
+          else if (status == 'completed')
+            _RequestStatusCard(
+              status: l10n.privacyStatusCompleted,
+              isComplete: true,
+              dueDate: _formatDate(_request?['completedAt']),
+            )
+          else ...[
+            // A declined request: say so, with DemoMart's reason, above
+            // the option to ask again.
+            if (status == 'rejected') ...[
+              _InfoCard(
+                icon: HugeIcons.strokeRoundedAlert02,
+                title: l10n.privacyRejectedTitle,
+                body: rejectionNote.isNotEmpty
+                    ? l10n.privacyRejectedReason(rejectionNote)
+                    : l10n.privacyRejectedNoReason,
+              ),
+              const SizedBox(height: 12),
+            ],
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
                     l10n.privacyRequestHeading,
                     style: AppFonts.jakarta(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: textPrimary,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -180,95 +200,98 @@ class _AccountPrivacyScreenState extends ConsumerState<AccountPrivacyScreen> {
                     l10n.privacyRequestBody,
                     style: AppFonts.jakarta(
                       fontSize: 14,
-                      height: 1.55,
-                      color: textSecondary,
+                      height: 1.5,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    height: 50,
-                    child: FilledButton.icon(
-                      onPressed: _isSubmitting ? null : _requestDeletion,
-                      icon: _isSubmitting
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.delete_outline),
-                      label: Text(
-                        l10n.privacyRequestButton,
-                        style: AppFonts.jakarta(fontWeight: FontWeight.w700),
-                      ),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.red.shade700,
-                      ),
-                    ),
+                  AppButton(
+                    label: l10n.privacyRequestButton,
+                    icon: HugeIcons.strokeRoundedDelete02,
+                    variant: AppButtonVariant.danger,
+                    size: AppButtonSize.medium,
+                    loading: _isSubmitting,
+                    onPressed: _isSubmitting ? null : _requestDeletion,
                   ),
                 ],
-                if (canCancel) ...[
-                  const SizedBox(height: 14),
-                  OutlinedButton(
-                    onPressed: _isSubmitting ? null : _cancelRequest,
-                    child: Text(
-                      l10n.privacyCancelPending,
-                      style: AppFonts.jakarta(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 24),
-                Text(
-                  l10n.privacyAfterDeletionTitle,
-                  style: AppFonts.jakarta(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.privacyAfterDeletionBody,
-                  style: AppFonts.jakarta(
-                    fontSize: 13,
-                    height: 1.55,
-                    color: textSecondary,
-                  ),
-                ),
-              ],
+              ),
             ),
+          ],
+          if (canCancel) ...[
+            const SizedBox(height: 12),
+            AppButton(
+              label: l10n.privacyCancelPending,
+              variant: AppButtonVariant.secondary,
+              size: AppButtonSize.medium,
+              loading: _isSubmitting,
+              onPressed: _isSubmitting ? null : _cancelRequest,
+            ),
+          ],
+          const SizedBox(height: 24),
+          Text(
+            l10n.privacyAfterDeletionTitle,
+            style: AppFonts.jakarta(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.privacyAfterDeletionBody,
+            style: AppFonts.jakarta(
+              fontSize: 14,
+              height: 1.55,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppHeader(title: l10n.privacyTitle),
+      body: AnimatedSwitcher(
+        duration: AppMotion.of(context, AppMotion.base),
+        child: body,
+      ),
     );
   }
 }
 
 class _InfoCard extends StatelessWidget {
   final IconData icon;
-  final Color color;
   final String title;
   final String body;
 
   const _InfoCard({
     required this.icon,
-    required this.color,
     required this.title,
     required this.body,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
+    return AppCard(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySoft,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: HugeIcon(
+                icon: icon,
+                color: AppColors.primaryDeep,
+                size: 20,
+              ),
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -277,8 +300,9 @@ class _InfoCard extends StatelessWidget {
                 Text(
                   title,
                   style: AppFonts.jakarta(
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F172A),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -287,7 +311,7 @@ class _InfoCard extends StatelessWidget {
                   style: AppFonts.jakarta(
                     fontSize: 13,
                     height: 1.5,
-                    color: const Color(0xFF475569),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -312,50 +336,56 @@ class _RequestStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isComplete ? const Color(0xFFF0FDF4) : const Color(0xFFF0FDFA),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isComplete ? const Color(0xFF86EFAC) : const Color(0xFF93C5FD),
-        ),
-      ),
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                isComplete
-                    ? Icons.check_circle_outline
-                    : Icons.hourglass_top_outlined,
-                color: isComplete
-                    ? const Color(0xFF15803D)
-                    : const Color(0xFF115E59),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                status,
-                style: AppFonts.jakarta(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
-                ),
-              ),
-            ],
+          StatusChip(
+            label: status,
+            tone: isComplete ? ChipTone.success : ChipTone.warning,
+            icon: isComplete
+                ? HugeIcons.strokeRoundedCheckmarkCircle02
+                : HugeIcons.strokeRoundedHourglass,
           ),
           const SizedBox(height: 10),
           Text(
             isComplete
                 ? context.l10n.privacyCompletedOn(dueDate)
                 : context.l10n.privacyCompleteBy(dueDate),
-            style: AppFonts.jakarta(
-              fontSize: 13,
-              color: const Color(0xFF475569),
+            style: AppText.price(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PrivacySkeleton extends StatelessWidget {
+  const _PrivacySkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: SkeletonShimmer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Skeleton(height: 96, radius: AppRadius.lg),
+            SizedBox(height: 16),
+            Skeleton(height: 170, radius: AppRadius.lg),
+            SizedBox(height: 24),
+            Skeleton(width: 220, height: 16),
+            SizedBox(height: 10),
+            Skeleton(height: 12),
+            SizedBox(height: 6),
+            Skeleton(height: 12),
+          ],
+        ),
       ),
     );
   }

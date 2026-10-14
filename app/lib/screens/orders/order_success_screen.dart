@@ -1,83 +1,146 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
 
+import '../../core/providers/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/app_fonts.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/ui/ui.dart';
+import 'order_parts.dart';
 
-class OrderSuccessScreen extends StatelessWidget {
+class OrderSuccessScreen extends ConsumerStatefulWidget {
   final String orderId;
 
   const OrderSuccessScreen({super.key, this.orderId = 'AG-12345'});
 
   @override
+  ConsumerState<OrderSuccessScreen> createState() => _OrderSuccessScreenState();
+}
+
+class _OrderSuccessScreenState extends ConsumerState<OrderSuccessScreen> {
+  /// The order's own number (e.g. "LA-2024-0012"), once loaded.
+  String? _orderNumber;
+  bool _loadingNumber = false;
+
+  String get _orderId => widget.orderId.trim();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrderNumber();
+  }
+
+  /// The route carries the order's id; show its real number when the order
+  /// can be read, otherwise the id itself.
+  Future<void> _loadOrderNumber() async {
+    if (_orderId.isEmpty) return;
+    setState(() => _loadingNumber = true);
+    try {
+      final response = await ref
+          .read(apiClientProvider)
+          .get('/orders/${Uri.encodeComponent(_orderId)}');
+      final data = response.data is Map ? response.data['data'] : null;
+      final number = data is Map
+          ? data['orderNumber']?.toString().trim()
+          : null;
+      if (!mounted) return;
+      setState(() {
+        _orderNumber = (number == null || number.isEmpty) ? null : number;
+        _loadingNumber = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loadingNumber = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final shownNumber = _orderNumber ?? _orderId;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
           child: Column(
             children: [
               const Spacer(),
-              // Success Icon
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle,
-                  size: 80,
-                  color: AppColors.success,
-                ),
-              ),
-              const SizedBox(height: 32),
+              const OrderSuccessBadge(size: 84),
+              const SizedBox(height: 8),
               Text(
                 l10n.orderSuccessTitle,
+                textAlign: TextAlign.center,
                 style: AppFonts.jakarta(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
+                  letterSpacing: -0.4,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Text(
                 l10n.orderSuccessMessage,
                 textAlign: TextAlign.center,
                 style: AppFonts.jakarta(
                   color: AppColors.textSecondary,
-                  fontSize: 16,
+                  fontSize: 15,
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
               // Order Details Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.gray50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.gray200),
-                ),
+              AppCard(
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
                 child: Column(
                   children: [
-                    _buildDetailRow(
-                      l10n.orderIdLabel,
-                      '#ORD-${orderId.hashCode.abs() % 100000}',
-                    ),
-                    const Divider(height: 24, color: AppColors.gray200),
+                    if (_orderId.isNotEmpty) ...[
+                      _buildDetailRow(
+                        l10n.orderIdLabel,
+                        child: AnimatedSwitcher(
+                          duration: AppMotion.of(context, AppMotion.base),
+                          child: _loadingNumber
+                              ? const SkeletonShimmer(
+                                  key: ValueKey('loading'),
+                                  child: Skeleton(width: 110, height: 14),
+                                )
+                              : Text(
+                                  '#$shownNumber',
+                                  key: ValueKey(shownNumber),
+                                  textAlign: TextAlign.end,
+                                  style: AppText.price(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                    ],
                     _buildDetailRow(
                       l10n.commonStatus,
-                      l10n.orderSuccessPaymentPending,
+                      child: StatusChip(
+                        label: l10n.orderSuccessPaymentPending,
+                        tone: ChipTone.warning,
+                        icon: HugeIcons.strokeRoundedClock01,
+                      ),
                     ),
-                    const Divider(height: 24, color: AppColors.gray200),
+                    const Divider(height: 1),
                     _buildDetailRow(
                       l10n.ordersDelivery,
-                      l10n.orderSuccessDeliveryNote,
+                      child: Text(
+                        l10n.orderSuccessDeliveryNote,
+                        textAlign: TextAlign.end,
+                        style: AppFonts.jakarta(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: AppColors.textPrimary,
+                          height: 1.35,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -85,48 +148,16 @@ class OrderSuccessScreen extends StatelessWidget {
               const Spacer(),
 
               // Action Buttons
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => context.push('/tracking/$orderId'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    l10n.ordersTrackOrder,
-                    style: AppFonts.jakarta(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+              AppButton(
+                label: l10n.ordersTrackOrder,
+                icon: HugeIcons.strokeRoundedDeliveryTruck01,
+                onPressed: () => context.push('/tracking/${widget.orderId}'),
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => context.go('/home'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textPrimary,
-                    side: BorderSide(color: AppColors.gray300),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    l10n.checkoutContinueShopping,
-                    style: AppFonts.jakarta(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+              AppButton(
+                label: l10n.checkoutContinueShopping,
+                variant: AppButtonVariant.secondary,
+                onPressed: () => context.go('/home'),
               ),
             ],
           ),
@@ -135,27 +166,24 @@ class OrderSuccessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppFonts.jakarta(color: AppColors.textSecondary, fontSize: 14),
-        ),
-        const SizedBox(width: 12),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
+  Widget _buildDetailRow(String label, {required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Text(
+            label,
             style: AppFonts.jakarta(
-              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
               fontSize: 14,
-              color: AppColors.textPrimary,
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Align(alignment: Alignment.centerRight, child: child),
+          ),
+        ],
+      ),
     );
   }
 }

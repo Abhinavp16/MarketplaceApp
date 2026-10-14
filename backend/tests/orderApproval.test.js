@@ -1,6 +1,5 @@
-require('dotenv').config();
-// These integration tests write to MONGODB_URI: only ever run them on the local demo DB.
-require('../src/config/demoGuard').assertDemoDatabase();
+// Database-backed: only runs against a local "test"/"demo" database (see helpers/testDb.js).
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-access-secret-0123456789-abcdefghij';
 const assert = require('assert');
 const mongoose = require('mongoose');
 const { Order, Product, User, Payment, StockLog, AuditLog, Notification } = require('../src/models');
@@ -70,6 +69,7 @@ function testSchemaAndRoutes() {
 
 async function runLifecycle() {
   await mongoose.connect(process.env.MONGODB_URI);
+  assertSafeToWipe(mongoose);
   const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const buyer = await User.create({
     name: 'Approval Buyer', email: `approval-buyer-${suffix}@test.local`, phone: `9${Date.now().toString().slice(-9)}`,
@@ -179,8 +179,18 @@ async function cleanup() {
   if (mongoose.connection.readyState) await mongoose.disconnect();
 }
 
+// The lifecycle part writes users, products and orders, so it only runs
+// against a database on this machine (never the live database in .env).
+const { isSafeTestDatabase: isLocalDatabase, testDatabaseUri, assertSafeToWipe } = require('./helpers/testDb');
+
 async function run() {
   testSchemaAndRoutes();
+  const uri = testDatabaseUri('ORDER_APPROVAL_TEST_MONGODB_URI');
+  if (!isLocalDatabase(uri)) {
+    console.log('Order approval schema/route tests passed (lifecycle skipped: set ORDER_APPROVAL_TEST_MONGODB_URI to a local test database to run it)');
+    return;
+  }
+  process.env.MONGODB_URI = uri;
   try {
     await runLifecycle();
     console.log('Order approval tests passed');

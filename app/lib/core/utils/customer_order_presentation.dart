@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import '../../widgets/ui/ui_basics.dart' show ChipTone;
+import '../theme/app_theme.dart';
 
 class CustomerOrderPresentation {
   static String acceptanceStatus(Map<String, dynamic> order) =>
@@ -151,4 +154,201 @@ class CustomerOrderPresentation {
     final index = stages.indexOf(currentStage);
     return index < 0 ? stages : stages.take(index + 1).toList();
   }
+
+  // ---------------------------------------------------------------------------
+  // Redesign helpers. They only add information; the outputs above are
+  // unchanged.
+
+  /// True when the order ended without being delivered (rejected / cancelled).
+  static bool isStopped(String stage) =>
+      stage == 'rejected' || stage == 'cancelled';
+
+  /// Kit chip tone for an order [stage].
+  static ChipTone chipTone(String stage) {
+    switch (stage) {
+      case 'awaiting_acceptance':
+      case 'pending_payment':
+      case 'accepted_awaiting_payment':
+        return ChipTone.warning;
+      case 'payment_uploaded':
+      case 'payment_verified':
+      case 'processing':
+      case 'shipped':
+        return ChipTone.info;
+      case 'delivered':
+        return ChipTone.success;
+      case 'rejected':
+      case 'cancelled':
+        return ChipTone.error;
+      default:
+        return ChipTone.neutral;
+    }
+  }
+
+  /// Brand-palette colour for an order [stage] (the redesign's one colour per
+  /// state: amber waiting, blue moving, green done, red stopped).
+  static Color toneColor(String stage) {
+    switch (chipTone(stage)) {
+      case ChipTone.warning:
+        return AppColors.warning;
+      case ChipTone.info:
+        return AppColors.secondary;
+      case ChipTone.success:
+      case ChipTone.brand:
+        return AppColors.primary;
+      case ChipTone.error:
+        return AppColors.error;
+      case ChipTone.accent:
+        return AppColors.accent;
+      case ChipTone.neutral:
+        return AppColors.textTertiary;
+    }
+  }
+
+  /// HugeIcons glyph for an order [stage].
+  static IconData hugeIcon(String stage) {
+    switch (stage) {
+      case 'awaiting_acceptance':
+        return HugeIcons.strokeRoundedClock01;
+      case 'accepted_awaiting_payment':
+        return HugeIcons.strokeRoundedTaskDone01;
+      case 'pending_payment':
+        return HugeIcons.strokeRoundedWallet01;
+      case 'payment_uploaded':
+        return HugeIcons.strokeRoundedHourglass;
+      case 'payment_verified':
+        return HugeIcons.strokeRoundedSecurityCheck;
+      case 'processing':
+        return HugeIcons.strokeRoundedPackage;
+      case 'shipped':
+        return HugeIcons.strokeRoundedDeliveryTruck01;
+      case 'delivered':
+        return HugeIcons.strokeRoundedPackageDelivered;
+      case 'rejected':
+        return HugeIcons.strokeRoundedCancelCircle;
+      case 'cancelled':
+        return HugeIcons.strokeRoundedCancel01;
+      default:
+        return HugeIcons.strokeRoundedInformationCircle;
+    }
+  }
+
+  /// When the order reached [stage], if the order records it.
+  static DateTime? stageTime(Map<String, dynamic> order, String stage) {
+    dynamic value;
+    switch (stage) {
+      case 'awaiting_acceptance':
+        value = order['createdAt'];
+      case 'accepted_awaiting_payment':
+        value = order['acceptedAt'];
+      case 'rejected':
+        value = order['rejectedAt'];
+      default:
+        final history = order['statusHistory'];
+        if (history is List) {
+          for (final item in history) {
+            if (item is Map && item['status']?.toString() == stage) {
+              value = item['timestamp'];
+              break;
+            }
+          }
+        }
+        if (value == null && stage == 'shipped') value = order['shippedAt'];
+        if (value == null && stage == 'delivered') value = order['deliveredAt'];
+        if (value == null && stage == 'pending_payment') {
+          value = order['createdAt'];
+        }
+    }
+    final parsed = value == null ? null : DateTime.tryParse(value.toString());
+    return parsed?.toLocal();
+  }
+
+  /// The whole journey of an order in order: steps already reached, the
+  /// current one and the ones still to come. A rejected or cancelled order
+  /// ends in a [OrderStepState.stopped] step instead of the upcoming ones.
+  static List<OrderJourneyStep> journey(Map<String, dynamic> order) {
+    final currentStage = stage(order);
+    final reached = timeline(order);
+
+    OrderJourneyStep step(String s, OrderStepState state) =>
+        OrderJourneyStep(stage: s, state: state, at: stageTime(order, s));
+
+    if (isStopped(currentStage)) {
+      return [
+        for (final s in reached)
+          step(
+            s,
+            s == currentStage ? OrderStepState.stopped : OrderStepState.done,
+          ),
+      ];
+    }
+
+    final acceptance = acceptanceStatus(order);
+    final full = <String>[
+      if (acceptance == 'accepted' || acceptance == 'pending') ...[
+        'awaiting_acceptance',
+        'accepted_awaiting_payment',
+      ] else
+        'pending_payment',
+      if (reached.contains('payment_uploaded')) 'payment_uploaded',
+      'payment_verified',
+      'processing',
+      'shipped',
+      'delivered',
+    ];
+    final index = full.indexOf(currentStage);
+    return [
+      for (var i = 0; i < full.length; i++)
+        step(
+          full[i],
+          index < 0
+              ? (i == 0 ? OrderStepState.current : OrderStepState.upcoming)
+              : i < index
+              ? OrderStepState.done
+              : i == index
+              ? (full[i] == 'delivered'
+                    ? OrderStepState.done
+                    : OrderStepState.current)
+              : OrderStepState.upcoming,
+        ),
+    ];
+  }
+
+  /// Share of the journey reached so far, 0–1 (1 when delivered or stopped).
+  static double progress(Map<String, dynamic> order) {
+    final steps = journey(order);
+    if (steps.isEmpty) return 0;
+    final reachedCount = steps
+        .where((s) => s.state != OrderStepState.upcoming)
+        .length;
+    return reachedCount / steps.length;
+  }
+
+  /// Text for the "what you need to do" banner when the order is waiting on
+  /// the customer, otherwise null. Uses the app's existing guide copy.
+  static String? customerAction(AppLocalizations l10n, String stage) {
+    switch (stage) {
+      case 'accepted_awaiting_payment':
+        return l10n.guideStep4Body;
+      case 'pending_payment':
+        return l10n.guideStep3Body;
+      default:
+        return null;
+    }
+  }
+}
+
+/// Where an order stands on one step of its journey.
+enum OrderStepState { done, current, upcoming, stopped }
+
+/// One step of [CustomerOrderPresentation.journey].
+class OrderJourneyStep {
+  const OrderJourneyStep({required this.stage, required this.state, this.at});
+
+  /// Stage key, as used by [CustomerOrderPresentation.label].
+  final String stage;
+  final OrderStepState state;
+
+  /// When the step was reached, if known.
+  final DateTime? at;
 }

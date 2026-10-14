@@ -1,7 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
+
 import '../core/theme/app_fonts.dart';
+import '../core/theme/app_theme.dart';
+import '../core/utils/number_formatter.dart';
 import '../l10n/l10n.dart';
 
 class PendingPriceChangeNotice extends StatefulWidget {
@@ -15,9 +19,9 @@ class PendingPriceChangeNotice extends StatefulWidget {
     super.key,
     required this.pendingPriceChange,
     this.compact = false,
-    this.primaryColor = const Color(0xFF0F172A),
-    this.accentColor = const Color(0xFFEA580C),
-    this.backgroundColor = const Color(0xFFFFF7ED),
+    this.primaryColor = AppColors.textPrimary,
+    this.accentColor = AppColors.warning,
+    this.backgroundColor = AppColors.warningSoft,
   });
 
   @override
@@ -78,7 +82,7 @@ class _PendingPriceChangeNoticeState extends State<PendingPriceChangeNotice> {
     final parsed = value is num
         ? value.toDouble()
         : double.tryParse(value?.toString() ?? '') ?? 0;
-    return parsed.toStringAsFixed(0);
+    return NumberFormatter.formatPrice(parsed.round());
   }
 
   String _formatDuration(AppLocalizations l10n, Duration duration) {
@@ -102,18 +106,14 @@ class _PendingPriceChangeNoticeState extends State<PendingPriceChangeNotice> {
     required String newPrice,
     required String timerText,
   }) {
+    final accent = widget.accentColor;
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 6),
-      padding: const EdgeInsets.fromLTRB(8, 7, 8, 7),
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.fromLTRB(8, 5, 8, 6),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFFFBEB), Color(0xFFFFF7ED)],
-        ),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: widget.accentColor.withValues(alpha: 0.18)),
+        color: widget.backgroundColor,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,39 +121,28 @@ class _PendingPriceChangeNoticeState extends State<PendingPriceChangeNotice> {
         children: [
           Row(
             children: [
-              Container(
-                width: 18,
-                height: 18,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: widget.accentColor.withValues(alpha: 0.18),
-                  ),
-                ),
-                child: Icon(
-                  Icons.schedule_rounded,
-                  size: 12,
-                  color: widget.accentColor,
-                ),
+              HugeIcon(
+                icon: HugeIcons.strokeRoundedClock01,
+                size: 13,
+                color: accent,
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   context.l10n.priceNoticeChangesSoon,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppFonts.outfit(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w800,
+                  style: AppFonts.jakarta(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
                     color: widget.primaryColor,
-                    height: 1.1,
+                    height: 1.2,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 2),
           Row(
             children: [
               Expanded(
@@ -161,29 +150,21 @@ class _PendingPriceChangeNoticeState extends State<PendingPriceChangeNotice> {
                   '₹$currentPrice → ₹$newPrice',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppFonts.outfit(
-                    fontSize: 10.5,
+                  style: AppText.price(
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w800,
-                    color: widget.accentColor,
-                    height: 1.1,
+                    color: accent,
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                decoration: BoxDecoration(
-                  color: widget.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  timerText,
-                  style: AppFonts.outfit(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w800,
-                    color: widget.accentColor,
-                    height: 1,
-                  ),
+              const SizedBox(width: 4),
+              Text(
+                timerText,
+                maxLines: 1,
+                style: AppText.price(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: accent,
                 ),
               ),
             ],
@@ -217,34 +198,18 @@ class _PendingPriceChangeNoticeState extends State<PendingPriceChangeNotice> {
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [widget.backgroundColor, const Color(0xFFFFFBEB)],
-        ),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: widget.accentColor.withValues(alpha: 0.18)),
+        color: widget.backgroundColor,
+        borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Row(
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: widget.accentColor.withValues(alpha: 0.16),
-              ),
-            ),
-            child: Icon(
-              Icons.trending_up_rounded,
-              size: 19,
-              color: widget.accentColor,
-            ),
+          HugeIcon(
+            icon: HugeIcons.strokeRoundedChartIncrease,
+            size: 20,
+            color: widget.accentColor,
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -253,24 +218,24 @@ class _PendingPriceChangeNoticeState extends State<PendingPriceChangeNotice> {
               children: [
                 Text(
                   context.l10n.priceNoticeUpcomingChange,
-                  style: AppFonts.outfit(
+                  style: AppFonts.jakarta(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                     color: widget.primaryColor,
                   ),
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 2),
                 Text(
                   context.l10n.priceNoticeChangeIn(
                     currentPriceText,
                     newPriceText,
                     timerText,
                   ),
-                  style: AppFonts.outfit(
+                  style: AppFonts.jakarta(
                     fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: widget.accentColor,
-                    height: 1.25,
+                    height: 1.3,
                   ),
                 ),
               ],

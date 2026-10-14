@@ -1,0 +1,9 @@
+{
+  "name": "Acme Traders",
+  "shortName": "Acme",
+  "legalName": "Acme Traders Pvt Ltd",
+  "email": "hello@acme.example",
+  "phone": "+91 00000 00000",
+  "address": "100 Sample Street, Sample City",
+  "website": "https://acme.example"
+}

@@ -23,7 +23,9 @@ const MagicLinkToken = require('./MagicLinkToken');
 const AccountDeletionRequest = require('./AccountDeletionRequest');
 const AuditLog = require('./AuditLog');
 const AdminNotification = require('./AdminNotification');
+const PriceChangeNotificationBatch = require('./PriceChangeNotificationBatch');
 const ProductInterest = require('./ProductInterest');
+const ProductAlert = require('./ProductAlert');
 
 module.exports = {
   User,
@@ -51,5 +53,7 @@ module.exports = {
   AccountDeletionRequest,
   AuditLog,
   AdminNotification,
+  PriceChangeNotificationBatch,
   ProductInterest,
+  ProductAlert,
 };

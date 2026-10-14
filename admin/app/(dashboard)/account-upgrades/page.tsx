@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog"
 import { apiFetch } from "@/lib/api"
 import { displayRole } from "@/lib/role-labels"
+import { CustomerHiddenBrands } from "@/components/customer-hidden-brands"
 import { TableSkeleton } from "@/components/ui/skeleton"
 
 interface Customer {
@@ -47,6 +48,8 @@ interface Customer {
         excludedCategories?: string[]
         proofImages?: string[]
     }
+    // Brands hidden from this customer only (also on the Customers page).
+    hiddenBrands?: string[]
     createdAt: string
     updatedAt: string
 }
@@ -547,6 +550,23 @@ export default function AccountUpgradesPage() {
                                                 ))}
                                             </div>
                                         )}
+                                    </div>
+                                )}
+
+                                {(selectedCustomer.businessInfo?.status === 'pending' || selectedCustomer.businessInfo?.status === 'accepted')
+                                    && (selectedCustomer.role === 'buyer' || selectedCustomer.role === 'wholesaler') && (
+                                    <div className="col-span-2 border-t border-[#333] pt-4">
+                                        <CustomerHiddenBrands
+                                            key={selectedCustomer._id}
+                                            customerId={selectedCustomer._id}
+                                            hiddenBrands={selectedCustomer.hiddenBrands || []}
+                                            onSaved={(hiddenBrands) => {
+                                                const update = (item: Customer) => (item._id === selectedCustomer._id ? { ...item, hiddenBrands } : item)
+                                                setSelectedCustomer((current) => (current ? { ...current, hiddenBrands } : current))
+                                                setPending((current) => current.map(update))
+                                                setHistory((current) => current.map(update))
+                                            }}
+                                        />
                                     </div>
                                 )}
 

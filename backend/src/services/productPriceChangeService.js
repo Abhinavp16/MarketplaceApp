@@ -59,7 +59,7 @@ function resolveEffectiveAt(mode, customEffectiveAt, scheduledAt) {
   return effectiveAt;
 }
 
-async function supersedePendingAudit(product, supersededBy) {
+async function supersedePendingAudit(product, supersededBy, session = null) {
   if (!product.pendingPriceChangeAudit) {
     return;
   }
@@ -72,7 +72,8 @@ async function supersedePendingAudit(product, supersededBy) {
         supersededAt: new Date(),
         supersededBy,
       },
-    }
+    },
+    session ? { session } : {}
   );
 }
 
@@ -84,6 +85,8 @@ async function applyProductPriceChange({
   mode,
   customEffectiveAt,
   scheduledAt = new Date(),
+  // Optional Mongo session: the audit row and the product save then join the caller's transaction.
+  session = null,
 }) {
   const nextRetailPrice = normalizeOptionalPrice(retailPrice, 'Customer price');
   const nextWholesalePrice = normalizeOptionalPrice(wholesalePrice, 'Wholesale price');
@@ -96,7 +99,7 @@ async function applyProductPriceChange({
 
   const effectiveAt = resolveEffectiveAt(mode, customEffectiveAt, scheduledAt);
   const isImmediate = mode === PRICE_CHANGE_MODE_IMMEDIATE;
-  const audit = await PriceChangeAudit.create({
+  const [audit] = await PriceChangeAudit.create([{
     product: product._id,
     productName: String(product.name || '').trim(),
     productSku: String(product.sku || '').trim(),
@@ -112,9 +115,9 @@ async function applyProductPriceChange({
     effectiveAt,
     status: isImmediate ? 'applied' : 'scheduled',
     appliedAt: isImmediate ? scheduledAt : null,
-  });
+  }], session ? { session } : {});
 
-  await supersedePendingAudit(product, audit._id);
+  await supersedePendingAudit(product, audit._id, session);
 
   if (isImmediate) {
     if (retailChanged) product.retailPrice = nextRetailPrice;
@@ -130,7 +133,7 @@ async function applyProductPriceChange({
     product.pendingPriceChangeAudit = audit._id;
   }
 
-  await product.save();
+  await product.save(session ? { session } : undefined);
 
   return {
     product,

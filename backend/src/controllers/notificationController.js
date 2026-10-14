@@ -1,12 +1,17 @@
 const notificationService = require('../services/notificationService');
+const { paginate } = require('../utils/helpers');
 const { DeviceToken, Notification } = require('../models');
+
+const MAX_DEVICE_TOKENS_PER_USER = 10;
+const MAX_FCM_TOKEN_LENGTH = 4096;
+const PLATFORMS = new Set(['android', 'ios', 'web']);
 
 exports.registerFcmToken = async (req, res, next) => {
   try {
     const { fcmToken, platform } = req.body;
     const userId = req.user._id;
 
-    if (!fcmToken) {
+    if (typeof fcmToken !== 'string' || !fcmToken || fcmToken.length > MAX_FCM_TOKEN_LENGTH) {
       return res.status(400).json({
         success: false,
         message: 'FCM token is required',
@@ -16,9 +21,19 @@ exports.registerFcmToken = async (req, res, next) => {
     // Upsert: create or reactivate the token
     await DeviceToken.findOneAndUpdate(
       { userId, fcmToken },
-      { $set: { isActive: true, platform: platform || 'android' } },
+      { $set: { isActive: true, platform: PLATFORMS.has(platform) ? platform : 'android' } },
       { upsert: true, new: true }
     );
+
+    // Only the newest few devices of a user stay active.
+    const extra = await DeviceToken.find({ userId, isActive: true })
+      .sort({ updatedAt: -1 })
+      .skip(MAX_DEVICE_TOKENS_PER_USER)
+      .select('_id')
+      .lean();
+    if (extra.length > 0) {
+      await DeviceToken.updateMany({ _id: { $in: extra.map((token) => token._id) } }, { $set: { isActive: false } });
+    }
 
     res.json({
       success: true,
@@ -56,6 +71,10 @@ exports.unregisterFcmToken = async (req, res, next) => {
   }
 };
 
+// Topics a user may join themselves; others (if ever added) are managed by
+// the server, so nobody can sign up for another group's announcements.
+const PUBLIC_TOPICS = new Set(['new_products', 'promotions']);
+
 exports.subscribeToTopic = async (req, res, next) => {
   try {
     const { topic } = req.body;
@@ -65,6 +84,13 @@ exports.subscribeToTopic = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Topic is required',
+      });
+    }
+    if (!PUBLIC_TOPICS.has(String(topic))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Unknown topic',
+        error: { code: 'INVALID_TOPIC' },
       });
     }
 
@@ -96,6 +122,13 @@ exports.unsubscribeFromTopic = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Topic is required',
+      });
+    }
+    if (!PUBLIC_TOPICS.has(String(topic))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Unknown topic',
+        error: { code: 'INVALID_TOPIC' },
       });
     }
 
@@ -206,14 +239,13 @@ exports.sendPromotion = async (req, res, next) => {
 exports.getMyNotifications = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const { page = 1, limit = 20 } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const { page, limit, skip } = paginate(req.query.page, req.query.limit, 200);
 
     const [notifications, total, unreadCount] = await Promise.all([
       Notification.find({ userId })
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(parseInt(limit))
+        .limit(limit)
         .lean(),
       Notification.countDocuments({ userId }),
       Notification.countDocuments({ userId, isRead: false }),
@@ -224,10 +256,10 @@ exports.getMyNotifications = async (req, res, next) => {
       data: notifications,
       unreadCount,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page,
+        limit,
         total,
-        pages: Math.ceil(total / parseInt(limit)),
+        pages: Math.ceil(total / limit),
       },
     });
   } catch (error) {

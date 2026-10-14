@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/utils/customer_order_presentation.dart';
-import 'package:tradehub_demo/l10n/generated/app_localizations.dart';
+import 'package:demomart_demo/core/utils/customer_order_presentation.dart';
+import 'package:demomart_demo/l10n/generated/app_localizations.dart';
 
 void main() {
   final en = lookupAppLocalizations(const Locale('en'));

@@ -276,7 +276,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     foregroundColor: AppColors.textPrimary,
                     side: BorderSide(color: AppColors.gray300),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
+                    shape: RoundedSuperellipseBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -300,7 +300,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
+                    shape: RoundedSuperellipseBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),

@@ -1,0 +1,66 @@
+{
+  "productAlerts": [
+    {
+      "user": "priya",
+      "sku": "KW-HMR-24V"
+    },
+    {
+      "user": "sunrise",
+      "sku": "KW-HMR-24V"
+    },
+    {
+      "user": "metro",
+      "sku": "KW-HMR-24V"
+    },
+    {
+      "user": "priya",
+      "sku": "BG-WLD-AF"
+    },
+    {
+      "user": "metro",
+      "sku": "BG-WLD-AF"
+    },
+    {
+      "user": "priya",
+      "sku": "KW-MSD-1200"
+    },
+    {
+      "user": "sunrise",
+      "sku": "KW-MSD-1200"
+    }
+  ],
+  "priceChangeBatch": {
+    "status": "sent",
+    "firstChangeHoursAgo": 26,
+    "lastChangeHoursAgo": 25.5,
+    "sentHoursAgo": 25,
+    "retailSkus": [
+      "KW-AGR-850",
+      "AP-ADJ-06",
+      "BG-HLM-RT"
+    ],
+    "wholesaleSkus": [
+      "KW-AGR-850",
+      "AP-ADJ-06"
+    ],
+    "sentSummary": {
+      "customers": {
+        "products": 3,
+        "users": 3
+      },
+      "wholesalers": {
+        "products": 2,
+        "users": 3
+      }
+    }
+  },
+  "deletionRequests": [
+    {
+      "user": "arjun",
+      "source": "app",
+      "requestedDaysAgo": 25,
+      "dueInDays": 5,
+      "dueSoonReminderHoursAgo": 20
+    }
+  ]
+}

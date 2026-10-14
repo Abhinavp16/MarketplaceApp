@@ -1,6 +1,7 @@
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
 const sharp = require('sharp');
 const { saveBuffer, deleteFile, getStorageDriver } = require('../config/storage');
+const { BadRequestError } = require('../utils/errors');
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -97,12 +98,12 @@ exports.uploadMultipleImages = async (req, res, next) => {
     const uploadPromises = req.files.map(async (file, index) => {
       // Validate file type
       if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-        throw new Error(`Invalid file type for ${file.originalname}`);
+        throw new BadRequestError(`Invalid file type for ${file.originalname}`, 'INVALID_FILE_TYPE');
       }
 
       // Validate file size
       if (file.size > MAX_FILE_SIZE) {
-        throw new Error(`File ${file.originalname} is too large`);
+        throw new BadRequestError(`File ${file.originalname} is too large`, 'FILE_TOO_LARGE');
       }
 
       // Convert to WebP

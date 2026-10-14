@@ -151,7 +151,7 @@ class NotificationService {
         ...(notification.imageUrl && { imageUrl: notification.imageUrl }),
       };
       message.android.notification = {
-        channelId: 'tradehub_default',
+        channelId: 'demomart_default',
         priority: 'high',
         defaultSound: true,
       };

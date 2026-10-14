@@ -12,6 +12,8 @@ import {
   Package,
   Star,
   Search,
+  Upload,
+  Download,
 } from "@/components/hugeicons";
 import { useEffect, useState, useCallback } from "react";
 import {
@@ -28,6 +30,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
 import { HindiNameBatchButtons } from "@/components/hindi-name-tools";
+import { ImportProductsDialog } from "@/components/products/import-products-dialog";
+import { downloadImportTemplate } from "@/lib/catalog-import";
 import { describeDiscountSource, type EffectivePricing } from "@/lib/discount";
 
 interface ProductCategory {
@@ -47,6 +51,7 @@ interface Product {
   rating: number;
   isFeatured?: boolean;
   isHot?: boolean;
+  comingSoon?: { enabled?: boolean; expectedDate?: string | null };
   effectivePricing?: EffectivePricing;
 }
 
@@ -209,6 +214,11 @@ function ProductCard({
             Hot
           </Badge>
         ) : null}
+        {product.comingSoon?.enabled ? (
+          <Badge className="bg-sky-500/10 text-sky-700 hover:bg-sky-500/20" data-testid="coming-soon-badge">
+            Coming Soon
+          </Badge>
+        ) : null}
       </div>
 
       <div className="mt-auto flex items-end justify-between gap-4 border-t border-[#e2e2f0] pt-3">
@@ -236,16 +246,19 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<"list" | "card">("card");
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [comingSoonOnly, setComingSoonOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [templateLoading, setTemplateLoading] = useState(false);
 
   useEffect(() => {
     fetchProducts(1, true);
   }, []);
 
-  async function fetchProducts(pageNum: number = 1, reset: boolean = false) {
+  async function fetchProducts(pageNum: number = 1, reset: boolean = false, onlyComingSoon: boolean = comingSoonOnly) {
     if (reset) {
       setIsLoading(true);
       setPage(1);
@@ -260,6 +273,7 @@ export default function ProductsPage() {
       if (searchQuery.trim()) {
         params.append("search", searchQuery.trim());
       }
+      if (onlyComingSoon) params.append("comingSoon", "true");
 
       const res = await apiFetch(`/admin/products?${params.toString()}`);
       const data = await res.json();
@@ -372,6 +386,19 @@ export default function ProductsPage() {
     }
   }
 
+  async function handleTemplateDownload() {
+    setTemplateLoading(true);
+    try {
+      await downloadImportTemplate();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not download the template",
+      );
+    } finally {
+      setTemplateLoading(false);
+    }
+  }
+
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
@@ -447,6 +474,30 @@ export default function ProductsPage() {
               <LayoutGrid className="h-4 w-4" />
             </button>
           </div>
+          <Button
+            type="button"
+            variant="outline"
+            data-testid="import-template-button"
+            disabled={templateLoading}
+            onClick={handleTemplateDownload}
+            className="w-full border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900 sm:w-auto"
+          >
+            {templateLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            Template
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            data-testid="import-products-button"
+            onClick={() => setImportOpen(true)}
+            className="w-full border-indigo-300 bg-white text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 sm:w-auto"
+          >
+            <Upload className="mr-2 h-4 w-4" /> Import products
+          </Button>
           <Link
             href="/products/add"
             className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-sky-300 sm:w-auto"
@@ -476,6 +527,19 @@ export default function ProductsPage() {
           className="w-full border-[#cacbdf] bg-white text-slate-700 hover:bg-[#efeff8] hover:text-slate-900 sm:w-auto"
         >
           Search
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          aria-pressed={comingSoonOnly}
+          onClick={() => {
+            const next = !comingSoonOnly;
+            setComingSoonOnly(next);
+            fetchProducts(1, true, next);
+          }}
+          className={`w-full sm:w-auto ${comingSoonOnly ? "border-sky-400 bg-sky-50 text-sky-700" : "border-[#cacbdf] bg-white text-slate-700"}`}
+        >
+          Coming Soon
         </Button>
         {searchQuery ? (
           <Button
@@ -599,6 +663,11 @@ export default function ProductsPage() {
                         >
                           {product.status}
                         </Badge>
+                        {product.comingSoon?.enabled ? (
+                          <Badge className="ml-1 bg-sky-500/10 text-sky-700 hover:bg-sky-500/20">
+                            Coming Soon
+                          </Badge>
+                        ) : null}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
@@ -668,6 +737,11 @@ export default function ProductsPage() {
           </Button>
         </div>
       ) : null}
+      <ImportProductsDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={() => fetchProducts(1, true)}
+      />
     </div>
   );
 }

@@ -3,8 +3,8 @@ const assert = require('assert');
 const { displayActivityText, withDisplayNotes } = require('../src/utils/roleLabels');
 
 assert.strictEqual(
-  displayActivityText('Negotiation NEG-1 accepted by Staff Ravi — order confirmed'),
-  'Negotiation NEG-1 accepted by Member Ravi — order confirmed',
+  displayActivityText('Negotiation NEG-1 accepted by Staff Asha — order confirmed'),
+  'Negotiation NEG-1 accepted by Member Asha — order confirmed',
 );
 assert.strictEqual(displayActivityText('verified by staff'), 'verified by member');
 assert.strictEqual(displayActivityText('STAFF NOTE'), 'MEMBER NOTE');

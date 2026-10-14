@@ -7,10 +7,15 @@ class NotificationDestination {
   const NotificationDestination({
     required this.route,
     required this.requiresAuthentication,
+    this.overHome = false,
   });
 
   final String route;
   final bool requiresAuthentication;
+
+  /// Opened on top of Home (so Back returns there) instead of replacing the
+  /// whole stack; used for shared product links.
+  final bool overHome;
 }
 
 class NotificationNavigationService {
@@ -63,6 +68,16 @@ class NotificationNavigationService {
         '';
     final orderId =
         (data['orderId'] ?? data['order_id'])?.toString().trim() ?? '';
+
+    final productId =
+        (data['productId'] ?? data['product_id'])?.toString().trim() ?? '';
+    if ((type == 'product_launched' || type == 'new_product') &&
+        productId.isNotEmpty) {
+      return NotificationDestination(
+        route: '/product/${Uri.encodeComponent(productId)}',
+        requiresAuthentication: false,
+      );
+    }
 
     if (_negotiationNotificationTypes.contains(type) &&
         negotiationId.isNotEmpty) {
@@ -124,6 +139,22 @@ class NotificationNavigationService {
     return true;
   }
 
+  /// Opens a shared link's [route] (e.g. `/product/<slug>`). While the app
+  /// is running it is pushed on top of the current screen; at launch it
+  /// waits for the splash (update check, sign-in state) and then opens over
+  /// Home.
+  void openDeepLink(String route) {
+    if (_appReady) {
+      appRouter.push(route);
+      return;
+    }
+    _pendingDestination = NotificationDestination(
+      route: route,
+      requiresAuthentication: false,
+      overHome: true,
+    );
+  }
+
   bool completeStartup({required bool isAuthenticated}) {
     _appReady = true;
     _isAuthenticated = isAuthenticated;
@@ -157,6 +188,14 @@ class NotificationNavigationService {
 
     _pendingDestination = null;
     _waitingForAuthentication = false;
+    if (destination.overHome) {
+      appRouter.go('/home');
+      // Once Home is in place, so Back from the page returns to it.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        appRouter.push(destination.route);
+      });
+      return true;
+    }
     appRouter.go(destination.route);
     return true;
   }

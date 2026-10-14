@@ -72,7 +72,7 @@ test("customer list labels member accounts as member", async ({ page }) => {
   await mockApi(page, "admin", {
     "/admin/customers": {
       success: true,
-      data: [{ _id: "c1", name: "Ravi Member", email: "ravi@example.invalid", phone: "9000000003", role: MEMBER_ROLE, createdAt: "2026-09-20T09:00:00.000Z" }],
+      data: [{ _id: "c1", name: "Ravi Member", email: "demo@example.invalid", phone: "9000000003", role: MEMBER_ROLE, createdAt: "2026-09-20T09:00:00.000Z" }],
       pagination: { page: 1, total: 1, totalPages: 1 },
     },
   })

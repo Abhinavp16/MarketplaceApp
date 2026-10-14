@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/locale_provider.dart';
@@ -10,7 +11,10 @@ import '../../core/services/notification_navigation_service.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/language_wave.dart';
+import '../../widgets/ui/ui.dart';
 
 class PermissionsOnboardingScreen extends ConsumerStatefulWidget {
   const PermissionsOnboardingScreen({super.key});
@@ -75,17 +79,14 @@ class _PermissionsOnboardingScreenState
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF134E4A);
-    const textPrimary = Color(0xFF0F172A);
-    const textSecondary = Color(0xFF475569);
     final l10n = context.l10n;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 520),
               child: Column(
@@ -93,103 +94,73 @@ class _PermissionsOnboardingScreenState
                 children: [
                   if (_showLanguageChoice) ...[
                     const _LanguageChoice(),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 32),
                   ],
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_outlined,
-                      color: primary,
-                      size: 30,
-                    ),
-                  ),
-                  const SizedBox(height: 28),
                   Text(
                     l10n.onboardingTitle,
                     style: AppFonts.jakarta(
-                      fontSize: 28,
+                      fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    l10n.onboardingSubtitle,
-                    style: AppFonts.jakarta(
-                      fontSize: 15,
-                      height: 1.55,
-                      color: textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 26),
-                  _PermissionBenefit(
-                    icon: Icons.notifications_outlined,
-                    title: l10n.onboardingNotificationsTitle,
-                    description: l10n.onboardingNotificationsBody,
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    l10n.onboardingOtherPermissionsNote,
-                    style: AppFonts.jakarta(
-                      fontSize: 13,
-                      height: 1.5,
-                      color: textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: FilledButton(
-                      onPressed: _isContinuing
-                          ? null
-                          : () =>
-                                _complete(requestNotificationPermission: true),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: _isContinuing
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Text(
-                              l10n.onboardingEnableNotifications,
-                              style: AppFonts.jakarta(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                              ),
-                            ),
+                      color: AppColors.textPrimary,
+                      letterSpacing: -0.3,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      onPressed: _isContinuing
-                          ? null
-                          : () =>
-                                _complete(requestNotificationPermission: false),
-                      child: Text(
-                        l10n.onboardingNotNow,
-                        style: AppFonts.jakarta(
-                          fontWeight: FontWeight.w700,
-                          color: textSecondary,
+                  Text(
+                    l10n.onboardingSubtitle,
+                    style: AppFonts.jakarta(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _PermissionBenefit(
+                    icon: HugeIcons.strokeRoundedNotification02,
+                    title: l10n.onboardingNotificationsTitle,
+                    description: l10n.onboardingNotificationsBody,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 1),
+                        child: HugeIcon(
+                          icon: HugeIcons.strokeRoundedInformationCircle,
+                          size: 16,
+                          color: AppColors.textTertiary,
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l10n.onboardingOtherPermissionsNote,
+                          style: AppFonts.jakarta(
+                            fontSize: 13,
+                            height: 1.5,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+                  AppButton(
+                    label: l10n.onboardingEnableNotifications,
+                    icon: HugeIcons.strokeRoundedNotification02,
+                    loading: _isContinuing,
+                    onPressed: () =>
+                        _complete(requestNotificationPermission: true),
+                  ),
+                  const SizedBox(height: 8),
+                  AppButton(
+                    label: l10n.onboardingNotNow,
+                    variant: AppButtonVariant.ghost,
+                    size: AppButtonSize.medium,
+                    onPressed: _isContinuing
+                        ? null
+                        : () => _complete(requestNotificationPermission: false),
                   ),
                 ],
               ),
@@ -201,7 +172,7 @@ class _PermissionsOnboardingScreenState
   }
 }
 
-/// Two big buttons to pick the app language (English / हिंदी).
+/// Two big tiles to pick the app language, each written in its own script.
 class _LanguageChoice extends ConsumerWidget {
   const _LanguageChoice();
 
@@ -212,31 +183,72 @@ class _LanguageChoice extends ConsumerWidget {
 
     Widget option(Locale locale, String label) {
       final selected = current == locale.languageCode;
-      const primary = Color(0xFF134E4A);
       return Expanded(
-        child: Material(
-          color: selected ? primary : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => ref.read(localeProvider.notifier).setLocale(locale),
-            child: Container(
-              height: 64,
-              alignment: Alignment.center,
+        child: Semantics(
+          selected: selected,
+          child: Pressable(
+            onTap: () {
+              if (selected) return;
+              LanguageWave.run(
+                context,
+                () => ref.read(localeProvider.notifier).setLocale(locale),
+              );
+            },
+            semanticLabel: label,
+            haptic: true,
+            color: selected ? AppColors.primarySoft : AppColors.surfaceLight,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            child: AnimatedContainer(
+              duration: AppMotion.of(context, AppMotion.base),
+              curve: AppMotion.standard,
+              height: 88,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
                 border: Border.all(
-                  color: selected ? primary : const Color(0xFFE2E8F0),
-                  width: 1.5,
+                  color: selected ? AppColors.primary : AppColors.border,
+                  width: selected ? 1.6 : 1,
                 ),
               ),
-              child: Text(
-                label,
-                style: AppFonts.jakarta(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: selected ? Colors.white : const Color(0xFF0F172A),
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppFonts.jakarta(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: selected
+                            ? AppColors.primaryDeep
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  AnimatedSwitcher(
+                    duration: AppMotion.of(context, AppMotion.fast),
+                    child: selected
+                        ? const HugeIcon(
+                            key: ValueKey('on'),
+                            icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                            size: 22,
+                            color: AppColors.primary,
+                          )
+                        : Container(
+                            key: const ValueKey('off'),
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.borderStrong,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -250,21 +262,22 @@ class _LanguageChoice extends ConsumerWidget {
         Text(
           l10n.languageChooseTitle,
           style: AppFonts.jakarta(
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF0F172A),
+            color: AppColors.textPrimary,
+            letterSpacing: -0.3,
           ),
         ),
         const SizedBox(height: 6),
         Text(
           l10n.languageChooseSubtitle,
           style: AppFonts.jakarta(
-            fontSize: 13,
+            fontSize: 14,
             height: 1.5,
-            color: const Color(0xFF475569),
+            color: AppColors.textSecondary,
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         Row(
           children: [
             option(LocaleNotifier.english, l10n.languageEnglish),
@@ -290,24 +303,24 @@ class _PermissionBenefit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
+    return AppCard(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: const Color(0xFF134E4A).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+            width: 44,
+            height: 44,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySoft,
+              shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: const Color(0xFF134E4A), size: 22),
+            child: Center(
+              child: HugeIcon(
+                icon: icon,
+                color: AppColors.primaryDeep,
+                size: 22,
+              ),
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -319,7 +332,7 @@ class _PermissionBenefit extends StatelessWidget {
                   style: AppFonts.jakarta(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0F172A),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -328,7 +341,7 @@ class _PermissionBenefit extends StatelessWidget {
                   style: AppFonts.jakarta(
                     fontSize: 13,
                     height: 1.45,
-                    color: const Color(0xFF475569),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],

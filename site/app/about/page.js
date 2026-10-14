@@ -5,7 +5,7 @@ import { ADDRESS, LEGAL_NAME, SITE_NAME } from '@/lib/site-config';
 
 export const metadata = {
     title: 'About Us',
-    description: 'About TradeHub Demo, a fictional distribution business used for demonstration purposes.',
+    description: 'About DemoMart, a fictional distribution business used for demonstration purposes.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +33,7 @@ export default async function AboutPage() {
         <div className="page-transition">
             <PageHero
                 title="About Us"
-                subtitle="TradeHub Demo is a fictional distributor used to demonstrate this website template."
+                subtitle="DemoMart is a fictional distributor used to demonstrate this website template."
                 breadcrumbItems={['About Us']}
             />
 
@@ -45,7 +45,7 @@ export default async function AboutPage() {
                             Built Around Practical Supply
                         </h2>
                         <p className="mb-4 text-base leading-relaxed text-text-secondary sm:mb-6 sm:text-lg">
-                            This is demo placeholder content. TradeHub Demo is a fictional business that serves retailers, dealers and end buyers with a catalogue of industrial supplies.
+                            This is demo placeholder content. DemoMart is a fictional business that serves retailers, dealers and end buyers with a catalogue of industrial supplies.
                         </p>
                         <p className="mb-4 text-base leading-relaxed text-text-secondary sm:mb-6 sm:text-lg">
                             The demo catalogue includes sample categories such as power tools, hand tools, fasteners and fittings, and safety gear from fictional brands. All product data is synthetic.

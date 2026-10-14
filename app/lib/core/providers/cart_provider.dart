@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../config/api_config.dart';
 import '../services/storage_service.dart';
+import '../utils/packing.dart';
 
 class CartItem {
   final String productId;
@@ -12,7 +13,17 @@ class CartItem {
   final String? nameHindi;
   final String? brand;
   final String? category;
+
+  /// Admin's wholesale minimum; in packets when [packSize] > 1.
   final int minWholesaleQuantity;
+
+  /// Customers' smallest quantity (pieces / meters).
+  final int minCustomerQuantity;
+
+  /// Unit and Packing as set by the admin; see packing.dart. Quantity is
+  /// always in pieces or meters.
+  final String priceUnit;
+  final String packing;
   final double price;
   final double? mrp;
   final int quantity;
@@ -28,6 +39,9 @@ class CartItem {
     this.brand,
     this.category,
     this.minWholesaleQuantity = 1,
+    this.minCustomerQuantity = 1,
+    this.priceUnit = '',
+    this.packing = '',
     required this.price,
     this.mrp,
     required this.quantity,
@@ -50,6 +64,9 @@ class CartItem {
       brand: brand,
       category: category,
       minWholesaleQuantity: minWholesaleQuantity,
+      minCustomerQuantity: minCustomerQuantity,
+      priceUnit: priceUnit,
+      packing: packing,
       price: price,
       mrp: mrp,
       quantity: quantity ?? this.quantity,
@@ -60,6 +77,30 @@ class CartItem {
 
   bool get hasStockIssue => stockIssue != null || quantity > stock;
   double get total => price * quantity;
+
+  PackInfo get pack => packInfoFor(priceUnit, packing);
+  int get packSize => pack.size;
+  bool get isMeter => pack.isPack
+      ? pack.contentUnit == ContentUnit.meter
+      : isMeterUnit(priceUnit);
+
+  /// Wholesalers buy whole packs; customers buy loose pieces / cut lengths.
+  bool soldInPackets(bool isWholesaler) => isWholesaler && pack.isPack;
+  int quantityStep(bool isWholesaler) =>
+      soldInPackets(isWholesaler) ? packSize : 1;
+  int minimumQuantity(bool isWholesaler) =>
+      isWholesaler ? minWholesaleQuantity * packSize : minCustomerQuantity;
+
+  /// Number shown in the quantity box (packs, pieces or meters).
+  int displayQuantity(bool isWholesaler) =>
+      quantity ~/ quantityStep(isWholesaler);
+
+  /// How much this line adds to the cart badge: packs for wholesalers, one
+  /// per cut length (not 50 for 50 m), otherwise the quantity.
+  int badgeCount(bool isWholesaler) {
+    if (soldInPackets(isWholesaler)) return displayQuantity(isWholesaler);
+    return isMeter ? 1 : quantity;
+  }
 }
 
 class CartState {
@@ -90,9 +131,12 @@ class CartState {
   }
 
   int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
+
+  /// Count shown to the user: packets instead of pieces for wholesalers
+  /// buying packet products.
+  int displayItemCount(bool isWholesaler) =>
+      items.fold(0, (sum, item) => sum + item.badgeCount(isWholesaler));
   double get subtotal => items.fold(0, (sum, item) => sum + item.total);
-  double get deliveryFee => subtotal > 0 ? 50 : 0;
-  double get grandTotal => subtotal + deliveryFee;
   bool get hasStockIssues => items.any((item) => item.hasStockIssue);
 }
 
@@ -156,6 +200,9 @@ class CartNotifier extends StateNotifier<CartState> {
         brand: product['brand']?.toString(),
         category: product['category']?.toString(),
         minWholesaleQuantity: _positiveInt(product['minWholesaleQuantity']),
+        minCustomerQuantity: _positiveInt(product['minCustomerQuantity']),
+        priceUnit: product['priceUnit']?.toString() ?? '',
+        packing: product['packing']?.toString() ?? '',
         image: product['image']?.toString(),
         price: (item['currentPrice'] ?? product['price'] ?? 0).toDouble(),
         // Keep MRP so the crossed-out price and % off survive cart sync.
@@ -166,13 +213,19 @@ class CartNotifier extends StateNotifier<CartState> {
     }).toList();
   }
 
-  Future<bool> addItem({
+  /// Adds an item to the cart. Returns null on success (or when offline, where
+  /// the item is kept locally), or the server's error when it rejected the
+  /// item (e.g. not enough stock); the local cart is then left unchanged.
+  Future<DioException?> addItem({
     required String productId,
     required String name,
     String? nameHindi,
     String? brand,
     String? category,
     int minWholesaleQuantity = 1,
+    int minCustomerQuantity = 1,
+    String? priceUnit,
+    String? packing,
     String? image,
     required double price,
     double? mrp,
@@ -184,6 +237,7 @@ class CartNotifier extends StateNotifier<CartState> {
     final existingIndex = state.items.indexWhere(
       (i) => i.cartItemKey == itemKey,
     );
+    final previousItems = state.items;
     final updatedItems = List<CartItem>.from(state.items);
 
     if (existingIndex >= 0) {
@@ -201,6 +255,9 @@ class CartNotifier extends StateNotifier<CartState> {
           brand: brand,
           category: category,
           minWholesaleQuantity: _positiveInt(minWholesaleQuantity),
+          minCustomerQuantity: _positiveInt(minCustomerQuantity),
+          priceUnit: priceUnit ?? '',
+          packing: packing ?? '',
           image: image,
           price: price,
           mrp: mrp,
@@ -222,10 +279,38 @@ class CartNotifier extends StateNotifier<CartState> {
         final serverItems = _parseServerCart(response.data['data']);
         state = state.copyWith(items: serverItems);
       }
-    } catch (_) {
+    } on DioException catch (e) {
+      final status = e.response?.statusCode ?? 0;
+      if (status >= 400 && status < 500 && status != 401) {
+        // The server refused the item: undo the optimistic add.
+        state = state.copyWith(items: previousItems);
+        return e;
+      }
       // Offline or not authenticated — keep optimistic state
+    } catch (_) {
+      // Keep optimistic state
     }
-    return true;
+    return null;
+  }
+
+  /// Wholesalers: sends every cart item to the Deal Desk as a requirement.
+  /// The server empties the cart on success. Returns the created requirements;
+  /// throws [DioException] when nothing was sent (e.g. an item can't be).
+  Future<List<Map<String, dynamic>>> sendAsRequirement({
+    String? message,
+  }) async {
+    final dio = await _authedDio;
+    final response = await dio.post(
+      '/negotiations/from-cart',
+      data: {if (message != null && message.isNotEmpty) 'message': message},
+    );
+    final sent = (response.data?['data']?['negotiations'] as List? ?? [])
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+    state = state.copyWith(items: []);
+    await fetchCart();
+    return sent;
   }
 
   Future<String?> updateQuantity(

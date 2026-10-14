@@ -246,7 +246,7 @@ class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                'TradeHub Demo',
+                'DemoMart',
                 style: AppFonts.jakarta(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,

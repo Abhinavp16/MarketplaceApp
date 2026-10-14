@@ -1,0 +1,5 @@
+# Everything a deployment generates stays out of git. Only clients/example/ is tracked.
+/clients/*
+!/clients/example/
+/exports/
+/backups/

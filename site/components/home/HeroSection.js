@@ -40,7 +40,7 @@ export default function HeroSection({ heroImages: initialHeroImages = defaultHer
                             </text>
                         </svg>
                         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ffffff] shadow-[0_10px_26px_rgba(0,0,0,0.25)] sm:h-16 sm:w-16">
-                            <img src="/logo-mark.png" alt="TradeHub Demo" className="h-10 w-10 rounded-full object-contain sm:h-12 sm:w-12" />
+                            <img src="/logo-mark.png" alt="DemoMart" className="h-10 w-10 rounded-full object-contain sm:h-12 sm:w-12" />
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
+import '../core/theme/app_fonts.dart';
+import '../core/theme/app_theme.dart';
 import '../l10n/l10n.dart';
 
 /// Hindi display names for Indian states and union territories. The English
@@ -209,8 +212,21 @@ class _StateCityPincodeFieldsState extends State<StateCityPincodeFields> {
     return cities;
   }
 
+  // Fields take the app's input theme (filled, 12 px radius, teal focus).
   InputDecoration _decoration(String label) =>
-      InputDecoration(labelText: label, border: const OutlineInputBorder());
+      InputDecoration(labelText: label);
+
+  static const _dropdownIcon = HugeIcon(
+    icon: HugeIcons.strokeRoundedArrowDown01,
+    size: 18,
+    color: AppColors.textTertiary,
+  );
+
+  TextStyle get _valueStyle => AppFonts.jakarta(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -226,6 +242,11 @@ class _StateCityPincodeFieldsState extends State<StateCityPincodeFields> {
         DropdownButtonFormField<String>(
           initialValue: _selectedState,
           isExpanded: true,
+          icon: _dropdownIcon,
+          style: _valueStyle,
+          dropdownColor: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          menuMaxHeight: 360,
           decoration: _decoration(l10n.fieldState),
           items: states
               .map(
@@ -251,6 +272,11 @@ class _StateCityPincodeFieldsState extends State<StateCityPincodeFields> {
         DropdownButtonFormField<String>(
           initialValue: _selectedCity,
           isExpanded: true,
+          icon: _dropdownIcon,
+          style: _valueStyle,
+          dropdownColor: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          menuMaxHeight: 360,
           decoration: _decoration(l10n.fieldCity),
           items: cities.entries
               .map(
@@ -275,6 +301,7 @@ class _StateCityPincodeFieldsState extends State<StateCityPincodeFields> {
         TextFormField(
           controller: widget.pincodeController,
           keyboardType: TextInputType.number,
+          style: _valueStyle,
           validator: (value) => value == null || value.trim().isEmpty
               ? l10n.fieldEnterPincode
               : null,

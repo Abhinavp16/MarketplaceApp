@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/models/app_update_config.dart';
-import 'package:tradehub_demo/core/services/app_update_service.dart';
+import 'package:demomart_demo/core/models/app_update_config.dart';
+import 'package:demomart_demo/core/services/app_update_service.dart';
 
 void main() {
   group('mandatory update decision', () {

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import DemoFormStatus from '@/components/DemoFormStatus';
 import PageHero from '@/components/PageHero';
 import ScrollReveal from '@/components/ScrollReveal';
+import Icon from '@/components/Icon';
+import { Call02Icon, Location01Icon, Mail01Icon } from '@hugeicons/core-free-icons';
 import { ADDRESS, CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF } from '@/lib/site-config';
 
 export default function ContactPage() {
@@ -38,9 +40,7 @@ export default function ContactPage() {
                                 <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#16143a]">Call Us</h4>
                             </div>
                             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#14b8a6] shadow-sm ring-1 ring-[#1e1b4b]/8">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.78 19.78 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.78 19.78 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.59 2.61a2 2 0 0 1-.45 2.11L8 9.69a16 16 0 0 0 6.31 6.31l1.25-1.25a2 2 0 0 1 2.11-.45c.84.27 1.71.47 2.61.59A2 2 0 0 1 22 16.92Z" />
-                                </svg>
+                                <Icon icon={Call02Icon} size={23} />
                             </span>
                         </div>
                         <div className="space-y-3 rounded-[1.35rem] border border-[#1e1b4b]/8 bg-[#ffffff] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
@@ -59,10 +59,7 @@ export default function ContactPage() {
                                 <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#16143a]">Email Us</h4>
                             </div>
                             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#0f766e] shadow-sm ring-1 ring-[#1e1b4b]/8">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <path d="M4 4h16v16H4z" />
-                                    <path d="m4 7 8 6 8-6" />
-                                </svg>
+                                <Icon icon={Mail01Icon} size={23} />
                             </span>
                         </div>
                         <a href={`mailto:${CONTACT_EMAIL}`} className="block rounded-[1.35rem] border border-[#1e1b4b]/8 bg-[#ffffff] p-4 text-base font-semibold leading-6 text-[#1e1b4b] underline-offset-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] hover:underline sm:text-lg break-all">
@@ -78,10 +75,7 @@ export default function ContactPage() {
                                 <h4 className="text-[2rem] font-semibold tracking-[-0.02em] text-[#16143a]">Demo Address</h4>
                             </div>
                             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#4b5f9c] shadow-sm ring-1 ring-[#1e1b4b]/8">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" />
-                                    <path d="M12 12.5A2.5 2.5 0 1 0 12 7a2.5 2.5 0 0 0 0 5.5Z" />
-                                </svg>
+                                <Icon icon={Location01Icon} size={23} />
                             </span>
                         </div>
                         <p className="rounded-[1.35rem] border border-[#1e1b4b]/8 bg-[#ffffff] p-4 text-base font-medium leading-relaxed text-[#3b4266] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">

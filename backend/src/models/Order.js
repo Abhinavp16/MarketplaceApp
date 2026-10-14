@@ -103,6 +103,12 @@ const orderSchema = new mongoose.Schema({
     ref: 'Negotiation',
     default: null,
   },
+  // Every requirement in this order (a combined order holds several; the
+  // first is also negotiationId).
+  negotiationIds: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Negotiation',
+  }],
 
   items: [orderItemSchema],
 
@@ -211,6 +217,7 @@ orderSchema.index(
   { negotiationId: 1 },
   { unique: true, partialFilterExpression: { negotiationId: { $type: 'objectId' } } },
 );
+orderSchema.index({ negotiationIds: 1 });
 orderSchema.index({ 'items.productId': 1 });
 orderSchema.index({ 'items.variantId': 1 });
 

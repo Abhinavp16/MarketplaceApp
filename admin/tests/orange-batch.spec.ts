@@ -79,7 +79,7 @@ test('sends negotiation search text to the backend', async ({ page }) => {
   })
 
   await page.goto('/negotiations', { waitUntil: 'domcontentloaded' })
-  await page.getByPlaceholder('Search negotiations...').fill('NEG-42')
+  await page.getByPlaceholder('Search requirements...').fill('NEG-42')
   await page.getByRole('button', { name: 'Search' }).click()
 
   await expect.poll(() => searchParam).toBe('NEG-42')

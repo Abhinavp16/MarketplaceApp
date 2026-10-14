@@ -12,7 +12,7 @@ export const metadata = {
     template: `%s - ${SITE_NAME}`,
   },
   description:
-    "TradeHub Demo is a fictional distribution business used to demonstrate a catalogue, dealer and ordering website. All content is synthetic placeholder data.",
+    "DemoMart is a fictional distribution business used to demonstrate a catalogue, dealer and ordering website. All content is synthetic placeholder data.",
   // This is a demonstration site: keep it out of search indexes.
   robots: {
     index: false,

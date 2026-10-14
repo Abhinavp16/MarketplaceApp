@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import ScrollReveal from '@/components/ScrollReveal';
+import Icon from '@/components/Icon';
+import { Search01Icon } from '@hugeicons/core-free-icons';
 import { fallbackProductImage, getAllWebsiteProducts } from '@/lib/catalog-api';
 
 export const metadata = {
@@ -41,10 +43,8 @@ export default async function AllProductsPage({ searchParams }) {
                                 placeholder="Search by product name, SKU, or description"
                                 className="min-h-9 min-w-0 flex-1 rounded-full border-0 bg-transparent px-3 text-[11px] font-medium text-text-primary outline-none placeholder:text-slate-400 sm:min-h-12 sm:border sm:border-[#312e81]/15 sm:bg-white sm:px-5 sm:text-sm sm:transition sm:focus:border-brand-primary sm:focus:ring-4 sm:focus:ring-brand-primary/10"
                             />
-                            <button type="submit" aria-label="Search products" className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#17153b] text-white transition hover:bg-brand-primary sm:min-h-12 sm:w-auto sm:px-6 sm:text-sm sm:font-bold">
-                                <svg className="h-4 w-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" aria-hidden="true">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
-                                </svg>
+                            <button type="submit" aria-label="Search products" className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#16143a] text-white transition hover:bg-brand-primary sm:min-h-12 sm:w-auto sm:px-6 sm:text-sm sm:font-bold">
+                                <Icon icon={Search01Icon} size={16} strokeWidth={2.5} className="h-4 w-4 sm:hidden" />
                                 <span className="hidden sm:inline">Search</span>
                             </button>
                             {search && (

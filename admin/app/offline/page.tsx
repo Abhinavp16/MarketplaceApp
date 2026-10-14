@@ -8,7 +8,7 @@ export default function OfflinePage() {
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white p-6 text-center">
-            <Image src="/icon-192.png" alt="TradeHub Demo Admin" width={72} height={72} className="rounded-2xl" />
+            <Image src="/icon-192.png" alt="DemoMart Admin" width={72} height={72} className="rounded-2xl" />
             <h1 className="text-xl font-bold text-slate-900">You are offline</h1>
             <p className="max-w-sm text-sm text-slate-500">
                 The admin panel needs an internet connection. Check your connection and try again.

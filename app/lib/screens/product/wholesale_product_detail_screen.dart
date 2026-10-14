@@ -498,7 +498,7 @@ class _WholesaleProductDetailScreenState
                         foregroundColor: Colors.white,
                         elevation: 8,
                         shadowColor: primary.withOpacity(0.3),
-                        shape: RoundedRectangleBorder(
+                        shape: RoundedSuperellipseBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),

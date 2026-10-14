@@ -3,17 +3,23 @@ const Product = require('../models/Product');
 const Company = require('../models/Company');
 const { fillHindiNames, scheduleHindiNameFill } = require('../services/hindiNameService');
 const { resolveHindiNameOnSave } = require('../utils/hindiNames');
-const { paginate, formatPaginationResponse } = require('../utils/helpers');
+const { paginate, formatPaginationResponse, queryText } = require('../utils/helpers');
 const { PRODUCT_STATUS } = require('../utils/constants');
 
 const { normalizeImageObject } = require('../utils/mediaUrls');
 const { recordAudit } = require('../services/auditService');
+const { BadRequestError } = require('../utils/errors');
 const {
   pickDiscountUpdates,
   discountSnapshot,
   discountChanged,
   presentDiscountFields,
 } = require('../utils/productDiscount');
+const {
+  clearHiddenCatalogCache,
+  hiddenCatalogFor,
+  isCategoryHidden,
+} = require('../utils/customerVisibility');
 const {
   applyCategoryAccessToProductQuery,
   filterCategoriesForUser,
@@ -33,6 +39,14 @@ async function auditCategoryDiscountChange(req, category, before) {
     metadata: { name: category.name, parent: category.parent?._id || category.parent || null, before, after },
   });
 }
+
+const auditCategoryVisibilityChange = (req, category, wasHidden) => recordAudit({
+  actorId: req.user?._id,
+  action: 'category.customer_visibility_updated',
+  entityType: 'Category',
+  entityId: category._id,
+  metadata: { name: category.name, hideFromCustomers: { before: wasHidden, after: Boolean(category.hideFromCustomers) } },
+});
 
 async function getDescendantCategoryIds(rootId) {
   const descendantIds = [];
@@ -138,9 +152,31 @@ async function resolveCompanyId(value) {
 // @desc    Get all categories
 // @route   GET /api/v1/categories
 // @access  Public
+// Customers and guests don't see categories hidden from customers, their
+// subcategories, or the categories of hidden brands.
+const withoutHiddenCategories = (categories, hidden) => (
+  hidden ? categories.filter((category) => !isCategoryHidden(category, hidden)) : categories
+);
+
+// Only top-level categories carry the switch; subcategories follow their parent.
+function readHideFromCustomers(value, hasParent) {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'boolean') {
+    throw new BadRequestError('hideFromCustomers must be true or false', 'VALIDATION_ERROR');
+  }
+  if (value && hasParent) {
+    throw new BadRequestError(
+      'Only top-level categories can be hidden from customers; subcategories follow their category',
+      'SUBCATEGORY_CANNOT_BE_HIDDEN',
+    );
+  }
+  return value;
+}
+
 exports.getCategories = async (req, res, next) => {
   try {
-    const { parent, active, search, company, brand } = req.query;
+    const [parent, active, search, company, brand] = ['parent', 'active', 'search', 'company', 'brand']
+      .map((key) => queryText(req.query[key]));
     // Management UIs fetch the whole tree at once; docs are small.
     const { page, limit, skip } = paginate(req.query.page, req.query.limit, 500);
 
@@ -185,7 +221,10 @@ exports.getCategories = async (req, res, next) => {
       Category.countDocuments(query),
     ]);
 
-    const visibleCategories = filterCategoriesForUser(categories, req.user);
+    const visibleCategories = withoutHiddenCategories(
+      filterCategoriesForUser(categories, req.user),
+      await hiddenCatalogFor(req.user),
+    );
     const countsByCategory = await getProductCountMap(
       visibleCategories,
       req.user,
@@ -216,7 +255,8 @@ exports.getCategory = async (req, res, next) => {
       .populate('company', 'name slug logo')
       .populate('subcategories');
 
-    if (!category) {
+    const hidden = await hiddenCatalogFor(req.user);
+    if (!category || isCategoryHidden(category, hidden)) {
       return res.status(404).json({
         success: false,
         message: 'Category not found',
@@ -224,6 +264,9 @@ exports.getCategory = async (req, res, next) => {
     }
 
     const categoryData = category.toObject();
+    if (Array.isArray(categoryData.subcategories)) {
+      categoryData.subcategories = withoutHiddenCategories(categoryData.subcategories, hidden);
+    }
     categoryData.image = normalizeImageObject(categoryData.image, req);
     categoryData.productCount = await Product.countDocuments({
       status: { $ne: PRODUCT_STATUS.ARCHIVED },
@@ -252,6 +295,7 @@ exports.createCategory = async (req, res, next) => {
   try {
     const { name, nameHindi, description, image, parent, order, isActive, company } = req.body;
     const discountUpdates = pickDiscountUpdates(req.body);
+    const hideFromCustomers = readHideFromCustomers(req.body.hideFromCustomers, Boolean(parent));
 
     const companyId = await resolveCompanyId(company);
     if (!companyId) {
@@ -305,9 +349,12 @@ exports.createCategory = async (req, res, next) => {
       parent: parent || null,
       order: order || 0,
       isActive: isActive !== undefined ? isActive : true,
+      hideFromCustomers: hideFromCustomers === true,
       ...discountUpdates,
     });
     await auditCategoryDiscountChange(req, category, discountSnapshot({}));
+    clearHiddenCatalogCache();
+    if (category.hideFromCustomers) await auditCategoryVisibilityChange(req, category, false);
     if (hindiDecision.generate) scheduleHindiNameFill(Category, category._id);
 
     res.status(201).json({
@@ -398,6 +445,11 @@ exports.updateCategory = async (req, res, next) => {
       }
     }
 
+    const requestedHide = readHideFromCustomers(req.body.hideFromCustomers, Boolean(effectiveParentId));
+    const wasHidden = Boolean(category.hideFromCustomers);
+    // Moved under another category: it follows its new parent from now on.
+    const nextHidden = effectiveParentId ? false : (requestedHide ?? wasHidden);
+
     const descendantCategoryIds = companyChanged
       ? await getDescendantCategoryIds(category._id)
       : [];
@@ -420,11 +472,14 @@ exports.updateCategory = async (req, res, next) => {
         parent: parent !== undefined ? (parent || null) : category.parent,
         order: order !== undefined ? order : category.order,
         isActive: isActive !== undefined ? isActive : category.isActive,
+        hideFromCustomers: nextHidden,
         ...discountUpdates,
       },
       { new: true, runValidators: true }
     ).populate('parent', 'name nameHindi slug').populate('company', 'name slug logo');
     await auditCategoryDiscountChange(req, category, discountBefore);
+    clearHiddenCatalogCache();
+    if (wasHidden !== nextHidden) await auditCategoryVisibilityChange(req, category, wasHidden);
     if (hindiDecision.generate) scheduleHindiNameFill(Category, category._id);
 
     const canonicalCategoryValue = category.slug || category.name;
@@ -512,6 +567,7 @@ exports.deleteCategory = async (req, res, next) => {
     }
 
     await category.deleteOne();
+    clearHiddenCatalogCache();
 
     res.json({
       success: true,
@@ -675,7 +731,11 @@ exports.getCategoriesWithSubcategories = async (req, res, next) => {
     const catalogRootCategories = active === 'true'
       ? rootCategories.filter((category) => category.company?.isActive === true)
       : rootCategories;
-    const visibleRootCategories = filterCategoriesForUser(catalogRootCategories, req.user);
+    const hidden = await hiddenCatalogFor(req.user);
+    const visibleRootCategories = withoutHiddenCategories(
+      filterCategoriesForUser(catalogRootCategories, req.user),
+      hidden,
+    );
     const rootCategoryIds = visibleRootCategories.map((c) => c._id);
 
     // Fetch all subcategories for these root categories
@@ -688,7 +748,10 @@ exports.getCategoriesWithSubcategories = async (req, res, next) => {
       .sort({ order: 1, name: 1 })
       .lean();
 
-    const visibleSubcategories = filterCategoriesForUser(allSubcategories, req.user);
+    const visibleSubcategories = withoutHiddenCategories(
+      filterCategoriesForUser(allSubcategories, req.user),
+      hidden,
+    );
 
     // Get product counts for all categories (root + subcategories)
     const allCategories = [...visibleRootCategories, ...visibleSubcategories];
@@ -753,7 +816,8 @@ exports.getSubcategories = async (req, res, next) => {
     const { parentId } = req.params;
 
     const parentCategory = await Category.findById(parentId).lean();
-    if (!parentCategory) {
+    const hidden = await hiddenCatalogFor(req.user);
+    if (!parentCategory || isCategoryHidden(parentCategory, hidden)) {
       return res.status(404).json({
         success: false,
         message: 'Parent category not found',
@@ -764,7 +828,10 @@ exports.getSubcategories = async (req, res, next) => {
       .sort({ order: 1, name: 1 })
       .lean();
 
-    const visibleSubcategories = filterCategoriesForUser(subcategories, req.user);
+    const visibleSubcategories = withoutHiddenCategories(
+      filterCategoriesForUser(subcategories, req.user),
+      hidden,
+    );
     const countsByCategory = await getProductCountMap(visibleSubcategories, req.user);
 
     const subcategoriesWithCounts = visibleSubcategories.map((subcat) => ({

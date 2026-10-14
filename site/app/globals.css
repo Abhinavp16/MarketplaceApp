@@ -44,7 +44,7 @@
   --color-neutral-surface: #eef2ff;
   --font-family-primary: 'Cabinet Grotesk', sans-serif;
   --font-family-secondary: 'Cabinet Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --shadow-cta: 0 4px 14px 0 rgba(55, 48, 163, 0.39);
+  --shadow-cta: 0 4px 14px 0 rgba(55,48,163, 0.39);
 }
 
 html {
@@ -72,24 +72,14 @@ h6 {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid rgba(49, 46, 129, 0.12);
+  border: 1px solid rgba(49,46,129, 0.12);
   border-radius: 999px;
-  background: rgba(238, 242, 255, 0.72);
-  padding: 0.55rem 0.85rem;
+  background: rgba(238,242,255, 0.72);
+  padding: 0.55rem 1rem;
   color: #312e81;
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-}
-
-.home-kicker::before {
-  content: "";
-  width: 1.05rem;
-  height: 1.05rem;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 65% 65%, #312e81 0 24%, transparent 25%),
-    conic-gradient(from 220deg at 45% 60%, transparent 0 28%, #312e81 29% 64%, transparent 65% 100%);
 }
 
 /* Scroll animations */
@@ -217,10 +207,10 @@ h6 {
 
 /* Glassmorphism utility */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255,255,255, 0.18);
 }
 
 /* Custom scrollbar */

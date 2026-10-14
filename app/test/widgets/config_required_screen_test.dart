@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/config/api_config.dart';
-import 'package:tradehub_demo/core/config/brand_config.dart';
-import 'package:tradehub_demo/widgets/config_required_screen.dart';
+import 'package:demomart_demo/core/config/api_config.dart';
+import 'package:demomart_demo/core/config/brand_config.dart';
+import 'package:demomart_demo/widgets/config_required_screen.dart';
 
 void main() {
   test('API base URL has no built-in fallback', () {
@@ -19,8 +19,8 @@ void main() {
   });
 
   test('brand constants are the generic demo values', () {
-    expect(BrandConfig.name, 'TradeHub Demo');
-    expect(BrandConfig.supportEmail, 'demo@tradehub.example');
-    expect(BrandConfig.packageName, 'com.demo.tradehub');
+    expect(BrandConfig.name, 'DemoMart');
+    expect(BrandConfig.supportEmail, 'demo@demomart.example');
+    expect(BrandConfig.packageName, 'com.demo.demomart');
   });
 }

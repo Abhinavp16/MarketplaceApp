@@ -13,12 +13,12 @@ class _AddNewProductScreenState extends State<AddNewProductScreen> {
   String? _selectedCategory;
 
   // Colors from design
-  static const Color primary = Color(0xFF46ec13);
-  static const Color backgroundLight = Color(0xFFf6f8f6);
-  static const Color backgroundDark = Color(0xFF142210);
-  static const Color textDark = Color(0xFF111b0d);
-  static const Color borderColor = Color(0xFFd5e7cf);
-  static const Color placeholderColor = Color(0xFF5e9a4c);
+  static const Color primary = Color(0xFF2DD4BF);
+  static const Color backgroundLight = Color(0xFFF3F8F7);
+  static const Color backgroundDark = Color(0xFF0B1514);
+  static const Color textDark = Color(0xFF0F2422);
+  static const Color borderColor = Color(0xFFDAE6E3);
+  static const Color placeholderColor = Color(0xFF68797A);
   static const Color gray200 = Color(0xFFe5e7eb);
 
   @override
@@ -398,7 +398,7 @@ class _AddNewProductScreenState extends State<AddNewProductScreen> {
                               foregroundColor: backgroundDark,
                               elevation: 8,
                               shadowColor: primary.withOpacity(0.2),
-                              shape: RoundedRectangleBorder(
+                              shape: RoundedSuperellipseBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
@@ -421,7 +421,7 @@ class _AddNewProductScreenState extends State<AddNewProductScreen> {
                               backgroundColor: gray200,
                               foregroundColor: Color(0xFF1f2937),
                               elevation: 0,
-                              shape: RoundedRectangleBorder(
+                              shape: RoundedSuperellipseBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),

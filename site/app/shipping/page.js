@@ -2,7 +2,7 @@ import LegalPage from '@/components/LegalPage';
 
 export const metadata = {
     title: "Shipping Policy",
-    description: "Demo placeholder shipping policy for TradeHub Demo.",
+    description: "Demo placeholder shipping policy for DemoMart.",
 };
 
 const sections = [

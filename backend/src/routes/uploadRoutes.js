@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const uploadController = require('../controllers/uploadController');
 const { protect, authorize } = require('../middlewares/auth');
+const { BadRequestError } = require('../utils/errors');
 
 // Configure multer for memory storage (files stored in buffer)
 const storage = multer.memoryStorage();
@@ -17,7 +18,7 @@ const upload = multer({
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'), false);
+      cb(new BadRequestError('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.', 'INVALID_FILE_TYPE'), false);
     }
   },
 });
@@ -54,7 +55,7 @@ const videoUpload = multer({
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only MP4, WebM, and MOV are allowed.'), false);
+      cb(new BadRequestError('Invalid file type. Only MP4, WebM, and MOV are allowed.', 'INVALID_FILE_TYPE'), false);
     }
   },
 });

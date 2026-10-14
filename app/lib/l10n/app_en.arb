@@ -1,13 +1,13 @@
 {
   "@@locale": "en",
-  "aboutBrand": "TradeHub Demo",
-  "aboutDescription": "TradeHub Demo is a demonstration marketplace that shows how retailers, wholesalers, and buyers can work together on one platform. You can discover products, place orders, negotiate bulk deals, and manage delivery from one app. All data in this environment is synthetic.",
+  "aboutBrand": "DemoMart",
+  "aboutDescription": "DemoMart is a demonstration marketplace that shows how retailers, wholesalers, and buyers can work together on one platform. You can discover products, place orders, negotiate bulk deals, and manage delivery from one app. All data in this environment is synthetic.",
   "aboutFeatureCatalogue": "A sample catalogue across many product categories",
   "aboutFeatureDealerSupport": "Dealer and bulk order support",
   "aboutFeatureDirectContact": "Direct contact with the business support team",
-  "aboutFeatureDispatch": "Sales and dispatch coordination",
+  "aboutFeatureDispatch": "City-based sales and dispatch coordination",
   "aboutTagline": "Distribution made simple",
-  "aboutTitle": "About TradeHub Demo",
+  "aboutTitle": "About DemoMart",
   "aboutWhatYouCanDo": "What you can do",
   "addProductAllowNegotiation": "Allow Price Negotiation",
   "addProductAllowNegotiationHint": "Buyers can send price proposals",
@@ -75,6 +75,10 @@
   "apiErrorInsufficientStock": "Some items don't have enough stock. Please update the quantity.",
   "apiErrorInvalidCoupon": "Invalid or expired coupon code.",
   "apiErrorInvalidQuantity": "Please enter a valid quantity.",
+  "apiErrorPackQuantity": "This product is sold in whole packets, coils or bundles only.",
+  "apiErrorMinCustomerQuantity": "Please order at least the minimum quantity.",
+  "apiErrorProductComingSoon": "This product is coming soon and can't be ordered yet.",
+  "apiErrorProductUnavailable": "This product isn't available right now.",
   "apiErrorMinWholesaleQuantity": "Please order at least the minimum wholesale quantity.",
   "apiErrorNegotiationCheckoutDisabled": "Ordering from a deal is turned off right now.",
   "apiErrorNegotiationDisabled": "Negotiation is not available for this product.",
@@ -86,7 +90,7 @@
   "apiErrorServiceUnavailable": "The service is temporarily unavailable. Please try again later.",
   "apiErrorSessionExpired": "Your session has expired. Please log in again.",
   "apiErrorTooManyRequests": "Too many requests. Please wait a moment and try again.",
-  "appTitle": "TradeHub Demo",
+  "appTitle": "DemoMart",
   "authBusinessNameHint": "Your shop or company name",
   "authConfirmPasswordHint": "Re-enter your password",
   "authConfirmPasswordLabel": "Confirm Password",
@@ -105,7 +109,7 @@
   "authErrorPhoneIndian": "Enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.",
   "authErrorPhoneNotReal": "Enter a real mobile number, not a repeated or sequential number.",
   "authHaveAccount": "Already have an account? ",
-  "authJoinSubtitle": "Join TradeHub Demo today",
+  "authJoinSubtitle": "Join DemoMart today",
   "authNameHint": "Enter your name",
   "authNeedHelp": "Need help accessing your account? Contact Support",
   "authNoAccount": "Don't have an account? ",
@@ -115,7 +119,7 @@
   "authRoleCustomer": "Customer",
   "authRoleWholesaler": "Wholesaler",
   "authSignIn": "Sign In",
-  "authSignInSubtitle": "Sign in to continue to TradeHub Demo",
+  "authSignInSubtitle": "Sign in to continue to DemoMart",
   "authSignUp": "Sign Up",
   "authWelcomeBack": "Welcome Back",
   "authWholesalerProofNote": "After creating your account, submit your business proof from Become a Wholesaler for admin review.",
@@ -183,7 +187,7 @@
       }
     }
   },
-  "cartIssueOutOfStock": "{product} is out of stock",
+  "cartIssueOutOfStock": "{product} is sold out",
   "@cartIssueOutOfStock": {
     "placeholders": {
       "product": {
@@ -226,7 +230,7 @@
       }
     }
   },
-  "cartItemOutOfStock": "Out of stock — please remove this item",
+  "cartItemOutOfStock": "Sold out — please remove this item",
   "cartItemUnavailable": "This product is currently unavailable",
   "cartLoginRequiredMessage": "You can add products to cart, but login is required to place an order.",
   "cartLoginRequiredTitle": "Login Required",
@@ -265,6 +269,23 @@
   "cartStockIssuesBanner": "Some items have stock issues. Please adjust quantities.",
   "cartStockIssuesMessage": "Some items in your cart have stock issues. Please update quantities before checkout.",
   "cartStockIssuesTitle": "Stock Issues",
+  "cartSendingRequirement": "Sending requirement...",
+  "cartRequirementSent": "{count, plural, =1{Requirement sent for 1 product} other{Requirement sent for {count} products}}. DemoMart will reply in Deal Desk.",
+  "@cartRequirementSent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartRequirementBlockedItems": "Remove these items to send the requirement: {names}",
+  "@cartRequirementBlockedItems": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "cartTitle": "Shopping Cart",
   "categoryBackToCategories": "Back to categories",
   "categoryBackToTypes": "Back to types",
@@ -305,7 +326,7 @@
   },
   "categoryViewProduct": "View Product",
   "checkoutAddressLine1": "Address Line 1",
-  "checkoutApprovalNote": "We’ll notify you after the TradeHub Demo team reviews your order.",
+  "checkoutApprovalNote": "We’ll notify you after the DemoMart team reviews your order.",
   "checkoutAwaitingApproval": "Awaiting Approval",
   "checkoutChooseAnotherWay": "Choose another way to send or save your receipt.",
   "checkoutConfirmAndPay": "Confirm & Pay",
@@ -352,6 +373,23 @@
   "commonCopied": "Copied",
   "commonCopy": "Copy",
   "commonDate": "Date",
+  "comingSoonBadge": "Coming Soon",
+  "comingSoonExpected": "Expected {date}",
+  "@comingSoonExpected": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "comingSoonPrice": "Price coming soon",
+  "comingSoonNotifyMe": "Notify me when available",
+  "comingSoonNotifying": "We'll notify you",
+  "comingSoonNotifyOn": "We'll let you know as soon as it's available.",
+  "comingSoonNotifyOff": "You won't be notified for this product.",
+  "comingSoonLoginToNotify": "Log in to get notified when it's available.",
+  "homeComingSoonSection": "Coming Soon",
+  "homeComingSoonSubtitle": "Launching soon. Tap Notify me to hear first.",
   "commonDelete": "Delete",
   "commonDone": "Done",
   "commonEdit": "Edit",
@@ -376,7 +414,7 @@
   "commonNoDataFound": "Nothing to show yet",
   "commonOk": "OK",
   "commonOptional": "Optional",
-  "commonOutOfStock": "Out of Stock",
+  "commonOutOfStock": "Sold Out",
   "commonPerUnit": "/unit",
   "commonPercentOff": "{percent}% OFF",
   "@commonPercentOff": {
@@ -504,8 +542,8 @@
   "conversionTitle": "Apply for wholesaler account",
   "conversionUnexpectedError": "An unexpected error occurred.",
   "conversionUploadProof": "Upload proof images",
-  "dealAcceptedByPlatform": "Accepted by TradeHub Demo",
-  "dealAcceptedByPlatformName": "Accepted by TradeHub Demo: {name}",
+  "dealAcceptedByPlatform": "Accepted by DemoMart",
+  "dealAcceptedByPlatformName": "Accepted by DemoMart: {name}",
   "@dealAcceptedByPlatformName": {
     "placeholders": {
       "name": {
@@ -525,7 +563,7 @@
   "dealConfirmAndProceed": "Confirm & Proceed",
   "dealCreateOrderFailed": "Failed to create order",
   "dealCurrentPricePerUnit": "Current Price/unit",
-  "dealDeclinedByPlatform": "Declined by TradeHub Demo",
+  "dealDeclinedByPlatform": "Declined by DemoMart",
   "dealEnterMessage": "Please enter a message",
   "dealErrorWithDetails": "Error: {error}",
   "@dealErrorWithDetails": {
@@ -539,8 +577,8 @@
   "dealFieldCouponCode": "Coupon / Affiliate Code (Optional)",
   "dealFieldFullName": "Full Name",
   "dealFieldPhone": "Phone",
-  "dealPlatform": "TradeHub Demo",
-  "dealPlatformActor": "TradeHub Demo: {name}",
+  "dealPlatform": "DemoMart",
+  "dealPlatformActor": "DemoMart: {name}",
   "@dealPlatformActor": {
     "placeholders": {
       "name": {
@@ -618,7 +656,7 @@
   "dealSendMessageFailed": "Failed to send message",
   "dealShippingAddressTitle": "Shipping Address",
   "dealStatusAccepted": "Accepted",
-  "dealStatusNewPriceFromPlatform": "New Price from TradeHub Demo",
+  "dealStatusNewPriceFromPlatform": "New Price from DemoMart",
   "dealStatusNewPriceReceived": "New Price Received",
   "dealStatusRequirementDeclined": "Requirement Declined",
   "dealStatusRequirementExpired": "Requirement Expired",
@@ -684,15 +722,15 @@
   "guideStep1Title": "Request a bulk price",
   "guideStep2Body": "The seller may accept your request or send a counter-offer. Check the app for updates before confirming an order.",
   "guideStep2Title": "Review the seller response",
-  "guideStep3Body": "After your order is created, share its receipt with the TradeHub Demo team so they can coordinate the next step.",
+  "guideStep3Body": "After your order is created, share its receipt with the DemoMart team so they can coordinate the next step.",
   "guideStep3Title": "Send your order receipt",
-  "guideStep4Body": "Complete payment at the shop or using QR or bank details provided by the TradeHub Demo team. Your order status is updated after admin verification.",
-  "guideStep4Title": "Pay through the TradeHub Demo team",
+  "guideStep4Body": "Complete payment at the shop or using QR or bank details provided by the DemoMart team. Your order status is updated after admin verification.",
+  "guideStep4Title": "Pay through the DemoMart team",
   "guideTip": "Include the quantity and your preferred delivery timeline in your request so the seller can provide a useful response.",
   "guideTitle": "Negotiation Guide",
   "guideViewNegotiations": "View Negotiations",
   "helpAppTagline": "Distribution made simple",
-  "helpBrandName": "TradeHub Demo",
+  "helpBrandName": "DemoMart",
   "helpCallUs": "Call Us",
   "helpContactInfoSubtitle": "Get in touch with our support team",
   "helpContactInfoTitle": "Contact Information",
@@ -738,9 +776,9 @@
   "homeBannerExploreProducts": "Explore Products",
   "homeBannerNewArrival": "NEW ARRIVAL",
   "homeBannerShopNow": "Shop Now",
-  "homeBrandFirstWord": "TradeHub",
-  "homeBrandName": "TradeHub Demo",
-  "homeBrandSecondWord": "Demo",
+  "homeBrandFirstWord": "Demo",
+  "homeBrandName": "DemoMart",
+  "homeBrandSecondWord": "Mart",
   "homeBrandTagline": "Grow Together  •  Trade Better",
   "homeBrandValue": "Brand: {brand}",
   "@homeBrandValue": {
@@ -796,6 +834,25 @@
   "homeCreateOrderFailed": "Failed to create order",
   "homeCreatingOrder": "Creating Order...",
   "homeCurrentLabel": "Current:",
+  "dealDeliveryNote": "+ Delivery charges, if any, will be added by DemoMart when your order is confirmed.",
+  "dealDeliveryOnConfirmation": "Added on confirmation",
+  "dealEstimatedTotal": "Estimated total",
+  "dealOrderBeingPrepared": "DemoMart is preparing your order",
+  "dealAwaitingOrderConfirmation": "Accepted. DemoMart will create your order and confirm delivery charges.",
+  "dealDeskRequirementGroup": "Requirement {number} · {count, plural, =1{1 product} other{{count} products}} · ₹{total}",
+  "@dealDeskRequirementGroup": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "homeDealDeskTitle": "Deal Desk",
   "homeDealEmptyActive": "No active negotiations",
   "homeDealEmptyCompleted": "No completed negotiations",
@@ -971,7 +1028,7 @@
       }
     }
   },
-  "homePartnershipsTitle": "AUTHORIZED REPRESENTATIVE & PARTNERSHIPS",
+  "homePartnershipsTitle": "PARTNERSHIPS",
   "homePayableTotal": "Payable Total",
   "homePopularProductsCustomer": "Popular Products",
   "homePopularProductsDealer": "Fast-Moving Products",
@@ -1032,16 +1089,16 @@
   "homeReviewsTitle": "What Our Customers Say",
   "homeSampleReview1Name": "Rajesh Kumar",
   "homeSampleReview1Role": "Retail Buyer, Sample City",
-  "homeSampleReview1Text": "TradeHub Demo has completely changed how I source my stock. The bulk pricing and quality are unbeatable.",
+  "homeSampleReview1Text": "DemoMart has completely changed how I source my stock. The bulk pricing and quality are unbeatable.",
   "homeSampleReview2Name": "Priya Sharma",
   "homeSampleReview2Role": "Retailer, Demo State",
-  "homeSampleReview2Text": "As a retailer, I need reliable delivery and authentic brands. The service on TradeHub Demo is a lifesaver for my business.",
+  "homeSampleReview2Text": "As a retailer, I need reliable delivery and authentic brands. The service on DemoMart is a lifesaver for my business.",
   "homeSampleReview3Name": "Amit Patel",
   "homeSampleReview3Role": "Wholesale Distributor, Gujarat",
-  "homeSampleReview3Text": "I've been using TradeHub Demo for a year now. It has greatly simplified how I manage large orders and track inventory.",
+  "homeSampleReview3Text": "I've been using DemoMart for a year now. It has greatly simplified how I manage large orders and track inventory.",
   "homeSampleReview4Name": "Anjali Singh",
   "homeSampleReview4Role": "Store Owner, Sample City",
-  "homeSampleReview4Text": "The variety of products on TradeHub Demo is impressive. Truly a one-stop shop for wholesale buying.",
+  "homeSampleReview4Text": "The variety of products on DemoMart is impressive. Truly a one-stop shop for wholesale buying.",
   "homeSaveAddress": "Save Address",
   "homeScheduled": "Scheduled",
   "homeSearchFilterTooltip": "Search filter",
@@ -1143,11 +1200,11 @@
   "legalShippingPolicy": "Shipping Policy",
   "legalTermsConditions": "Terms & Conditions",
   "legalWarrantyPolicy": "Warranty Policy",
-  "localNotificationBrand": "TradeHub Demo",
+  "localNotificationBrand": "DemoMart",
   "localNotificationCountdownChannel": "Price Countdown Notifications",
   "localNotificationCountdownChannelDescription": "Live countdown notifications for scheduled price updates",
   "localNotificationGeneralChannel": "General Notifications",
-  "localNotificationGeneralChannelDescription": "General notifications for TradeHub Demo",
+  "localNotificationGeneralChannelDescription": "General notifications for DemoMart",
   "localNotificationPriceUpdateActive": "A scheduled price update is active.",
   "localNotificationPriceUpdateScheduled": "Price update scheduled",
   "localNotificationPricesApplied": "New prices are now applied.",
@@ -1159,7 +1216,7 @@
   "negotiationsEmptyCompleted": "No completed negotiations",
   "negotiationsEmptyHint": "Start negotiating on product pages",
   "negotiationsLoadFailed": "Failed to load negotiations",
-  "negotiationsNewPriceFromPlatformLabel": "New Price from TradeHub Demo:",
+  "negotiationsNewPriceFromPlatformLabel": "New Price from DemoMart:",
   "negotiationsNoDate": "No date",
   "negotiationsNumberFallback": "NEGOTIATION",
   "negotiationsTabActive": "Active",
@@ -1212,7 +1269,7 @@
       }
     }
   },
-  "orderSuccessDeliveryNote": "Contact TradeHub Demo to confirm arrangements",
+  "orderSuccessDeliveryNote": "Contact DemoMart to confirm arrangements",
   "orderSuccessMessage": "Your order has been placed successfully.\nWe'll notify you once it's shipped.",
   "orderSuccessPaymentPending": "Payment Verification Pending",
   "orderSuccessTitle": "Order Confirmed!",
@@ -1379,6 +1436,16 @@
   "privacyDialogBody": "We will process your request within 30 days. Direct account data, uploaded business documents, saved addresses, carts, device tokens, and notifications will be removed or anonymized. Financial records may be retained where required for tax, payment, fraud-prevention, dispute, or warranty obligations. Backup handling follows our applicable operational and legal retention requirements.",
   "privacyDialogTitle": "Request account deletion?",
   "privacyKeepAccount": "Keep account",
+  "privacyRejectedNoReason": "Contact us if you have any questions. You can send a new request below.",
+  "privacyRejectedReason": "Reason from DemoMart: {reason}",
+  "@privacyRejectedReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyRejectedTitle": "Your last deletion request was declined",
   "privacyRequestBody": "After Member verification, we complete deletion within 30 days. Restricted financial records may be retained only for legal, tax, payment, fraud-prevention, dispute, or warranty obligations.",
   "privacyRequestButton": "Request account deletion",
   "privacyRequestDeletion": "Request deletion",
@@ -1390,12 +1457,14 @@
   "privacyTitle": "Account & Privacy",
   "productAddShort": "Add",
   "productAddToCart": "Add to Cart",
+  "productCartShort": "Cart",
+  "productViewCart": "View Cart",
   "productAddToCartDisabledPreview": "Add to Cart disabled in preview mode",
   "productAddedToCart": "Added to cart",
   "productBadgeHot": "HOT",
   "productBadgeNew": "NEW",
   "productBadgeSale": "SALE",
-  "productBrandFallback": "TradeHub Demo",
+  "productBrandFallback": "DemoMart",
   "productBrandValue": "Brand: {brand}",
   "@productBrandValue": {
     "placeholders": {
@@ -1409,7 +1478,7 @@
   "productBulkOrder": "Bulk Order",
   "productBulkQuantityNegotiation": "Bulk Quantity Negotiation",
   "productBulkQuantityNegotiationBody": "Want to deal in more quantity? Send us your requirement and we'll get back to you with the best price.",
-  "productBulkUpiNote": "Bulk orders require manual UPI verification before processing.",
+  "productBulkUpiNote": "Bulk orders require manual payment verification before processing.",
   "productBuyNow": "Buy Now",
   "productBuyNowDisabledPreview": "Buy Now disabled in preview mode",
   "productChooseVariantHint": "Choose size or pack option",
@@ -1441,7 +1510,7 @@
   "productNegotiationSubmitFailed": "Failed to submit negotiation",
   "productNoDescription": "No description available for this product.",
   "productNotFound": "Product not found",
-  "productOnlyPlatformCanConfirm": "Only TradeHub Demo can confirm the deal",
+  "productOnlyPlatformCanConfirm": "Only DemoMart can confirm the deal",
   "productPlaceholderControlPanel": "Control Panel",
   "productPlaceholderDrone": "Agri Drone",
   "productPlaceholderFarmTool": "Farm Tool",
@@ -1519,7 +1588,7 @@
   "productSelectVariant": "Select Variant",
   "productSendRequirement": "Send Requirement",
   "productSendToDealDesk": "Send to Deal Desk",
-  "productShareText": "Check out {name} on TradeHub Demo!\n\n{url}",
+  "productShareText": "Check out {name} on DemoMart!\n\n{url}",
   "@productShareText": {
     "placeholders": {
       "name": {
@@ -1530,7 +1599,7 @@
       }
     }
   },
-  "productShareTextWithPrice": "Check out {name} - ₹{price} on TradeHub Demo!\n\n{url}",
+  "productShareTextWithPrice": "Check out {name} - ₹{price} on DemoMart!\n\n{url}",
   "@productShareTextWithPrice": {
     "placeholders": {
       "name": {
@@ -1545,7 +1614,7 @@
     }
   },
   "productShippingReturns": "Shipping & Returns",
-  "productShippingTermsDefault": "Delivery, payment, and return arrangements depend on the product, order, and location. Contact TradeHub Demo to confirm the applicable terms before payment or dispatch.",
+  "productShippingTermsDefault": "Delivery, payment, and return arrangements depend on the product, order, and location. Contact DemoMart to confirm the applicable terms before payment or dispatch.",
   "productShowLess": "Show less",
   "productSkuValue": "SKU: {sku}",
   "@productSkuValue": {
@@ -1706,8 +1775,333 @@
   "wishlistEmptyTitle": "Your wishlist is empty",
   "wishlistSwipeToRemove": "Swipe left on an item to remove it",
   "wishlistTitle": "My Wishlist",
-  "productRequirementMessageLabel": "MESSAGE / DELIVERY REQUIREMENT (OPTIONAL)",
-  "productRequirementMessageHint": "e.g. preferred delivery date, packaging or site details",
-  "productRequirementMessageReview": "Message",
-  "negotiationBuyerMessage": "Message"
+  "productPiecesCount": "{count, plural, =1{1 piece} other{{count} pieces}}",
+  "@productPiecesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productMetersCount": "{count} m",
+  "@productMetersCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "productPacketsCount": "{count, plural, =1{1 Packet} other{{count} Packets}}",
+  "@productPacketsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productCoilsCount": "{count, plural, =1{1 Coil} other{{count} Coils}}",
+  "@productCoilsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productBundlesCount": "{count, plural, =1{1 Bundle} other{{count} Bundles}}",
+  "@productBundlesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productPackWithContents": "{pack} ({contents})",
+  "@productPackWithContents": {
+    "placeholders": {
+      "pack": {
+        "type": "String"
+      },
+      "contents": {
+        "type": "String"
+      }
+    }
+  },
+  "productPackPrice": "{pack} = ₹{price}",
+  "@productPackPrice": {
+    "placeholders": {
+      "pack": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "productCardPack": "{unit} {contents}",
+  "@productCardPack": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "contents": {
+        "type": "String"
+      }
+    }
+  },
+  "productPcsCount": "{count} pcs",
+  "@productPcsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productUnitCoil": "Coil",
+  "productUnitBundle": "Bundle",
+  "productMinOrderQuantity": "Minimum order: {quantity}",
+  "@productMinOrderQuantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "productPacketContainsPieces": "1 Packet contains {count, plural, =1{1 piece} other{{count} pieces}}",
+  "productPacketContains": "1 Packet contains {contents}",
+  "@productPacketContainsPieces": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@productPacketContains": {
+    "placeholders": {
+      "contents": {
+        "type": "String"
+      }
+    }
+  },
+  "uiDecreaseQuantity": "Decrease quantity",
+  "uiIncreaseQuantity": "Increase quantity",
+  "uiUndo": "Undo",
+  "uiItemRemoved": "{name} removed",
+  "@uiItemRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "uiAddToWishlist": "Add to wishlist",
+  "uiRemoveFromWishlist": "Remove from wishlist",
+  "uiPerMeter": "/m",
+  "uiPerPiece": "/pc",
+  "cartPlaceOrderRequest": "Place order request",
+  "cartClearTitle": "Clear your cart?",
+  "cartClearMessage": "Every item in your cart will be removed.",
+  "cartClearConfirm": "Clear cart",
+  "cartItemTotal": "Item total",
+  "cartYouSave": "You save ₹{amount}",
+  "@cartYouSave": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cartViewBreakup": "View breakup",
+  "cartHideBreakup": "Hide breakup",
+  "cartBillTitle": "Bill details",
+  "cartQtySheetTitle": "Enter quantity",
+  "cartQtyPackCount": "{unit} count",
+  "@cartQtyPackCount": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "cartQtyEnter": "Please enter a quantity",
+  "cartQtyUpdate": "Update quantity",
+  "cartQtyTapToEdit": "Tap to type the quantity",
+  "ordActionTitle": "What you need to do",
+  "ordNeedHelp": "Need help with this order?",
+  "ordNeedHelpSubtitle": "Talk to the DemoMart team directly",
+  "ordStepUpcoming": "Upcoming",
+  "ordDeliveredTitle": "Your order was delivered",
+  "ordPlacedOn": "Placed on {date}",
+  "@ordPlacedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordTransporterLabel": "Transporter / Courier",
+  "ordLrNumberLabel": "LR / Tracking number",
+  "ordHideDetails": "Hide details",
+  "ordCancelledTitle": "This order was cancelled",
+  "dealNeedsReply": "Needs your reply",
+  "dealNeedsReplyCount": "{count, plural, =1{1 deal needs your reply} other{{count} deals need your reply}}",
+  "@dealNeedsReplyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dealPriceYours": "Your price",
+  "dealPricePlatform": "DemoMart's price",
+  "dealPriceAgreed": "Agreed price",
+  "dealAwaitingPrice": "Awaiting reply",
+  "dealToday": "Today",
+  "dealYesterday": "Yesterday",
+  "dealQuickBetterPrice": "Can you do a better price?",
+  "dealQuickDeliveryTime": "What is the delivery time?",
+  "dealQuickConfirmStock": "Please confirm stock",
+  "dealQuickRepliesLabel": "Quick replies",
+  "dealExplainerTitle": "How Deal Desk works",
+  "dealSummaryShowDetails": "Show details",
+  "dealSummaryHideDetails": "Hide details",
+  "dealStepRequested": "Requested",
+  "dealStepTalking": "Price talk",
+  "dealStepAgreed": "Agreed",
+  "dealStepOrder": "Order",
+  "dealOfferPerUnit": "Per unit",
+  "dealSend": "Send",
+  "accLogoutTitle": "Log out?",
+  "accLogoutMessage": "You can log in again anytime with your phone number and password.",
+  "accUpgradeBenefitsTitle": "What you get as a wholesaler",
+  "accBenefitDealerPrices": "Dealer prices on wholesale products",
+  "accBenefitDealDesk": "Ask for a better price on Deal Desk",
+  "accBenefitBulkPacks": "Buy in full packets, coils and bundles",
+  "accBenefitCartRequirement": "Send your whole cart as one requirement",
+  "accStepBusiness": "Business",
+  "accStepLocation": "Shop location",
+  "accStepProof": "Proof photos",
+  "accStepOf": "Step {current} of {total}",
+  "@accStepOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "accReviewNote": "Our team reviews every application before approving it. You'll see the status here.",
+  "accTrackSubmitted": "Submitted",
+  "accTrackUnderReview": "Under review",
+  "accTrackApproved": "Approved",
+  "accTrackNeedsChanges": "Needs changes",
+  "accGstInvalidFormat": "Enter a valid 15-character GSTIN, e.g. 22AAAAA0000A1Z5",
+  "authTroubleSignIn": "Trouble signing in?",
+  "authContactSupport": "Contact support",
+  "homeTrustTrustedByDealers": "Trusted by dealers",
+  "homeTrustGstInvoice": "GST invoice",
+  "homeTrustGenuineBrands": "Genuine brands",
+  "homeTrustCallUs": "Call us",
+  "catBrandsLoadError": "Couldn't load brands",
+  "catCategoriesLoadError": "Couldn't load categories",
+  "catLoadErrorHint": "Check your internet connection and try again.",
+  "catPerMeterShort": "/m",
+  "catPerPieceShort": "/pc",
+  "pdpKeySpecs": "Key specs",
+  "pdpFeatures": "Features",
+  "pdpYouSave": "You save {amount}",
+  "@pdpYouSave": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pdpViewFullScreen": "View full screen",
+  "pdpImageOf": "Image {current} of {total}",
+  "@pdpImageOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "searchRemoveFilter": "Remove filter",
+  "homeLogoutConfirmTitle": "Log out?",
+  "homeLogoutConfirmMessage": "You'll need to log in again to see your orders and place new ones.",
+  "profileStatOrders": "Orders",
+  "profileStatDeals": "Active deals",
+  "profileMemberSince": "Member since {date}",
+  "@profileMemberSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "profileYourOrder": "Your order",
+  "profileMoreOrdersInProgress": "{count, plural, =1{+1 more in progress} other{+{count} more in progress}}",
+  "@profileMoreOrdersInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileUpgradeCta": "Apply now",
+  "profileAddressesSaved": "{count, plural, =0{No saved address yet} =1{1 saved address} other{{count} saved addresses}}",
+  "@profileAddressesSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileNotificationsSubtitle": "Updates about your orders",
+  "profileAccountPrivacySubtitle": "Your data and account deletion",
+  "profileLegalSubtitle": "Privacy, terms, shipping and refunds",
+  "profileUnreadCount": "{count} unread",
+  "@profileUnreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileUpgradeContinue": "Continue",
+  "homeGreeting": "Namaste 🙏",
+  "homeGreetingName": "Namaste, {name} 🙏",
+  "@homeGreetingName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeHeadlineCustomer": "What does your business need today?",
+  "homeHeadlineDealer": "What would you like to restock today?",
+  "homeShopByCategory": "Shop by category",
+  "homeAllCategoriesTile": "All",
+  "notificationsMarkAllRead": "Mark all read",
+  "notificationsToday": "Today",
+  "notificationsYesterday": "Yesterday",
+  "notificationsEarlier": "Earlier",
+  "notificationsFilterAll": "All",
+  "notificationsFilterOrders": "Orders",
+  "notificationsFilterDeals": "Deals",
+  "notificationsFilterOffers": "Offers",
+  "notificationsFilterEmpty": "Nothing here yet",
+  "notificationsLoadFailed": "Couldn't load your notifications",
+  "notificationsLoadFailedHint": "Check your connection and try again.",
+  "notificationsActionTrackOrder": "Track order",
+  "notificationsActionViewOrders": "View orders",
+  "notificationsActionOpenDeal": "Open deal",
+  "notificationsActionViewOrder": "View order",
+  "dealYourTurn": "your turn",
+  "uiMuteVideo": "Mute video",
+  "uiUnmuteVideo": "Turn on video sound"
 }

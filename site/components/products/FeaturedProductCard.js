@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Icon from '@/components/Icon';
+import { ArrowRight02Icon } from '@hugeicons/core-free-icons';
 import {
     featuredProductFallbackImage,
     getFeaturedDescription,
@@ -24,7 +26,6 @@ export default function FeaturedProductCard({
                     className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                     alt={normalizedProduct.name}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#17153b]/75 via-transparent to-transparent" />
                 {normalizedProduct.badge && (
                     <div className={`absolute left-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] shadow-sm ${normalizedProduct.badgeStyle || 'border border-white/30 bg-white/90 text-brand-primary'}`}>
                         {normalizedProduct.badge}
@@ -67,9 +68,7 @@ export default function FeaturedProductCard({
                         aria-label={`View details for ${normalizedProduct.name}`}
                         className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#312e81]/15 bg-white/60 text-brand-primary shadow-sm transition-colors hover:bg-brand-primary hover:text-white sm:h-11 sm:w-11"
                     >
-                        <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
+                        <Icon icon={ArrowRight02Icon} size={14} strokeWidth={2.5} className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Link>
                 </div>
             </div>

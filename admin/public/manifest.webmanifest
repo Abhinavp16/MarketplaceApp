@@ -1,7 +1,7 @@
 {
-  "name": "TradeHub Demo Admin",
-  "short_name": "TradeHub Demo",
-  "description": "TradeHub Demo admin panel - orders, deal desk, catalog and notifications (demonstration environment, synthetic data).",
+  "name": "DemoMart Admin",
+  "short_name": "DemoMart",
+  "description": "DemoMart admin panel - orders, deal desk, catalog and notifications (demonstration environment, synthetic data).",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

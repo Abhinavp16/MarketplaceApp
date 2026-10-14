@@ -3,7 +3,10 @@
  *
  * When DEMO_MODE=true this backend must only ever talk to a LOCAL database
  * whose name contains "demo", and must have no third-party credentials
- * configured (Firebase, SMTP, translation API...). The guard is evaluated at
+ * configured (SMTP, translation API...). The one exception is Firebase push,
+ * which is allowed only for the demo's OWN Firebase project: FIREBASE_PROJECT_ID
+ * must be non-empty and equal DEMO_FIREBASE_PROJECT_ID, and no Firebase value may
+ * carry a production marker. The guard is evaluated at
  * process start (before any DB connection) and again by the seed/reset
  * scripts through assertDemoDatabase().
  *
@@ -27,6 +30,7 @@ const FORBIDDEN_MARKERS = [
   j('917', '9110159'),
   j('877', '0974845'),
   j('1df', '4b'),
+  j('build', 'ory'),
 ];
 
 // Hosting/provider domains that must never appear in a demo environment.
@@ -93,6 +97,52 @@ function parseMongoUri(rawUri) {
 
 const isSet = (value) => value !== undefined && value !== null && String(value).trim() !== '';
 
+// Firebase values scanned for production markers (the private key is random
+// base64 and is deliberately not scanned).
+const FIREBASE_MARKER_KEYS = [
+  'FIREBASE_PROJECT_ID',
+  'FIREBASE_CLIENT_EMAIL',
+  'FIREBASE_STORAGE_BUCKET',
+  'DEMO_FIREBASE_PROJECT_ID',
+];
+
+/**
+ * Firebase push is optional in demo mode. Any FIREBASE_* value is refused unless
+ * FIREBASE_PROJECT_ID is set, equals DEMO_FIREBASE_PROJECT_ID (also set) and none
+ * of the Firebase values contain a production marker.
+ */
+function findFirebaseProblems(env) {
+  const firebaseKeys = Object.keys(env).filter((key) => key.startsWith('FIREBASE_') && isSet(env[key]));
+  if (firebaseKeys.length === 0) return [];
+
+  const problems = [];
+  const projectId = stripQuotes(env.FIREBASE_PROJECT_ID);
+  const demoProjectId = stripQuotes(env.DEMO_FIREBASE_PROJECT_ID);
+
+  if (!projectId) {
+    problems.push(`Firebase settings are present (${firebaseKeys.join(', ')}) but FIREBASE_PROJECT_ID is empty`);
+  } else if (!demoProjectId) {
+    problems.push('Firebase is only allowed in demo mode when DEMO_FIREBASE_PROJECT_ID names the demo\'s own Firebase project (it is empty)');
+  } else if (projectId !== demoProjectId) {
+    problems.push('FIREBASE_PROJECT_ID does not equal DEMO_FIREBASE_PROJECT_ID; demo mode only allows the demo\'s own Firebase project');
+  }
+
+  const markerKeys = FIREBASE_MARKER_KEYS.filter((key) => {
+    const lower = String(env[key] || '').toLowerCase();
+    return FORBIDDEN_MARKERS.some((marker) => lower.includes(marker));
+  });
+  if (markerKeys.length > 0) {
+    problems.push(`${markerKeys.join(', ')} contains a production marker`);
+  }
+
+  // A service account belongs to one project: its e-mail ends with @<project>.iam.gserviceaccount.com.
+  const clientEmail = stripQuotes(env.FIREBASE_CLIENT_EMAIL).toLowerCase();
+  if (clientEmail && projectId && !clientEmail.endsWith(`@${projectId.toLowerCase()}.iam.gserviceaccount.com`)) {
+    problems.push('FIREBASE_CLIENT_EMAIL is not a service account of FIREBASE_PROJECT_ID');
+  }
+  return problems;
+}
+
 /**
  * Returns a list of human-readable problems. Empty list = safe demo config.
  * Pure function (no process.exit, no IO) so it can be unit tested.
@@ -102,7 +152,7 @@ function findDemoConfigProblems(env = process.env) {
   const uri = stripQuotes(env.MONGODB_URI);
 
   if (!uri) {
-    problems.push('MONGODB_URI is not set (expected a local demo database, e.g. mongodb://127.0.0.1:27017/tradehub_demo?replicaSet=rs0)');
+    problems.push('MONGODB_URI is not set (expected a local demo database, e.g. mongodb://127.0.0.1:27017/demomart_demo?replicaSet=rs0)');
   } else {
     const parsed = parseMongoUri(uri);
     if (/^mongodb\+srv/i.test(uri) || parsed.scheme === 'mongodb+srv') {
@@ -124,10 +174,7 @@ function findDemoConfigProblems(env = process.env) {
     }
   }
 
-  const firebaseKeys = Object.keys(env).filter((key) => key.startsWith('FIREBASE_') && isSet(env[key]));
-  if (firebaseKeys.length > 0) {
-    problems.push(`Firebase credentials must not be set in demo mode (found: ${firebaseKeys.join(', ')})`);
-  }
+  problems.push(...findFirebaseProblems(env));
   const smtpKeys = Object.keys(env).filter((key) => key.startsWith('SMTP_') && isSet(env[key]));
   if (smtpKeys.length > 0) {
     problems.push(`SMTP settings must not be set in demo mode (found: ${smtpKeys.join(', ')})`);
@@ -195,6 +242,7 @@ module.exports = {
   isDemoMode,
   parseMongoUri,
   findDemoConfigProblems,
+  findFirebaseProblems,
   enforceDemoGuard,
   assertDemoDatabase,
   FORBIDDEN_MARKERS,

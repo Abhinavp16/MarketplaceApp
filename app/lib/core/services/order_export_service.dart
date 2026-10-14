@@ -43,8 +43,42 @@ class OrderExportService {
     if (responseData is! Map) return null;
     final data = responseData['data'];
     if (data is! Map) return null;
-    final raw = data['orderId']?.toString().trim();
+    // Checkout responses carry `orderId`; order objects (order history) carry
+    // `id` / `_id`.
+    final raw = (data['orderId'] ?? data['id'] ?? data['_id'])
+        ?.toString()
+        .trim();
     return (raw == null || raw.isEmpty) ? null : raw;
+  }
+
+  /// Wraps an order object from `GET /orders` in the same envelope a checkout
+  /// response has, so order history can reuse the checkout receipt flow
+  /// (PDF export + share). Falls back to the standard caption when the order
+  /// has none.
+  static Map<String, dynamic> receiptResponseFromOrder(
+    Map<String, dynamic> order,
+  ) {
+    String? text(dynamic value) {
+      final raw = value?.toString().trim();
+      return (raw == null || raw.isEmpty) ? null : raw;
+    }
+
+    final orderId = text(order['orderId'] ?? order['id'] ?? order['_id']);
+    final caption =
+        text(order['whatsappMessage']) ??
+        'Hello, please find my order receipt attached.';
+    return {
+      'success': true,
+      'data': {
+        ...order,
+        'orderId': orderId,
+        'orderNumber': text(order['orderNumber']),
+        'exportPath':
+            text(order['exportPath']) ??
+            (orderId == null ? null : '/orders/$orderId/export?format=pdf'),
+        'whatsappMessage': caption,
+      },
+    };
   }
 
   static String? extractOrderNumber(dynamic responseData) {
@@ -114,13 +148,17 @@ class OrderExportService {
         );
       }
 
+      // Receipts live in their own cache folder: it's the only folder the
+      // Android file provider may share (see res/xml/file_paths.xml).
       final tempDir = await getTemporaryDirectory();
+      final receiptsDir = Directory('${tempDir.path}/receipts');
+      await receiptsDir.create(recursive: true);
       final safeOrderNumber = orderNumber
           .replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1F]'), '-')
           .replaceAll(RegExp(r'\s+'), '-')
           .replaceAll(RegExp(r'-+'), '-')
           .replaceAll(RegExp(r'^-|-$'), '');
-      final file = File('${tempDir.path}/order-$safeOrderNumber.pdf');
+      final file = File('${receiptsDir.path}/order-$safeOrderNumber.pdf');
       await file.writeAsBytes(bytes, flush: true);
 
       return OrderExportDownloadResult(file: file);

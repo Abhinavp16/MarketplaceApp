@@ -198,7 +198,7 @@
         "pricePerUnit": 199
       }
     ],
-    "deliveryFee": 50,
+    "deliveryFee": 0,
     "discount": 0,
     "shippingAddress": {
       "fullName": "Priya Sharma",
@@ -233,7 +233,7 @@
         "pricePerUnit": 3299
       }
     ],
-    "deliveryFee": 50,
+    "deliveryFee": 60,
     "discount": 0,
     "shippingAddress": {
       "fullName": "Priya Sharma",
@@ -291,7 +291,7 @@
         "pricePerUnit": 5999
       }
     ],
-    "deliveryFee": 50,
+    "deliveryFee": 0,
     "discount": 0,
     "shippingAddress": {
       "fullName": "Arjun Nair",
@@ -338,7 +338,7 @@
         "pricePerUnit": 329
       }
     ],
-    "deliveryFee": 50,
+    "deliveryFee": 45,
     "discount": 0,
     "shippingAddress": {
       "fullName": "Sneha Kapoor",
@@ -398,5 +398,89 @@
       "status": "verified",
       "method": "office_manual"
     }
+  },
+  {
+    "key": "ord-1008",
+    "number": "ORD-DEMO-1008",
+    "user": "metro",
+    "type": "wholesale",
+    "negotiations": [
+      "ngt-metro-sander",
+      "ngt-metro-goggle"
+    ],
+    "createdHoursAgo": 14,
+    "items": [
+      {
+        "sku": "KW-SND-300",
+        "quantity": 10,
+        "pricePerUnit": 1650
+      },
+      {
+        "sku": "BG-GGL-AF",
+        "quantity": 50,
+        "pricePerUnit": 135
+      }
+    ],
+    "deliveryFee": 180,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Anita Desai",
+      "phone": "9000000005",
+      "addressLine1": "48 Market Road",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "pending_payment",
+    "acceptanceStatus": null,
+    "inventoryCommitted": false,
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 14,
+        "note": "Requirement REQ-2026-DEMO02 (2 products) accepted by Admin Demo Business Owner · delivery ₹180 added - order confirmed"
+      }
+    ],
+    "adminNote": "Requirement REQ-2026-DEMO02 (2 products) accepted by Admin Demo Business Owner · delivery ₹180 added — one order."
+  },
+  {
+    "key": "ord-1009",
+    "number": "ORD-DEMO-1009",
+    "user": "priya",
+    "type": "retail",
+    "createdHoursAgo": 2,
+    "items": [
+      {
+        "sku": "AP-WSH-M10",
+        "quantity": 200,
+        "pricePerUnit": 6.5
+      },
+      {
+        "sku": "AP-HSE-12",
+        "quantity": 50,
+        "pricePerUnit": 78
+      }
+    ],
+    "deliveryFee": 0,
+    "discount": 0,
+    "shippingAddress": {
+      "fullName": "Priya Sharma",
+      "phone": "9000000003",
+      "addressLine1": "21 Garden Lane",
+      "city": "Sample City",
+      "state": "Demo State",
+      "pincode": "000000"
+    },
+    "status": "pending_payment",
+    "acceptanceStatus": "pending",
+    "inventoryCommitted": false,
+    "statusHistory": [
+      {
+        "status": "pending_payment",
+        "hoursAgo": 2,
+        "note": "Order placed - awaiting acceptance"
+      }
+    ],
+    "customerNote": "Washers loose in packets of 100 is fine. Hose as one 50 m length."
   }
 ]

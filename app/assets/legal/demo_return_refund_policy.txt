@@ -1,4 +1,4 @@
-Refund and Return Policy - TradeHub Demo
+Refund and Return Policy - DemoMart
 Effective date: 17 August 2026
 
 DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
@@ -14,5 +14,5 @@ Sample rules shown in this demo:
 
 No real orders, returns or refunds are processed in this demo environment.
 
-Contact: demo@tradehub.example
-Company: TradeHub Distribution Pvt Ltd (Demo)
+Contact: demo@demomart.example
+Company: DemoMart Distribution Pvt Ltd (Demo)

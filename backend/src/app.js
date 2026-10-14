@@ -2,112 +2,74 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const routes = require('./routes');
 const connectDB = require('./config/database');
 const { initializeFirebase } = require('./config/firebase');
 const errorHandler = require('./middlewares/errorHandler');
-const { NotFoundError } = require('./utils/errors');
+const { NotFoundError, ForbiddenError } = require('./utils/errors');
+const { isAllowedOrigin } = require('./config/corsOrigins');
+const { jwtConfigProblems } = require('./utils/jwtTokens');
+const { apiLimiter } = require('./middlewares/rateLimits');
+const { stripOperatorKeysMiddleware } = require('./middlewares/stripOperatorKeys');
+const { priceUpdateNotifierMiddleware } = require('./services/priceChangeNotificationService');
+const logger = require('./utils/logger');
 const BRAND = require('./config/brand');
 const { isDemoMode } = require('./config/demoGuard');
 
 const app = express();
 
-app.set('trust proxy', process.env.NODE_ENV === 'production'
-  ? Number(process.env.TRUST_PROXY_HOPS || 1)
-  : false);
+// server.js refuses to start with an unsafe JWT secret in production. When the
+// API runs without it (serverless hosting imports this file directly), say so
+// loudly instead of taking the API down.
+const jwtProblems = jwtConfigProblems();
+if (jwtProblems.length) {
+  logger.error(`[Security] Unsafe JWT configuration: ${jwtProblems.join('; ')}`);
+}
+
+// Proxies in front of the API (e.g. 1 for Caddy on the VPS). TRUST_PROXY_HOPS
+// wins when set; otherwise production trusts one proxy.
+const trustProxyHops = String(process.env.TRUST_PROXY_HOPS ?? '').trim();
+app.set('trust proxy', trustProxyHops !== ''
+  ? Number(trustProxyHops)
+  : (process.env.NODE_ENV === 'production' ? 1 : false));
 
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
-// CORS configuration
-const normalizeOrigins = (value) =>
-  (value || "")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-
-const defaultOrigins = [
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-  "http://localhost:3001",
-  "http://127.0.0.1:3001",
-];
-
-const allowedOrigins = [
-  ...new Set([
-    ...normalizeOrigins(process.env.CORS_ORIGIN),
-    ...normalizeOrigins(process.env.ADMIN_PANEL_URL),
-    ...normalizeOrigins(process.env.FRONTEND_URL),
-    ...defaultOrigins,
-  ]),
-];
-
-const localhostOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
-
-const isAllowedOrigin = (origin) => {
-  if (allowedOrigins.includes(origin)) return true;
-  if (localhostOriginPattern.test(origin)) return true;
-  return false;
-};
-
+// CORS: only our own sites (and exact origins from env) may call the API from
+// a browser; see config/corsOrigins.
 const corsOptions = {
   origin(origin, callback) {
     // Allow server-to-server and curl requests without Origin header.
     if (!origin) return callback(null, true);
     if (isAllowedOrigin(origin)) return callback(null, true);
-    return callback(new Error(`CORS blocked for origin: ${origin}`));
+    return callback(new ForbiddenError('This website is not allowed to use the API', 'CORS_ORIGIN_NOT_ALLOWED'));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  // Lets the admin panel name downloaded receipts.
+  exposedHeaders: ["Content-Disposition", "X-Receipt-Filename"],
 };
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-// Rate limiting - account based (with IP fallback for guests)
-const keyGenerator = (req) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      // Decode JWT to get user ID (payload is base64 encoded)
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-        if (payload.id || payload.userId || payload.sub) {
-          return payload.id || payload.userId || payload.sub;
-        }
-      }
-    }
-  } catch (e) {
-    // If token parsing fails, fall back to IP
-  }
-  // Fall back to IP for unauthenticated requests
-  return req.ip || req.headers['x-forwarded-for'] || 'unknown';
-};
+// Rate limiting: per signed-in user (verified token) or per IP; stricter
+// limits on sign-in and other sensitive routes live in middlewares/rateLimits.
+app.use('/api', apiLimiter);
 
-const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60 * 1000, // 1 minute
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 200,
-  skip: (req) => req.originalUrl.startsWith('/api/v1/health'),
-  keyGenerator,
-  message: {
-    success: false,
-    message: 'Too many requests, please try again later.',
-    error: { code: 'RATE_LIMIT_EXCEEDED' }
-  }
-});
-app.use('/api', limiter);
-
-// Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing. JSON bodies are small; files go through the upload routes
+// (multer), which have their own limits. Admin screens (website settings with
+// every product's details) may send more.
+app.use('/api/v1/admin', express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use(stripOperatorKeysMiddleware);
 // Demo catalogue images ship with the repo (assets/demo-images) and are served
 // at /uploads/demo/* so the regular local-storage URL scheme keeps working.
 if (isDemoMode()) {
@@ -128,7 +90,6 @@ app.get('/health', (req, res) => {
     success: true,
     message: `${BRAND.name} API is running`,
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
   });
 });
 
@@ -146,8 +107,9 @@ app.get('/', (req, res) => {
 // Ensure dependencies are initialized for API routes in hosted/serverless environments.
 app.use('/api/v1', async (req, res, next) => {
   try {
-    // Keep health routes lightweight and self-diagnosing.
-    if (req.path.startsWith('/health')) {
+    // Keep the public health checks lightweight and self-diagnosing (the
+    // admin-only details need the database for sign-in).
+    if (req.path === '/health' || req.path === '/health/live') {
       return next();
     }
 
@@ -158,6 +120,12 @@ app.use('/api/v1', async (req, res, next) => {
     return next(error);
   }
 });
+
+// Immediate price changes waiting to be announced go out with the next request
+// once their wait is over (no background timers on serverless hosting).
+app.use('/api/v1', (req, res, next) => (
+  req.path === '/health' || req.path === '/health/live' ? next() : priceUpdateNotifierMiddleware(req, res, next)
+));
 
 // API routes
 app.use('/api/v1', routes);

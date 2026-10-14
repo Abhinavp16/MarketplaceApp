@@ -127,7 +127,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                                 foregroundColor: Colors.white,
                                 elevation: 8,
                                 shadowColor: primary.withOpacity(0.2),
-                                shape: RoundedRectangleBorder(
+                                shape: RoundedSuperellipseBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
@@ -282,7 +282,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                         backgroundColor: gray100,
                         foregroundColor: textDark,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(
+                        shape: RoundedSuperellipseBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),

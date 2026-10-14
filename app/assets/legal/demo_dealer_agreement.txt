@@ -1,4 +1,4 @@
-Dealer Agreement - TradeHub Demo
+Dealer Agreement - DemoMart
 Effective date: 17 August 2026
 
 DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
@@ -14,5 +14,5 @@ Sample terms shown in this demo:
 
 No binding agreement is created by using this demo environment.
 
-Contact: demo@tradehub.example
-Company: TradeHub Distribution Pvt Ltd (Demo)
+Contact: demo@demomart.example
+Company: DemoMart Distribution Pvt Ltd (Demo)

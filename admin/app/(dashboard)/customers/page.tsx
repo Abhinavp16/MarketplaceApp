@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { apiFetch } from "@/lib/api"
 import { displayRole } from "@/lib/role-labels"
+import { CustomerHiddenBrands } from "@/components/customer-hidden-brands"
 
 interface Customer {
     _id: string
@@ -36,6 +37,8 @@ interface Customer {
         businessName: string
         gstIn: string
     }
+    // Brands hidden from this customer only (Customer Profile).
+    hiddenBrands?: string[]
     createdAt: string
 }
 
@@ -441,6 +444,7 @@ export default function CustomersPage() {
                                                             <User className="h-4 w-4" />
                                                         </div>
                                                         {customer.name}
+                                                        <HiddenBrandsBadge count={customer.hiddenBrands?.length} />
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-gray-400">
@@ -493,7 +497,7 @@ export default function CustomersPage() {
             </Card>
 
             <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-                <DialogContent className="max-w-[95vw] border-[#333] bg-[#161616] text-white sm:max-w-2xl">
+                <DialogContent className="max-h-[90vh] max-w-[95vw] overflow-y-auto border-[#333] bg-[#161616] text-white sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Customer Profile</DialogTitle>
                         <DialogDescription>
@@ -541,6 +545,20 @@ export default function CustomersPage() {
                                 )}
                             </div>
 
+                            {(selectedCustomer.role === "buyer" || selectedCustomer.role === "wholesaler") && (
+                                <CustomerHiddenBrands
+                                    key={selectedCustomer._id}
+                                    customerId={selectedCustomer._id}
+                                    hiddenBrands={selectedCustomer.hiddenBrands || []}
+                                    onSaved={(hiddenBrands) => {
+                                        setSelectedCustomer((current) => (current ? { ...current, hiddenBrands } : current))
+                                        setCustomers((current) => current.map((item) => (
+                                            item._id === selectedCustomer._id ? { ...item, hiddenBrands } : item
+                                        )))
+                                    }}
+                                />
+                            )}
+
                             <div>
                                 <h3 className="mb-3 font-medium">Recent Orders</h3>
                                 <div className="space-y-2">
@@ -572,5 +590,14 @@ export default function CustomersPage() {
                 </div>
             )}
         </div>
+    )
+}
+
+function HiddenBrandsBadge({ count }: { count?: number }) {
+    if (!count) return null
+    return (
+        <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-300">
+            {count} brand{count === 1 ? "" : "s"} hidden
+        </span>
     )
 }

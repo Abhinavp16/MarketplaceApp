@@ -12,13 +12,13 @@ export const viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'TradeHub Demo Admin',
-  description: 'TradeHub Demo Admin Dashboard - Manage products, orders, and negotiations (demonstration environment, synthetic data)',
+  title: 'DemoMart Admin',
+  description: 'DemoMart Admin Dashboard - Manage products, orders, and negotiations (demonstration environment, synthetic data)',
     manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'TradeHub Demo',
+    title: 'DemoMart',
   },
   robots: {
     index: false,

@@ -8,7 +8,7 @@ const {
 async function run() {
   const exportedAt = new Date('2026-08-10T10:30:00.000Z');
   const buffer = await createPriceSnapshotWorkbookBuffer({
-    companyName: 'TradeHub Distribution Pvt Ltd (Demo)',
+    companyName: 'DemoMart Distribution Pvt Ltd (Demo)',
     exportedAt,
     products: [
       {
@@ -54,7 +54,7 @@ async function run() {
 
   assert.ok(sheet, 'snapshot worksheet should be present');
   assert.strictEqual(sheet.getCell('A1').value, 'Product Price Snapshot');
-  assert.strictEqual(sheet.getCell('A2').value, 'TradeHub Distribution Pvt Ltd (Demo)');
+  assert.strictEqual(sheet.getCell('A2').value, 'DemoMart Distribution Pvt Ltd (Demo)');
   assert.match(String(sheet.getCell('A3').value), /^Exported on \(IST\): /);
   assert.strictEqual(sheet.getCell('A5').value, 'S.No.');
   assert.strictEqual(sheet.getCell('K5').value, 'Pending Status');

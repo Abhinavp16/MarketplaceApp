@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../core/config/brand_config.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/ui/ui.dart';
 
 class ShopLocationPickerResult {
   final double lat;
@@ -100,97 +103,91 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryBlue = Color(0xFF0F766E);
-    const textPrimary = Color(0xFF1E293B);
-    const textSecondary = Color(0xFF64748B);
-    const background = Color(0xFFF8FAFC);
+    final l10n = context.l10n;
 
     return Scaffold(
-      backgroundColor: background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios, color: textPrimary),
-        ),
-        title: Text(
-          context.l10n.shopLocationTitle,
-          style: AppFonts.jakarta(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: textPrimary,
-          ),
-        ),
-        centerTitle: true,
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppHeader(
+        title: l10n.shopLocationTitle,
+        onBack: () => Navigator.of(context).pop(),
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
-                    context.l10n.shopLocationHint,
+                    l10n.shopLocationHint,
                     style: AppFonts.jakarta(
                       fontSize: 13,
-                      color: textSecondary,
-                      height: 1.5,
+                      color: AppColors.textSecondary,
+                      height: 1.45,
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                ElevatedButton.icon(
+                AppButton(
+                  label: _locating
+                      ? l10n.shopLocationLocating
+                      : l10n.shopLocationUseCurrent,
+                  icon: HugeIcons.strokeRoundedGps01,
+                  variant: AppButtonVariant.tonal,
+                  size: AppButtonSize.medium,
+                  expand: false,
+                  loading: _locating,
                   onPressed: _locating ? null : _useCurrentLocation,
-                  icon: _locating
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.my_location, size: 16),
-                  label: Text(
-                    _locating ? context.l10n.shopLocationLocating : context.l10n.shopLocationUseCurrent,
-                    style: AppFonts.jakarta(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryBlue,
-                    foregroundColor: Colors.white,
-                  ),
                 ),
               ],
             ),
           ),
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.withOpacity(0.2)),
-                ),
-                child: Text(
-                  _error!,
-                  style: AppFonts.jakarta(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.red[700],
-                  ),
-                ),
-              ),
-            ),
+          AnimatedSize(
+            duration: AppMotion.of(context, AppMotion.fast),
+            alignment: Alignment.topCenter,
+            child: _error != null
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.errorSoft,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: Row(
+                        children: [
+                          const HugeIcon(
+                            icon: HugeIcons.strokeRoundedAlert02,
+                            size: 18,
+                            color: AppColors.error,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _error!,
+                              style: AppFonts.jakarta(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.error,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : const SizedBox(width: double.infinity),
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  border: Border.all(color: AppColors.border),
+                ),
+                clipBehavior: Clip.antiAlias,
                 child: FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
@@ -202,7 +199,8 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: BrandConfig.packageName,
                     ),
                     MarkerLayer(
@@ -213,8 +211,8 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
                           height: 56,
                           child: const Icon(
                             Icons.location_on,
-                            color: Color(0xFFDC2626),
-                            size: 40,
+                            color: AppColors.primary,
+                            size: 44,
                           ),
                         ),
                       ],
@@ -224,66 +222,68 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
+          Container(
+            margin: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceLight,
+              border: Border(top: BorderSide(color: AppColors.border)),
+            ),
+            child: SafeArea(
+              top: false,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    context.l10n.shopLocationSelectedCoordinates,
-                    style: AppFonts.jakarta(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondary,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${_selectedLocation.latitude.toStringAsFixed(6)}, ${_selectedLocation.longitude.toStringAsFixed(6)}',
-                    style: AppFonts.jakarta(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(
-                          ShopLocationPickerResult(
-                            lat: _selectedLocation.latitude,
-                            lng: _selectedLocation.longitude,
-                            label: widget.initialLabel,
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryBlue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
+                  Row(
+                    children: [
+                      const HugeIcon(
+                        icon: HugeIcons.strokeRoundedMapPin,
+                        size: 16,
+                        color: AppColors.textTertiary,
                       ),
-                      child: Text(
-                        context.l10n.shopLocationConfirm,
+                      const SizedBox(width: 6),
+                      Text(
+                        l10n.shopLocationSelectedCoordinates,
                         style: AppFonts.jakarta(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textTertiary,
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${_selectedLocation.latitude.toStringAsFixed(6)}, ${_selectedLocation.longitude.toStringAsFixed(6)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                          style:
+                              AppFonts.jakarta(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                              ).copyWith(
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  AppButton(
+                    label: l10n.shopLocationConfirm,
+                    icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                    onPressed: () {
+                      Navigator.of(context).pop(
+                        ShopLocationPickerResult(
+                          lat: _selectedLocation.latitude,
+                          lng: _selectedLocation.longitude,
+                          label: widget.initialLabel,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

@@ -1,16 +1,28 @@
 const mongoose = require('mongoose');
+const logger = require('../../utils/logger');
 const BRAND = require('../../config/brand');
 const { Product, StockLog, WebsiteSettings, Category, Settings, PriceChangeAudit } = require('../../models');
 const { NotFoundError, BadRequestError } = require('../../utils/errors');
 const { paginate, formatPaginationResponse, generateSKU } = require('../../utils/helpers');
-const { deleteImage } = require('../../config/cloudinary');
+const { deleteImage } = require('../../config/uploads');
 const { saveBuffer } = require('../../config/storage');
 const { fillHindiNames, generateHindiName, scheduleHindiNameFill } = require('../../services/hindiNameService');
 const { resolveHindiNameOnSave } = require('../../utils/hindiNames');
 const { PRODUCT_STATUS } = require('../../utils/constants');
 const { createPriceSnapshotWorkbookBuffer } = require('../../utils/priceSnapshotWorkbook');
 const { updateProductCount } = require('../categoryController');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
+const { isComingSoon } = require('../../utils/productAvailability');
+const { notifyLaunch, sweepAutoLaunches, waitingCount } = require('../../services/productLaunchService');
+
+// Coming Soon settings from the form, merged onto what's stored. Turning it on
+// again clears the "already notified" mark so the next launch notifies.
+function mergeComingSoon(current = {}, incoming = {}) {
+  const merged = { ...current, ...incoming };
+  merged.expectedDate = merged.expectedDate ? new Date(merged.expectedDate) : null;
+  if (incoming.enabled && !current?.enabled) merged.launchNotifiedAt = null;
+  return merged;
+}
 const sharp = require('sharp');
 const slugify = require('slugify');
 const { encode } = require('blurhash');
@@ -211,16 +223,21 @@ function prepareProductData(productData) {
   }
 
   prepared.variants = normalizeVariantsForPersistence(prepared.variants, prepared);
+  if (typeof prepared.comingSoon === 'string') {
+    prepared.comingSoon = parseStructuredField(prepared.comingSoon, undefined);
+  }
+  if (prepared.comingSoon && !prepared.comingSoon.expectedDate) prepared.comingSoon.expectedDate = null;
 
   return prepared;
 }
 
-async function applyCategoryBrand(productData, currentProduct = null) {
+// `session` (optional) runs the lookups inside a transaction (catalog import).
+async function applyCategoryBrand(productData, currentProduct = null, { session = null } = {}) {
   const categoryId = String(productData.categoryId || productData.categoryRef || '').trim();
   let category = null;
 
   if (categoryId) {
-    category = await Category.findById(categoryId).select('name slug company');
+    category = await Category.findById(categoryId).select('name slug company').session(session);
   } else if (productData.category && productData.company) {
     category = await Category.findOne({
       company: productData.company,
@@ -228,7 +245,7 @@ async function applyCategoryBrand(productData, currentProduct = null) {
         { name: productData.category },
         { slug: productData.category },
       ],
-    }).select('name slug company');
+    }).select('name slug company').session(session);
   }
 
   delete productData.categoryId;
@@ -284,6 +301,22 @@ function buildPriceChangeRow({
     effectiveAt,
     searchText,
   };
+}
+
+
+// Immediate price changes are announced to app users in one message once the
+// admin stops saving (services/priceChangeNotificationService). Never blocks the save.
+async function queuePriceUpdateNotice({ product, audit }) {
+  try {
+    const { queueImmediatePriceChange } = require('../../services/priceChangeNotificationService');
+    await queueImmediatePriceChange({
+      productId: product._id,
+      retailChanged: audit?.newRetailPrice !== null && audit?.newRetailPrice !== undefined,
+      wholesaleChanged: audit?.newWholesalePrice !== null && audit?.newWholesalePrice !== undefined,
+    });
+  } catch (error) {
+    logger.warn(`[PriceUpdates] could not queue notice for ${product?._id}: ${error.message}`);
+  }
 }
 
 exports.getPriceSnapshot = async (req, res, next) => {
@@ -405,6 +438,9 @@ exports.getProducts = async (req, res, next) => {
     } else {
       query.status = { $ne: PRODUCT_STATUS.ARCHIVED };
     }
+    if (req.query.comingSoon === 'true') query['comingSoon.enabled'] = true;
+    // Catch auto-launch dates that have passed (in case no timer ran).
+    await sweepAutoLaunches().catch((error) => logger.warn(`[ProductLaunch] sweep failed: ${error.message}`));
 
     if (categoryId) {
       if (!mongoose.isValidObjectId(categoryId)) {
@@ -523,6 +559,8 @@ exports.getProductById = async (req, res, next) => {
     const data = product.toObject();
     data.variants = [];
     data.effectivePricing = getEffectivePricing(data, discountsFor(await buildDiscountMap([data]), data));
+    data.notifyCount = await waitingCount(product._id);
+    data.isComingSoonNow = isComingSoon(data);
 
     res.json({
       success: true,
@@ -533,35 +571,46 @@ exports.getProductById = async (req, res, next) => {
   }
 };
 
+// Builds and saves a product from an (already validated) request body. Shared by
+// the admin form and the catalog import; `session` runs it inside a transaction.
+// Follow-ups that must happen after the save (Hindi name fill, category counts)
+// are left to the caller.
+async function createProductRecord(body, { files = [], session = null } = {}) {
+  const productData = await applyCategoryBrand(prepareProductData(body), null, { session });
+
+  if (!productData.sku) {
+    productData.sku = generateSKU(productData.category, productData.name);
+  }
+
+  productData.slug = slugify(productData.name, { lower: true, strict: true });
+
+  if (files && files.length > 0) {
+    const uploaded = await uploadFilesToStorage(files, 'products');
+    productData.images = uploaded.map((img, index) => ({
+      url: img.url,
+      publicId: img.publicId,
+      isPrimary: index === 0,
+      order: index,
+    }));
+  }
+
+  if (productData.labelIds !== undefined) {
+    productData.labelIds = await normalizeProductLabelIds(productData.labelIds);
+  }
+
+  delete productData.nameHindiSource;
+  const hindiDecision = resolveHindiNameOnSave({ incomingHindi: productData.nameHindi, nameChanged: true });
+  Object.assign(productData, hindiDecision.set);
+
+  const [product] = await Product.create([productData], session ? { session } : {});
+  return { product, hindiDecision };
+}
+
+exports.createProductRecord = createProductRecord;
+
 exports.createProduct = async (req, res, next) => {
   try {
-    const productData = await applyCategoryBrand(prepareProductData(req.body));
-
-    if (!productData.sku) {
-      productData.sku = generateSKU(productData.category, productData.name);
-    }
-
-    productData.slug = slugify(productData.name, { lower: true, strict: true });
-
-    if (req.files && req.files.length > 0) {
-      const uploaded = await uploadFilesToStorage(req.files, 'products');
-      productData.images = uploaded.map((img, index) => ({
-        url: img.url,
-        publicId: img.publicId,
-        isPrimary: index === 0,
-        order: index,
-      }));
-    }
-
-    if (productData.labelIds !== undefined) {
-      productData.labelIds = await normalizeProductLabelIds(productData.labelIds);
-    }
-
-    delete productData.nameHindiSource;
-    const hindiDecision = resolveHindiNameOnSave({ incomingHindi: productData.nameHindi, nameChanged: true });
-    Object.assign(productData, hindiDecision.set);
-
-    const product = await Product.create(productData);
+    const { product, hindiDecision } = await createProductRecord(req.body, { files: req.files });
     if (hindiDecision.generate) scheduleHindiNameFill(Product, product._id);
     if (product.category) {
       await updateProductCount(product.category, product.company);
@@ -577,6 +626,81 @@ exports.createProduct = async (req, res, next) => {
   }
 };
 
+// Applies an (already validated) request body to a loaded product and saves it.
+// Shared by the admin form and the catalog import; load `product` with the same
+// `session` to run it inside a transaction. Follow-ups that must happen after
+// the save (Hindi name fill, price notices, category counts, launch notices)
+// are left to the caller.
+async function updateProductRecord(product, body, { files = [], performedBy = null, session = null } = {}) {
+  const previousCategory = product.category;
+  const previousCompany = product.company;
+  const updateData = await applyCategoryBrand(prepareProductData(body), product, { session });
+  const priceChangeMode = body.priceChangeMode || PRICE_CHANGE_MODE_SCHEDULED;
+  const requestedRetailPrice = updateData.retailPrice;
+  const requestedWholesalePrice = updateData.wholesalePrice;
+  const hasRetailChange = requestedRetailPrice !== undefined && Number(requestedRetailPrice) !== Number(product.retailPrice);
+  const hasWholesaleChange = requestedWholesalePrice !== undefined && Number(requestedWholesalePrice) !== Number(product.wholesalePrice);
+  delete updateData.priceChangeMode;
+  delete updateData.retailPrice;
+  delete updateData.wholesalePrice;
+
+  if (updateData.name && updateData.name !== product.name) {
+    updateData.slug = slugify(updateData.name, { lower: true, strict: true });
+  }
+
+  if (files && files.length > 0) {
+    const uploaded = await uploadFilesToStorage(files, 'products');
+    const newImages = uploaded.map((img, index) => ({
+      url: img.url,
+      publicId: img.publicId,
+      isPrimary: false,
+      order: product.images.length + index,
+    }));
+    updateData.images = [...product.images, ...newImages];
+  }
+
+  if (updateData.labelIds !== undefined) {
+    updateData.labelIds = await normalizeProductLabelIds(updateData.labelIds);
+  }
+
+  let priceChangeResult = null;
+  if (hasRetailChange || hasWholesaleChange) {
+    const { applyProductPriceChange } = require('../../services/productPriceChangeService');
+    priceChangeResult = await applyProductPriceChange({
+      product,
+      performedBy,
+      retailPrice: hasRetailChange ? requestedRetailPrice : undefined,
+      wholesalePrice: hasWholesaleChange ? requestedWholesalePrice : undefined,
+      mode: priceChangeMode,
+      session,
+    });
+  }
+
+  delete updateData.nameHindiSource;
+  const hindiDecision = resolveHindiNameOnSave({
+    incomingHindi: updateData.nameHindi,
+    storedHindi: product.nameHindi,
+    storedSource: product.nameHindiSource,
+    nameChanged: Boolean(updateData.name && updateData.name !== product.name),
+  });
+  delete updateData.nameHindi;
+  Object.assign(updateData, hindiDecision.set);
+
+  updateData.variants = [];
+  const wasComingSoon = isComingSoon(product);
+  if (updateData.comingSoon) {
+    const current = product.comingSoon?.toObject?.() || product.comingSoon || {};
+    updateData.comingSoon = mergeComingSoon(current, updateData.comingSoon);
+  }
+  Object.assign(product, updateData);
+  await product.save(session ? { session } : undefined);
+
+  return { product, priceChangeResult, hindiDecision, wasComingSoon, previousCategory, previousCompany };
+}
+
+exports.updateProductRecord = updateProductRecord;
+exports.queuePriceUpdateNotice = queuePriceUpdateNotice;
+
 exports.updateProduct = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -584,66 +708,25 @@ exports.updateProduct = async (req, res, next) => {
       throw new NotFoundError('Product not found', 'PRODUCT_NOT_FOUND');
     }
 
-    const previousCategory = product.category;
-    const previousCompany = product.company;
-    const updateData = await applyCategoryBrand(prepareProductData(req.body), product);
-    const priceChangeMode = req.body.priceChangeMode || PRICE_CHANGE_MODE_SCHEDULED;
-    const requestedRetailPrice = updateData.retailPrice;
-    const requestedWholesalePrice = updateData.wholesalePrice;
-    const hasRetailChange = requestedRetailPrice !== undefined && Number(requestedRetailPrice) !== Number(product.retailPrice);
-    const hasWholesaleChange = requestedWholesalePrice !== undefined && Number(requestedWholesalePrice) !== Number(product.wholesalePrice);
-    delete updateData.priceChangeMode;
-    delete updateData.retailPrice;
-    delete updateData.wholesalePrice;
-
-    if (updateData.name && updateData.name !== product.name) {
-      updateData.slug = slugify(updateData.name, { lower: true, strict: true });
-    }
-
-    if (req.files && req.files.length > 0) {
-      const uploaded = await uploadFilesToStorage(req.files, 'products');
-      const newImages = uploaded.map((img, index) => ({
-        url: img.url,
-        publicId: img.publicId,
-        isPrimary: false,
-        order: product.images.length + index,
-      }));
-      updateData.images = [...product.images, ...newImages];
-    }
-
-    if (updateData.labelIds !== undefined) {
-      updateData.labelIds = await normalizeProductLabelIds(updateData.labelIds);
-    }
-
-    let priceChangeResult = null;
-    if (hasRetailChange || hasWholesaleChange) {
-      const { applyProductPriceChange } = require('../../services/productPriceChangeService');
-      priceChangeResult = await applyProductPriceChange({
-        product,
-        performedBy: req.user,
-        retailPrice: hasRetailChange ? requestedRetailPrice : undefined,
-        wholesalePrice: hasWholesaleChange ? requestedWholesalePrice : undefined,
-        mode: priceChangeMode,
-      });
-    }
-
-    delete updateData.nameHindiSource;
-    const hindiDecision = resolveHindiNameOnSave({
-      incomingHindi: updateData.nameHindi,
-      storedHindi: product.nameHindi,
-      storedSource: product.nameHindiSource,
-      nameChanged: Boolean(updateData.name && updateData.name !== product.name),
-    });
-    delete updateData.nameHindi;
-    Object.assign(updateData, hindiDecision.set);
-
-    updateData.variants = [];
-    Object.assign(product, updateData);
-    await product.save();
+    const {
+      priceChangeResult, hindiDecision, wasComingSoon, previousCategory, previousCompany,
+    } = await updateProductRecord(product, req.body, { files: req.files, performedBy: req.user });
     if (hindiDecision.generate) scheduleHindiNameFill(Product, product._id);
+
+    // Coming Soon turned off (or its launch date reached): tell everyone waiting.
+    let launchNotified = 0;
+    if (wasComingSoon && !isComingSoon(product)) {
+      try {
+        launchNotified = await notifyLaunch(product._id);
+      } catch (error) {
+        logger.warn(`[ProductLaunch] notify after save failed: ${error.message}`);
+      }
+    }
 
     if (priceChangeResult?.isScheduled) {
       await registerPriceChangeCampaign();
+    } else if (priceChangeResult) {
+      await queuePriceUpdateNotice(priceChangeResult);
     }
 
     await Promise.all(
@@ -659,6 +742,7 @@ exports.updateProduct = async (req, res, next) => {
       success: true,
       message: 'Product updated successfully',
       data: product,
+      launchNotified,
     });
   } catch (error) {
     next(error);
@@ -907,6 +991,8 @@ exports.changeProductPrice = async (req, res, next) => {
 
     if (result.isScheduled) {
       await registerPriceChangeCampaign();
+    } else {
+      await queuePriceUpdateNotice(result);
     }
 
     res.json({

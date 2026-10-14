@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/providers/locale_provider.dart';
-import 'package:tradehub_demo/core/theme/app_fonts.dart';
-import 'package:tradehub_demo/core/utils/number_formatter.dart';
-import 'package:tradehub_demo/l10n/l10n.dart';
+import 'package:demomart_demo/core/providers/locale_provider.dart';
+import 'package:demomart_demo/core/theme/app_fonts.dart';
+import 'package:demomart_demo/core/utils/number_formatter.dart';
+import 'package:demomart_demo/l10n/l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -47,7 +47,8 @@ void main() {
     expect(AppFonts.sizeFor(14), 14);
     AppFonts.hindi = false;
     expect(AppFonts.spacingFor(-0.7), -0.7);
-    expect(AppFonts.sizeFor(8), 8);
+    // No text goes below 10 in either language.
+    expect(AppFonts.sizeFor(8), 10);
   });
 
   test('stored Hindi names are shown with Latin digits', () {

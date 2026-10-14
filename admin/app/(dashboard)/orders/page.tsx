@@ -25,13 +25,23 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { apiFetch } from "@/lib/api"
+import { CustomerOrderAcceptDialog } from "@/components/customer-order-accept-dialog"
 import { displayActivityText } from "@/lib/role-labels"
+import { quantityWithPacks } from "@/lib/pack-size"
 
 interface Order {
     _id: string
     orderNumber: string
-    items: { productSnapshot: { name: string }; quantity: number; pricePerUnit: number }[]
+    items: {
+        productSnapshot: { name: string }
+        variantSnapshot?: { priceUnit?: string; packing?: string }
+        quantity: number
+        pricePerUnit: number
+    }[]
     customerSnapshot: { name: string; email: string; phone: string }
+    subtotal?: number
+    deliveryFee?: number
+    discount?: number
     total: number
     status: string
     orderType?: string
@@ -94,6 +104,7 @@ export default function OrdersPage() {
     const [acceptanceAction, setAcceptanceAction] = useState<{ orderId: string; type: "accept" | "reject" } | null>(null)
     const acceptanceActionLock = useRef(false)
     const [rejectOrder, setRejectOrder] = useState<Order | null>(null)
+    const [acceptTarget, setAcceptTarget] = useState<Order | null>(null)
     const [rejectionReason, setRejectionReason] = useState("")
 
     const [searchQuery, setSearchQuery] = useState("")
@@ -103,7 +114,9 @@ export default function OrdersPage() {
     const filteredUserId = searchParams.get("userId")?.trim() || ""
     const filteredCustomerName = searchParams.get("customerName")?.trim() || ""
     const searchFromUrl = searchParams.get("search")?.trim() || ""
-    const orderIdFromUrl = searchParams.get("orderId")?.trim() || ""
+    // Only a real order id is used (a crafted link can't point the request elsewhere).
+    const rawOrderId = searchParams.get("orderId")?.trim() || ""
+    const orderIdFromUrl = /^[a-f0-9]{24}$/i.test(rawOrderId) ? rawOrderId : ""
     const consumedOrderId = useRef("")
 
     useEffect(() => {
@@ -302,7 +315,7 @@ export default function OrdersPage() {
         }
     }
 
-    async function updateAcceptance(order: Order, action: "accept" | "reject", reason?: string) {
+    async function updateAcceptance(order: Order, action: "accept" | "reject", reason?: string, deliveryCharge?: number) {
         if (acceptanceActionLock.current) return
         if (action === "reject" && !reason?.trim()) {
             toast.error("A rejection reason is required")
@@ -314,12 +327,17 @@ export default function OrdersPage() {
         try {
             const res = await apiFetch(`/admin/orders/${order._id}/${action}`, {
                 method: "PUT",
-                ...(action === "reject" ? { body: JSON.stringify({ reason: reason!.trim() }) } : {}),
+                ...(action === "reject"
+                ? { body: JSON.stringify({ reason: reason!.trim() }) }
+                : { body: JSON.stringify({ deliveryCharge: deliveryCharge ?? 0 }) }),
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.message || `Failed to ${action} order`)
 
-            toast.success(action === "accept" ? "Order accepted" : "Order rejected")
+            toast.success(action === "accept"
+                ? `Order accepted · total ₹${Number(data.data?.total ?? order.total).toLocaleString("en-IN")}`
+                : "Order rejected")
+            setAcceptTarget(null)
             setRejectOrder(null)
             setRejectionReason("")
             await fetchOrders(1, true, searchFromUrl)
@@ -532,7 +550,7 @@ export default function OrdersPage() {
                                                     <div className="text-base font-bold text-white">Rs {order.total.toLocaleString("en-IN")}</div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    {order.acceptanceStatus === "pending" && <Button size="sm" className="bg-green-600 text-white hover:bg-green-700" disabled={acceptanceAction?.orderId === order._id} onClick={() => void updateAcceptance(order, "accept")}>{acceptanceAction?.orderId === order._id && acceptanceAction.type === "accept" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Accept</Button>}
+                                                    {order.acceptanceStatus === "pending" && <Button size="sm" className="bg-green-600 text-white hover:bg-green-700" disabled={acceptanceAction?.orderId === order._id} onClick={() => setAcceptTarget(order)}>{acceptanceAction?.orderId === order._id && acceptanceAction.type === "accept" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Accept</Button>}
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
@@ -591,7 +609,7 @@ export default function OrdersPage() {
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        {order.acceptanceStatus === "pending" && <Button size="sm" className="h-8 bg-green-600 text-white hover:bg-green-700" disabled={acceptanceAction?.orderId === order._id} onClick={() => void updateAcceptance(order, "accept")}>{acceptanceAction?.orderId === order._id && acceptanceAction.type === "accept" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Accept"}</Button>}
+                                                        {order.acceptanceStatus === "pending" && <Button size="sm" className="h-8 bg-green-600 text-white hover:bg-green-700" disabled={acceptanceAction?.orderId === order._id} onClick={() => setAcceptTarget(order)}>{acceptanceAction?.orderId === order._id && acceptanceAction.type === "accept" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Accept"}</Button>}
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
@@ -641,7 +659,7 @@ export default function OrdersPage() {
                                     <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-medium">Order Approval</h3><span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${selectedOrder.acceptanceStatus === "accepted" ? "bg-green-500/15 text-green-400" : selectedOrder.acceptanceStatus === "rejected" ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400"}`}>{selectedOrder.acceptanceStatus === "pending" ? "Awaiting Approval" : selectedOrder.acceptanceStatus}</span></div>
                                     {selectedOrder.acceptanceStatus === "accepted" && <div className="mt-3 text-sm text-gray-300">Accepted by {formatActor(selectedOrder.acceptedBy)}{selectedOrder.acceptedAt ? ` on ${new Date(selectedOrder.acceptedAt).toLocaleString("en-IN")}` : ""}</div>}
                                     {selectedOrder.acceptanceStatus === "rejected" && <div className="mt-3 space-y-1 text-sm text-gray-300"><div>Rejected by {formatActor(selectedOrder.rejectedBy)}{selectedOrder.rejectedAt ? ` on ${new Date(selectedOrder.rejectedAt).toLocaleString("en-IN")}` : ""}</div><div><span className="text-gray-400">Reason:</span> {selectedOrder.rejectionReason || "Not recorded"}</div></div>}
-                                    {selectedOrder.acceptanceStatus === "pending" && <div className="mt-4 flex flex-col gap-2 sm:flex-row"><Button className="bg-green-600 text-white hover:bg-green-700" disabled={acceptanceAction?.orderId === selectedOrder._id} onClick={() => void updateAcceptance(selectedOrder, "accept")}>{acceptanceAction?.orderId === selectedOrder._id && acceptanceAction.type === "accept" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Accept Order</Button><Button variant="destructive" disabled={acceptanceAction?.orderId === selectedOrder._id} onClick={() => setRejectOrder(selectedOrder)}>Reject Order</Button></div>}
+                                    {selectedOrder.acceptanceStatus === "pending" && <div className="mt-4 flex flex-col gap-2 sm:flex-row"><Button className="bg-green-600 text-white hover:bg-green-700" disabled={acceptanceAction?.orderId === selectedOrder._id} onClick={() => setAcceptTarget(selectedOrder)}>{acceptanceAction?.orderId === selectedOrder._id && acceptanceAction.type === "accept" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Accept Order</Button><Button variant="destructive" disabled={acceptanceAction?.orderId === selectedOrder._id} onClick={() => setRejectOrder(selectedOrder)}>Reject Order</Button></div>}
                                 </div>
                             )}
                             <div className="rounded-lg border border-[#333] bg-[#0D0D0D] p-4">
@@ -765,13 +783,25 @@ export default function OrdersPage() {
                                         <div key={idx} className="flex items-start justify-between gap-4 border-b border-[#222] pb-3 last:border-0 last:pb-0">
                                             <div>
                                                 <p className="text-sm font-medium">{item.productSnapshot?.name || "Product"}</p>
-                                                <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
+                                                <p className="text-xs text-gray-400">Qty: {quantityWithPacks(item.variantSnapshot, item.quantity)}</p>
                                             </div>
                                             <p className="text-sm font-semibold">Rs {(item.pricePerUnit * item.quantity).toLocaleString("en-IN")}</p>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="mt-4 flex items-center justify-between border-t border-[#222] pt-3 text-sm">
+                                <div className="mt-4 space-y-1 border-t border-[#222] pt-3 text-sm" data-testid="order-price-breakdown">
+                                    {typeof selectedOrder.subtotal === "number" && (
+                                        <div className="flex justify-between text-gray-400"><span>Subtotal</span><span>Rs {selectedOrder.subtotal.toLocaleString("en-IN")}</span></div>
+                                    )}
+                                    <div className="flex justify-between text-gray-400">
+                                        <span>Delivery</span>
+                                        <span>{selectedOrder.deliveryFee ? `Rs ${selectedOrder.deliveryFee.toLocaleString("en-IN")}` : "Free"}</span>
+                                    </div>
+                                    {Boolean(selectedOrder.discount) && (
+                                        <div className="flex justify-between text-gray-400"><span>Discount</span><span>- Rs {Number(selectedOrder.discount).toLocaleString("en-IN")}</span></div>
+                                    )}
+                                </div>
+                                <div className="mt-2 flex items-center justify-between text-sm">
                                     <span className="text-gray-400">Grand Total</span>
                                     <span className="text-lg font-bold text-white">Rs {selectedOrder.total.toLocaleString("en-IN")}</span>
                                 </div>
@@ -858,6 +888,15 @@ export default function OrdersPage() {
                     )}
                 </DialogContent>
             </Dialog>
+
+            <CustomerOrderAcceptDialog
+                key={acceptTarget?._id || "none"}
+                order={acceptTarget}
+                theme="dark"
+                busy={acceptanceAction?.type === "accept"}
+                onCancel={() => setAcceptTarget(null)}
+                onConfirm={(deliveryCharge) => acceptTarget && void updateAcceptance(acceptTarget, "accept", undefined, deliveryCharge)}
+            />
 
             <Dialog open={Boolean(rejectOrder)} onOpenChange={(open) => { if (!open && !acceptanceAction) { setRejectOrder(null); setRejectionReason("") } }}>
                 <DialogContent className="max-w-[95vw] border-[#333] bg-[#161616] text-white sm:max-w-md">

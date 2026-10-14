@@ -3,3 +3,11 @@ node_modules/
 .env
 .env.local
 .data/
+
+# Firebase config / service accounts: never commit
+google-services.json
+GoogleService-Info.plist
+*.plist
+*-firebase-adminsdk-*.json
+firebase-service-account*.json
+serviceAccount*.json

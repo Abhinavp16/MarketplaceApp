@@ -1,4 +1,5 @@
 const { Offer } = require('../../models');
+const { escapeRegex } = require('../../utils/searchQuery');
 const { NotFoundError, BadRequestError } = require('../../utils/errors');
 const { paginate, formatPaginationResponse } = require('../../utils/helpers');
 
@@ -42,8 +43,8 @@ exports.getOffers = async (req, res, next) => {
         if (isActive !== undefined) query.isActive = isActive === 'true';
         if (search) {
             query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { code: { $regex: search, $options: 'i' } },
+                { title: { $regex: escapeRegex(search), $options: 'i' } },
+                { code: { $regex: escapeRegex(search), $options: 'i' } },
             ];
         }
 

@@ -64,6 +64,10 @@ for (const surface of [
     await page.getByRole("button", { name: "View", exact: false }).first().click()
     await expect(page.getByRole("button", { name: "Mark Payment Completed" })).toHaveCount(0)
     await page.getByRole("button", { name: "Accept Order" }).click()
+    // Delivery charge is added in the Accept dialog.
+    const dialog = page.getByTestId("customer-accept-dialog")
+    await dialog.getByLabel("Delivery charge (₹)").fill("0")
+    await dialog.getByRole("button", { name: /^Accept ·/ }).click()
 
     await expect(page.getByText("Accepted by Test User", { exact: false })).toBeVisible()
     await expect(page.getByRole("button", { name: "Mark Payment Completed" })).toBeVisible()

@@ -1,4 +1,4 @@
-Comprehensive Policies - TradeHub Demo
+Comprehensive Policies - DemoMart
 Effective date: 17 August 2026
 
 DEMO PLACEHOLDER: This text is sample content for a demonstration environment. It is not a real legal document, makes no legal claims and must not be relied upon. All data in this environment is synthetic.
@@ -17,5 +17,5 @@ DISPUTES
 
 Sample dispute handling would be described here in a production deployment. No real transactions take place in this demo.
 
-Contact: demo@tradehub.example
-Company: TradeHub Distribution Pvt Ltd (Demo)
+Contact: demo@demomart.example
+Company: DemoMart Distribution Pvt Ltd (Demo)

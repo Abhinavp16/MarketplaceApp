@@ -21,11 +21,11 @@ for (const [key, template] of Object.entries(TEMPLATES)) {
 // Rendering
 assert.deepStrictEqual(
   renderNotification('requirementNewPrice', 'hi', { productName: 'Submersible Pump', productNameHindi: 'सबमर्सिबल पंप', price: 850 }),
-  { title: `${BRAND.name} से नई कीमत`, body: `${BRAND.name} ने सबमर्सिबल पंप के लिए नई कीमत ₹850/यूनिट भेजी है। देखें और जवाब दें।` },
+  { title: `${BRAND.shortName} से नई कीमत`, body: `${BRAND.shortName} ने सबमर्सिबल पंप के लिए नई कीमत ₹850/यूनिट भेजी है। देखें और जवाब दें।` },
 );
 assert.strictEqual(
   renderNotification('requirementNewPrice', 'en', { productName: 'Submersible Pump', productNameHindi: 'सबमर्सिबल पंप', price: 850 }).body,
-  `${BRAND.name} shared a new price ₹850/unit for Submersible Pump. Review and respond.`,
+  `${BRAND.shortName} shared a new price ₹850/unit for Submersible Pump. Review and respond.`,
 );
 // Hindi falls back to the English product name when no Hindi name exists.
 assert.ok(renderNotification('requirementDeclined', 'hi', { productName: 'Sprayer 16L' }).body.includes('Sprayer 16L'));

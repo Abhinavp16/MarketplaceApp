@@ -12,3 +12,10 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Firebase config is never committed; see README ("Adding push notifications").
+google-services.json
+# Firebase client config files are never committed (see docs/FIREBASE_SETUP.md)
+**/google-services.json
+**/GoogleService-Info.plist
+*.plist

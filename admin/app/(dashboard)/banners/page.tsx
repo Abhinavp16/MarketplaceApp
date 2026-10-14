@@ -1,12 +1,23 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
+import {
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    closestCenter,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from "@dnd-kit/core"
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { 
     Loader2, Save, Plus, Trash2, GripVertical, Image as ImageIcon, Upload, Search,
-    ArrowRight
+    ArrowRight, ArrowUp, ArrowDown
 } from "@/components/hugeicons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import * as HugeIconsFree from "@hugeicons/core-free-icons"
@@ -88,6 +99,8 @@ interface BannerCategoryOption {
 
 interface Banner {
     _id?: string
+    // Client-only id for drag and drop; removed before saving.
+    key: string
     title: string
     subtitle: string
     tag: string
@@ -146,8 +159,55 @@ function youtubeThumbnailUrl(url: unknown) {
     return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : ""
 }
 
+// The backend's reason for a failed save ("Banner 2: …"), else the fallback.
+async function saveErrorText(res: Response, fallback: string) {
+    const data = await res.json().catch(() => null)
+    const detail = data?.error?.details?.[0]
+    if (detail?.field && detail?.message) {
+        const match = /^(?:hero|promo)Banners\.(\d+)\./.exec(detail.field)
+        return match ? `Banner ${Number(match[1]) + 1}: ${detail.message}` : `${fallback}: ${detail.message}`
+    }
+    return data?.message ? `${fallback}: ${data.message}` : fallback
+}
+
+let bannerKeySeed = 0
+const nextBannerKey = () => `banner-${Date.now().toString(36)}-${(bannerKeySeed += 1)}`
+
+// Saved order = position in the list (the app and website sort by order).
+function withPositions(banners: Banner[]) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    return banners.map(({ key, ...banner }, index) => ({ ...banner, order: index }))
+}
+
+// One banner card that can be dragged by its handle.
+function SortableBanner({ id, children }: { id: string; children: (handle: ReactNode, isDragging: boolean) => ReactNode }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+    const handle = (
+        <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            aria-label="Drag to reorder"
+            title="Drag to reorder"
+            className="touch-none cursor-grab rounded p-1 text-[#777] hover:bg-[#222] hover:text-white active:cursor-grabbing"
+        >
+            <GripVertical className="h-4 w-4" />
+        </button>
+    )
+    return (
+        <div
+            ref={setNodeRef}
+            style={{ transform: CSS.Transform.toString(transform), transition, position: "relative", zIndex: isDragging ? 10 : undefined }}
+            data-testid="banner-card"
+        >
+            {children(handle, isDragging)}
+        </div>
+    )
+}
+
 function createEmptyBanner(order: number): Banner {
     return {
+        key: nextBannerKey(),
         title: "",
         subtitle: "",
         tag: "",
@@ -155,7 +215,7 @@ function createEmptyBanner(order: number): Banner {
         mediaType: "image",
         videoUrl: "",
         linkUrl: "",
-        linkType: "url",
+        linkType: "product",
         linkedProductId: "",
         linkedBrandId: "",
         linkedCategoryId: "",
@@ -177,6 +237,7 @@ function normalizeBanner(banner: any, index: number): Banner {
     else if (linkedProductId) linkType = "product"
 
     return {
+        key: nextBannerKey(),
         _id: typeof banner?._id === "string" ? banner._id : undefined,
         title: String(banner?.title || ""),
         subtitle: String(banner?.subtitle || ""),
@@ -304,6 +365,30 @@ export default function BannersPage() {
     const [isSavingHero, setIsSavingHero] = useState(false)
     const [isSavingPromo, setIsSavingPromo] = useState(false)
     const [uploadingIndex, setUploadingIndex] = useState<{ type: 'hero' | 'promo', index: number } | null>(null)
+    // Order changed since the last save (shown next to the Save button).
+    const [orderDirty, setOrderDirty] = useState<{ hero: boolean; promo: boolean }>({ hero: false, promo: false })
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    )
+
+    function setterFor(type: 'hero' | 'promo') {
+        return type === 'hero' ? setHeroBanners : setPromoBanners
+    }
+
+    function moveBanner(type: 'hero' | 'promo', from: number, to: number) {
+        setterFor(type)((prev) => (to < 0 || to >= prev.length || from === to ? prev : arrayMove(prev, from, to)))
+        setOrderDirty((prev) => ({ ...prev, [type]: true }))
+    }
+
+    function handleDragEnd(type: 'hero' | 'promo', event: DragEndEvent) {
+        const { active, over } = event
+        if (!over || active.id === over.id) return
+        const list = type === 'hero' ? heroBanners : promoBanners
+        const from = list.findIndex((banner) => banner.key === active.id)
+        const to = list.findIndex((banner) => banner.key === over.id)
+        if (from >= 0 && to >= 0) moveBanner(type, from, to)
+    }
 
     function resolveBannerPreviewUrl(url: string) {
         const trimmed = url.trim()
@@ -399,23 +484,16 @@ export default function BannersPage() {
         }
     }
 
-    useEffect(() => {
-        fetchBanners()
-        loadProductOptions()
-        loadBrandOptions()
-        loadCategoryOptions()
-    }, [])
-
     async function fetchBanners() {
         try {
             const res = await apiFetch('/admin/settings')
             const data = await res.json()
             if (res.ok && data.data) {
                 if (data.data.heroBanners) {
-                    setHeroBanners(data.data.heroBanners.map((banner: any, index: number) => normalizeBanner(banner, index)))
+                    setHeroBanners(data.data.heroBanners.map((banner: any, index: number) => normalizeBanner(banner, index)).sort((a: Banner, b: Banner) => a.order - b.order))
                 }
                 if (data.data.promoBanners) {
-                    setPromoBanners(data.data.promoBanners.map((banner: any, index: number) => normalizeBanner(banner, index)))
+                    setPromoBanners(data.data.promoBanners.map((banner: any, index: number) => normalizeBanner(banner, index)).sort((a: Banner, b: Banner) => a.order - b.order))
                 }
             }
         } catch (error) {
@@ -469,7 +547,7 @@ export default function BannersPage() {
             let hasNext = true
 
             while (hasNext && page <= 20) {
-                const res = await apiFetch(`/companies?page=${page}&limit=50&sort=name:asc`, { skipAuth: true })
+                const res = await apiFetch(`/companies?page=${page}&limit=50&sort=name:asc`)
                 const data = await res.json()
                 if (!res.ok) throw new Error("failed")
 
@@ -504,7 +582,7 @@ export default function BannersPage() {
             let hasNext = true
 
             while (hasNext && page <= 20) {
-                const res = await apiFetch(`/categories?page=${page}&limit=50&sort=name:asc`, { skipAuth: true })
+                const res = await apiFetch(`/categories?page=${page}&limit=50&sort=name:asc`)
                 const data = await res.json()
                 if (!res.ok) throw new Error("failed")
 
@@ -530,6 +608,13 @@ export default function BannersPage() {
             setIsLoadingCategoryOptions(false)
         }
     }
+
+    useEffect(() => {
+        fetchBanners()
+        loadProductOptions()
+        loadBrandOptions()
+        loadCategoryOptions()
+    }, [])
 
     // Hero Banners CRUD
     function addHeroBanner() {
@@ -566,12 +651,13 @@ export default function BannersPage() {
         try {
             const res = await apiFetch('/admin/settings', {
                 method: 'PUT',
-                body: JSON.stringify({ heroBanners })
+                body: JSON.stringify({ heroBanners: withPositions(heroBanners) })
             })
             if (res.ok) {
+                setOrderDirty((prev) => ({ ...prev, hero: false }))
                 toast.success("Hero banners saved successfully")
             } else {
-                toast.error("Failed to save hero banners")
+                toast.error(await saveErrorText(res, "Failed to save hero banners"))
             }
         } catch {
             toast.error("Error saving hero banners")
@@ -598,12 +684,13 @@ export default function BannersPage() {
         try {
             const res = await apiFetch('/admin/settings', {
                 method: 'PUT',
-                body: JSON.stringify({ promoBanners })
+                body: JSON.stringify({ promoBanners: withPositions(promoBanners) })
             })
             if (res.ok) {
+                setOrderDirty((prev) => ({ ...prev, promo: false }))
                 toast.success("Promo banners saved successfully")
             } else {
-                toast.error("Failed to save promo banners")
+                toast.error(await saveErrorText(res, "Failed to save promo banners"))
             }
         } catch {
             toast.error("Error saving promo banners")
@@ -617,7 +704,10 @@ export default function BannersPage() {
         index: number,
         type: 'hero' | 'promo',
         updateFn: (index: number, field: keyof Banner, value: string | boolean | number) => void,
-        removeFn: (index: number) => void
+        removeFn: (index: number) => void,
+        total: number,
+        handle: ReactNode,
+        isDragging: boolean,
     ) {
         const isUploading = uploadingIndex?.type === type && uploadingIndex?.index === index
         const selectedProduct = availableProducts.find((product) => product._id === banner.linkedProductId)
@@ -625,10 +715,30 @@ export default function BannersPage() {
         const isVideo = type === 'hero' && banner.mediaType !== 'image'
 
         return (
-            <div key={index} className="border border-[#333] rounded-lg p-4 space-y-4 bg-[#0D0D0D]">
+            <div className={`border rounded-lg p-4 space-y-4 bg-[#0D0D0D] ${isDragging ? 'border-[#818cf8] shadow-2xl' : 'border-[#333]'}`}>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2 min-w-0">
-                        <GripVertical className="h-4 w-4 text-[#555]" />
+                        {handle}
+                        <div className="flex items-center">
+                            <Button
+                                variant="ghost" size="icon"
+                                className="h-7 w-7 text-[#919191] hover:bg-[#222] hover:text-white disabled:opacity-30"
+                                aria-label={`Move banner ${index + 1} up`}
+                                disabled={index === 0}
+                                onClick={() => moveBanner(type, index, index - 1)}
+                            >
+                                <ArrowUp className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost" size="icon"
+                                className="h-7 w-7 text-[#919191] hover:bg-[#222] hover:text-white disabled:opacity-30"
+                                aria-label={`Move banner ${index + 1} down`}
+                                disabled={index === total - 1}
+                                onClick={() => moveBanner(type, index, index + 1)}
+                            >
+                                <ArrowDown className="h-4 w-4" />
+                            </Button>
+                        </div>
                         <span className="text-sm font-medium text-white">
                             Banner {index + 1}{isVideo ? (banner.mediaType === 'youtube' ? ' · Video (YouTube)' : ' · Video') : ''}
                         </span>
@@ -1012,15 +1122,26 @@ export default function BannersPage() {
                                     <p className="text-sm">No hero banners yet. Add your first banner.</p>
                                 </div>
                             ) : (
-                                heroBanners.map((banner, index) =>
-                                    renderBannerCard(banner, index, 'hero', updateHeroBanner, removeHeroBanner)
-                                )
+                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(event) => handleDragEnd('hero', event)}>
+                                    <SortableContext items={heroBanners.map((banner) => banner.key)} strategy={verticalListSortingStrategy}>
+                                        <div className="space-y-4">
+                                            {heroBanners.map((banner, index) => (
+                                                <SortableBanner key={banner.key} id={banner.key}>
+                                                    {(handle, isDragging) => renderBannerCard(banner, index, 'hero', updateHeroBanner, removeHeroBanner, heroBanners.length, handle, isDragging)}
+                                                </SortableBanner>
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
                             )}
                             {heroBanners.length > 0 && (
+                                <>
+                                {orderDirty.hero && <p className="text-center text-xs font-medium text-amber-400">Order changed. Save to show this order in the app.</p>}
                                 <Button onClick={saveHeroBanners} disabled={isSavingHero} className="w-full">
                                     {isSavingHero && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     <Save className="mr-2 h-4 w-4" /> Save Hero Banners
                                 </Button>
+                                </>
                             )}
                         </CardContent>
                     </Card>
@@ -1034,7 +1155,7 @@ export default function BannersPage() {
                                     <CardTitle className="text-white flex items-center gap-2">
                                         <ImageIcon className="h-5 w-5" /> Bottom Banners
                                     </CardTitle>
-                                    <CardDescription className="text-[#919191]">Promotional carousel displayed just above the "Why Buy From Us" section</CardDescription>
+                                    <CardDescription className="text-[#919191]">Promotional carousel displayed just above the &quot;Why Buy From Us&quot; section</CardDescription>
                                 </div>
                                 <Button onClick={addPromoBanner} variant="outline" size="sm" className="w-full border-[#333] text-white hover:bg-[#222] sm:w-auto">
                                     <Plus className="h-4 w-4 mr-1" /> Add Banner
@@ -1048,15 +1169,26 @@ export default function BannersPage() {
                                     <p className="text-sm">No promo banners yet. Add your first banner.</p>
                                 </div>
                             ) : (
-                                promoBanners.map((banner, index) =>
-                                    renderBannerCard(banner, index, 'promo', updatePromoBanner, removePromoBanner)
-                                )
+                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(event) => handleDragEnd('promo', event)}>
+                                    <SortableContext items={promoBanners.map((banner) => banner.key)} strategy={verticalListSortingStrategy}>
+                                        <div className="space-y-4">
+                                            {promoBanners.map((banner, index) => (
+                                                <SortableBanner key={banner.key} id={banner.key}>
+                                                    {(handle, isDragging) => renderBannerCard(banner, index, 'promo', updatePromoBanner, removePromoBanner, promoBanners.length, handle, isDragging)}
+                                                </SortableBanner>
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
                             )}
                             {promoBanners.length > 0 && (
+                                <>
+                                {orderDirty.promo && <p className="text-center text-xs font-medium text-amber-400">Order changed. Save to show this order in the app.</p>}
                                 <Button onClick={savePromoBanners} disabled={isSavingPromo} className="w-full">
                                     {isSavingPromo && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     <Save className="mr-2 h-4 w-4" /> Save Promo Banners
                                 </Button>
+                                </>
                             )}
                         </CardContent>
                     </Card>

@@ -8,9 +8,8 @@
  * and negotiation flows against the actual database.
  */
 
-require('dotenv').config();
-// These integration tests write to MONGODB_URI: only ever run them on the local demo DB.
-require('../src/config/demoGuard').assertDemoDatabase();
+// Database-backed: only runs against a local "test"/"demo" database (see helpers/testDb.js).
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-access-secret-0123456789-abcdefghij';
 const mongoose = require('mongoose');
 const assert = require('assert');
 
@@ -35,6 +34,7 @@ async function setup() {
   console.log('\n🔧 Setting up test environment...\n');
   
   await mongoose.connect(process.env.MONGODB_URI);
+  assertSafeToWipe(mongoose);
   
   // Create test user
   testUser = await User.create({
@@ -588,9 +588,21 @@ const tests = [
   ['14. Delivered order stock stays deducted', test_14_delivered_order_stock_stays_deducted],
 ];
 
+// These tests write users, products and orders, so they only run against a
+// database on this machine (never the live database in .env).
+const { isSafeTestDatabase, testDatabaseUri: resolveTestDatabaseUri, assertSafeToWipe } = require('./helpers/testDb');
+const testDatabaseUri = resolveTestDatabaseUri('INVENTORY_TEST_MONGODB_URI');
+const isLocalDatabase = isSafeTestDatabase(testDatabaseUri);
+
 (async () => {
   let passed = 0;
   let failed = 0;
+
+  if (!isLocalDatabase) {
+    console.log('Inventory tests skipped: set INVENTORY_TEST_MONGODB_URI (or TEST_MONGODB_URI) to a local test database to run them.');
+    process.exit(0);
+  }
+  process.env.MONGODB_URI = testDatabaseUri;
 
   try {
     await setup();

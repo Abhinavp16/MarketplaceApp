@@ -30,7 +30,7 @@ module.exports = {
                 secondary: ['"Cabinet Grotesk"', 'system-ui', 'sans-serif'],
             },
             boxShadow: {
-                cta: '0 4px 14px 0 rgba(55, 48, 163, 0.39)',
+                cta: '0 4px 14px 0 rgba(55,48,163, 0.39)',
             },
         },
     },

@@ -72,9 +72,9 @@ function VerifyContent() {
       <Card className="w-full max-w-md border-[#d0d1e3] bg-white/92 shadow-[0_32px_90px_rgba(50,58,110,0.12)]">
         <CardHeader className="space-y-1">
           <div className="flex justify-center pb-2">
-            <Image src="/icon.svg" alt="TradeHub Demo logo" width={56} height={56} className="h-14 w-14 rounded-xl object-cover" />
+            <Image src="/icon.svg" alt="DemoMart logo" width={56} height={56} className="h-14 w-14 rounded-xl object-cover" />
           </div>
-          <CardTitle className="text-center text-2xl font-bold text-slate-900">TradeHub Demo Admin</CardTitle>
+          <CardTitle className="text-center text-2xl font-bold text-slate-900">DemoMart Admin</CardTitle>
           <CardDescription className="text-center text-slate-500">
             {status === "verifying" && "Verifying your sign-in link..."}
             {status === "success" && "Signed in! Redirecting to dashboard..."}

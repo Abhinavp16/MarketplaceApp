@@ -6,8 +6,10 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../core/config/legal_acceptance_config.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/phone_validation.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/ui/ui.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -39,37 +41,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
 
-  // Colors
-  static const _primaryGreen = Color(0xFF2D6A4F);
-  static const _primaryBlue = Color(0xFF115E59);
-  static const _backgroundLight = Color(0xFFF8FAF9);
-  static const _textDark = Color(0xFF1A1A1A);
-  static const _textMuted = Color(0xFF6B7280);
-  static const _borderColor = Color(0xFFE5E7EB);
-
-  Color get _primaryColor => _isWholesaler ? _primaryBlue : _primaryGreen;
-
   @override
   void initState() {
     super.initState();
     _slideController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: AppMotion.slow,
       vsync: this,
     );
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: AppMotion.base,
       vsync: this,
     );
 
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+          CurvedAnimation(parent: _slideController, curve: AppMotion.standard),
         );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeIn));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: AppMotion.standard),
+    );
 
     _slideController.forward();
     _fadeController.forward();
@@ -196,15 +187,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: AppFonts.bodyMedium(color: Colors.white)),
-        backgroundColor: const Color(0xFFDC2626),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+    showAppSnack(context, message, tone: SnackTone.error);
   }
 
   @override
@@ -215,76 +198,106 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: _backgroundLight,
+        backgroundColor: AppColors.backgroundLight,
         body: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 40),
-
-                      // Logo
-                      _buildLogo(),
-                      const SizedBox(height: 32),
-
-                      // Title
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: Text(
-                          _isLogin
-                              ? l10n.authWelcomeBack
-                              : l10n.authCreateAccount,
-                          key: ValueKey(_isLogin),
-                          style: AppFonts.h1(color: _textDark),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _isLogin
-                            ? l10n.authSignInSubtitle
-                            : l10n.authJoinSubtitle,
-                        style: AppFonts.bodyMedium(color: _textMuted),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Role Toggle
-                      if (_isLogin) ...[
-                        _buildRoleToggle(),
-                        const SizedBox(height: 28),
-                      ],
-
-                      // Error Message
-                      if (authState.error != null) ...[
-                        _buildErrorBanner(authState.error!),
-                        const SizedBox(height: 20),
-                      ],
-
-                      // Form Fields
-                      _buildForm(),
-                      const SizedBox(height: 28),
-
-                      if (!_isLogin) ...[
-                        _buildBusinessConsentCheckbox(),
-                        const SizedBox(height: 20),
-                      ],
-
-                      // Submit Button
-                      _buildSubmitButton(authState.isLoading),
-                      const SizedBox(height: 24),
-
-                      // Toggle Auth Mode
-                      _buildAuthToggle(),
-                      const SizedBox(height: 40),
-                    ],
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  // Close: back to the app without signing in.
+                  IconButton(
+                    tooltip: l10n.commonClose,
+                    onPressed: () => context.go('/home'),
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.surfaceLight,
+                      side: const BorderSide(color: AppColors.border),
+                      fixedSize: const Size(44, 44),
+                    ),
+                    icon: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedCancel01,
+                      size: 22,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+
+                          // Logo
+                          _buildLogo(),
+                          const SizedBox(height: 24),
+
+                          // Title
+                          AnimatedSwitcher(
+                            duration: AppMotion.of(context, AppMotion.base),
+                            child: Text(
+                              _isLogin
+                                  ? l10n.authWelcomeBack
+                                  : l10n.authCreateAccount,
+                              key: ValueKey(_isLogin),
+                              style: AppFonts.jakarta(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _isLogin
+                                ? l10n.authSignInSubtitle
+                                : l10n.authJoinSubtitle,
+                            style: AppFonts.jakarta(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                              height: 1.45,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Role Toggle
+                          if (_isLogin) ...[
+                            _buildRoleToggle(),
+                            const SizedBox(height: 20),
+                          ],
+
+                          // Error Message
+                          if (authState.error != null) ...[
+                            _buildErrorBanner(authState.error!),
+                            const SizedBox(height: 16),
+                          ],
+
+                          // Form Fields
+                          _buildForm(),
+                          const SizedBox(height: 24),
+
+                          if (!_isLogin) ...[
+                            _buildBusinessConsentCheckbox(),
+                            const SizedBox(height: 20),
+                          ],
+
+                          // Submit Button
+                          _buildSubmitButton(authState.isLoading),
+                          const SizedBox(height: 16),
+
+                          // Toggle Auth Mode
+                          _buildAuthToggle(),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -295,27 +308,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
   Widget _buildLogo() {
     return Center(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutCubic,
+      child: Container(
         width: 72,
         height: 72,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: _primaryColor.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: AppColors.border),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: Image.asset(
-            'assets/images/logo.png',
-            fit: BoxFit.cover,
-          ),
+        clipBehavior: Clip.antiAlias,
+        child: Image.asset(
+          'assets/images/logo.png',
+          fit: BoxFit.cover,
         ),
       ),
     );
@@ -323,18 +327,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
   Widget _buildRoleToggle() {
     return Container(
+      height: 52,
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _borderColor),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      decoration: ShapeDecoration(
+        color: AppColors.surfaceLight,
+        shape: AppShapes.squircle(
+          AppRadius.md,
+          side: const BorderSide(color: AppColors.border),
+        ),
       ),
       child: Row(
         children: [
@@ -352,21 +352,34 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   Widget _buildRoleButton(String label, bool isWholesaler) {
     final isSelected = _isWholesaler == isWholesaler;
 
-    return GestureDetector(
-      onTap: () => _toggleRole(isWholesaler),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? _primaryColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppFonts.labelLarge(
-              color: isSelected ? Colors.white : _textMuted,
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        child: Material(
+          color: Colors.transparent,
+          shape: AppShapes.squircle(AppRadius.sm),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => _toggleRole(isWholesaler),
+            child: AnimatedContainer(
+              duration: AppMotion.of(context, AppMotion.base),
+              curve: AppMotion.standard,
+              alignment: Alignment.center,
+              decoration: ShapeDecoration(
+                color: isSelected ? AppColors.primarySoft : Colors.transparent,
+                shape: AppShapes.squircle(AppRadius.sm),
+              ),
+              child: Text(
+                label,
+                style: AppFonts.jakarta(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected
+                      ? AppColors.primaryDeep
+                      : AppColors.textSecondary,
+                ),
+              ),
             ),
           ),
         ),
@@ -376,24 +389,29 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
   Widget _buildErrorBanner(String error) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEE2E2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFCA5A5)),
+        color: AppColors.errorSoft,
+        borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const HugeIcon(
             icon: HugeIcons.strokeRoundedAlertCircle,
-            color: Color(0xFFDC2626),
+            color: AppColors.error,
             size: 20,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               error,
-              style: AppFonts.bodySmall(color: const Color(0xFFDC2626)),
+              style: AppFonts.jakarta(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.error,
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -404,8 +422,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   Widget _buildForm() {
     final l10n = context.l10n;
     return AnimatedSize(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOutCubic,
+      duration: AppMotion.of(context, AppMotion.slow),
+      curve: AppMotion.standard,
+      alignment: Alignment.topCenter,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -474,33 +493,54 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
               icon: HugeIcons.strokeRoundedStore01,
               required: false,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               l10n.authWholesalerProofNote,
-              style: AppFonts.caption(color: _textMuted),
+              style: AppFonts.jakarta(
+                fontSize: 12,
+                color: AppColors.textTertiary,
+                height: 1.4,
+              ),
             ),
           ],
 
           // Account-access support (login only)
           if (_isLogin) ...[
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => context.push('/help'),
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  l10n.authNeedHelp,
-                  style: AppFonts.bodySmall(
-                    color: _primaryColor,
-                    fontWeight: FontWeight.w600,
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Flexible(
+                  child: Text(
+                    l10n.authTroubleSignIn,
+                    style: AppFonts.jakarta(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
-              ),
+                TextButton.icon(
+                  onPressed: () => context.push('/help'),
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(44, 44),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                  icon: const HugeIcon(
+                    icon: HugeIcons.strokeRoundedCustomerSupport,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+                  label: Text(
+                    l10n.authContactSupport,
+                    style: AppFonts.jakarta(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ],
@@ -528,63 +568,73 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       children: [
         Row(
           children: [
-            Text(label, style: AppFonts.labelMedium(color: _textDark)),
+            Text(
+              label,
+              style: AppFonts.jakarta(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
             if (!required) ...[
               const SizedBox(width: 6),
               Text(
                 context.l10n.fieldOptionalTag,
-                style: AppFonts.caption(color: _textMuted),
+                style: AppFonts.jakarta(
+                  fontSize: 12,
+                  color: AppColors.textTertiary,
+                ),
               ),
             ],
           ],
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _borderColor),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          textCapitalization: textCapitalization,
+          maxLength: maxLength,
+          inputFormatters: inputFormatters,
+          style: AppFonts.jakarta(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
           ),
-          child: TextField(
-            controller: controller,
-            obscureText: obscureText,
-            keyboardType: keyboardType,
-            textCapitalization: textCapitalization,
-            maxLength: maxLength,
-            inputFormatters: inputFormatters,
-            style: AppFonts.bodyLarge(color: _textDark),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: AppFonts.bodyMedium(color: const Color(0xFFADB5BD)),
-              prefixIcon: HugeIcon(icon: icon, color: _textMuted, size: 22),
-              prefixText: prefix,
-              prefixStyle: AppFonts.bodyLarge(color: _textDark),
-              suffixIcon: isPassword
-                  ? IconButton(
-                      icon: HugeIcon(
-                        icon: obscureText
-                            ? HugeIcons.strokeRoundedViewOff
-                            : HugeIcons.strokeRoundedView,
-                        color: _textMuted,
-                        size: 22,
-                      ),
-                      onPressed: onToggleObscure,
-                    )
-                  : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: HugeIcon(
+                icon: icon,
+                color: AppColors.textTertiary,
+                size: 20,
               ),
-              counterText: '',
             ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 44),
+            prefixText: prefix,
+            prefixStyle: AppFonts.jakarta(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: HugeIcon(
+                      icon: obscureText
+                          ? HugeIcons.strokeRoundedViewOff
+                          : HugeIcons.strokeRoundedView,
+                      color: AppColors.textTertiary,
+                      size: 20,
+                    ),
+                    onPressed: onToggleObscure,
+                  )
+                : null,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              borderSide: const BorderSide(color: AppColors.borderStrong),
+            ),
+            counterText: '',
           ),
         ),
       ],
@@ -592,48 +642,37 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   Widget _buildSubmitButton(bool isLoading) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : _handleSubmit,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _primaryColor,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: _primaryColor.withOpacity(0.6),
-          elevation: 0,
-          shadowColor: _primaryColor.withOpacity(0.3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
-              )
-            : Text(
-                _isLogin
-                    ? context.l10n.authSignIn
-                    : context.l10n.authCreateAccount,
-                style: AppFonts.button(color: Colors.white),
-              ),
-      ),
+    return AppButton(
+      label: _isLogin
+          ? context.l10n.authSignIn
+          : context.l10n.authCreateAccount,
+      loading: isLoading,
+      onPressed: isLoading ? null : _handleSubmit,
     );
   }
 
   Widget _buildBusinessConsentCheckbox() {
     final l10n = context.l10n;
+    final linkStyle = AppFonts.jakarta(
+      fontSize: 14,
+      fontWeight: FontWeight.w700,
+      color: AppColors.primary,
+    );
+    final textStyle = AppFonts.jakarta(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: AppColors.textSecondary,
+    );
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _borderColor),
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(
+          color: _acceptedTermsAndPrivacy
+              ? AppColors.primarySoft
+              : AppColors.border,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -645,66 +684,44 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                 value: _acceptedTermsAndPrivacy,
                 onChanged: (value) =>
                     setState(() => _acceptedTermsAndPrivacy = value ?? false),
-                activeColor: _primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                side: const BorderSide(color: Color(0xFFC7C7CC), width: 1.5),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 2),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        l10n.authConsentIntro,
-                        style: AppFonts.bodyMedium(
-                          color: _textMuted,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      Text(l10n.authConsentIntro, style: textStyle),
                       Wrap(
-                        spacing: 2,
+                        spacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           TextButton(
                             onPressed: () =>
                                 context.push('/legal/terms-conditions'),
                             style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: Size.zero,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              minimumSize: const Size(0, 36),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: Text(
                               l10n.legalTermsConditions,
-                              style: AppFonts.bodyMedium(
-                                color: _primaryColor,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: linkStyle,
                             ),
                           ),
-                          Text(
-                            l10n.authConsentAnd,
-                            style: AppFonts.bodyMedium(
-                              color: _textMuted,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          Text(l10n.authConsentAnd, style: textStyle),
                           TextButton(
                             onPressed: () =>
                                 context.push('/legal/privacy-policy'),
                             style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: Size.zero,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              minimumSize: const Size(0, 36),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: Text(
                               l10n.authConsentPrivacyLink,
-                              style: AppFonts.bodyMedium(
-                                color: _primaryColor,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: linkStyle,
                             ),
                           ),
                         ],
@@ -716,48 +733,55 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
               IconButton(
                 onPressed: () =>
                     setState(() => _showPolicyDetails = !_showPolicyDetails),
-                icon: Icon(
-                  _showPolicyDetails
-                      ? Icons.keyboard_arrow_up_rounded
-                      : Icons.keyboard_arrow_down_rounded,
-                  color: _textMuted,
+                icon: AnimatedRotation(
+                  turns: _showPolicyDetails ? 0.5 : 0,
+                  duration: AppMotion.of(context, AppMotion.base),
+                  child: const HugeIcon(
+                    icon: HugeIcons.strokeRoundedArrowDown01,
+                    size: 20,
+                    color: AppColors.textTertiary,
+                  ),
                 ),
               ),
             ],
           ),
-          AnimatedCrossFade(
-            duration: const Duration(milliseconds: 220),
-            crossFadeState: _showPolicyDetails
-                ? CrossFadeState.showFirst
-                : CrossFadeState.showSecond,
-            firstChild: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.authConsentPointCollect,
-                    style: AppFonts.bodySmall(color: _textMuted),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.authConsentPointUse,
-                    style: AppFonts.bodySmall(color: _textMuted),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.authConsentPointShare,
-                    style: AppFonts.bodySmall(color: _textMuted),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.authConsentPointRights,
-                    style: AppFonts.bodySmall(color: _textMuted),
-                  ),
-                ],
-              ),
-            ),
-            secondChild: const SizedBox.shrink(),
+          AnimatedSize(
+            duration: AppMotion.of(context, AppMotion.base),
+            curve: AppMotion.standard,
+            alignment: Alignment.topCenter,
+            child: _showPolicyDetails
+                ? Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.gray50,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final point in [
+                          l10n.authConsentPointCollect,
+                          l10n.authConsentPointUse,
+                          l10n.authConsentPointShare,
+                          l10n.authConsentPointRights,
+                        ])
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Text(
+                              point,
+                              style: AppFonts.jakarta(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                                height: 1.45,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  )
+                : const SizedBox(width: double.infinity),
           ),
         ],
       ),
@@ -766,22 +790,31 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
   Widget _buildAuthToggle() {
     return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(
             _isLogin
                 ? context.l10n.authNoAccount
                 : context.l10n.authHaveAccount,
-            style: AppFonts.bodyMedium(color: _textMuted),
+            style: AppFonts.jakarta(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+            ),
           ),
-          GestureDetector(
-            onTap: _toggleAuthMode,
+          TextButton(
+            onPressed: _toggleAuthMode,
+            style: TextButton.styleFrom(
+              minimumSize: const Size(44, 44),
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+            ),
             child: Text(
               _isLogin ? context.l10n.authSignUp : context.l10n.authSignIn,
-              style: AppFonts.bodyMedium(
-                color: _primaryColor,
+              style: AppFonts.jakarta(
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
+                color: AppColors.primary,
               ),
             ),
           ),

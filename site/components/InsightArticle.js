@@ -1,13 +1,15 @@
 import Link from 'next/link';
+import Icon from '@/components/Icon';
+import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
 
 // Shared layout for the demo "insights" (blog-like) articles. All copy is generic placeholder text.
 export default function InsightArticle({ image, imageAlt, category, date = 'Demo', title, lead, sections = [] }) {
     return (
-        <main className="pt-24 pb-16 bg-neutral-surface min-h-screen">
+        <main className="pt-32 sm:pt-36 lg:pt-44 pb-16 bg-neutral-surface min-h-screen">
             <div className="max-w-4xl mx-auto px-6">
-                <Link href="/" className="inline-flex items-center text-brand-primary hover:underline mb-8 font-medium">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                    Back to Home
+                <Link href="/insights" className="inline-flex items-center text-brand-primary hover:underline mb-8 font-medium">
+                    <Icon icon={ArrowLeft01Icon} size={16} strokeWidth={2} className="w-4 h-4 mr-2" />
+                    All Insights
                 </Link>
 
                 <article className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/providers/guest_mode_provider.dart';
+import 'package:demomart_demo/core/providers/guest_mode_provider.dart';
 
 void main() {
   group('customer preview audience', () {

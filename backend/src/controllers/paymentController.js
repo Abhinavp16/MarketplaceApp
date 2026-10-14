@@ -1,7 +1,8 @@
+const BRAND = require('../config/brand');
 const { Payment, Order, Settings } = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/errors');
 const { ORDER_STATUS, PAYMENT_STATUS } = require('../utils/constants');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
 const { saveBuffer } = require('../config/storage');
 const { notifyAdmins } = require('../services/adminNotificationService');
 
@@ -36,6 +37,11 @@ exports.uploadScreenshot = async (req, res, next) => {
 
     if (order.status !== ORDER_STATUS.PENDING_PAYMENT) {
       throw new BadRequestError('Payment already processed', 'PAYMENT_ALREADY_PROCESSED');
+    }
+
+    // The admin adds delivery when accepting, so pay only after that.
+    if (order.acceptanceStatus === 'pending') {
+      throw new BadRequestError(`Your order is awaiting confirmation. Pay after ${BRAND.shortName} accepts it.`, 'ORDER_AWAITING_ACCEPTANCE');
     }
 
     let payment = await Payment.findOne({ orderId });

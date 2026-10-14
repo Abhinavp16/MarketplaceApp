@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import ScrollReveal from '@/components/ScrollReveal';
+import Icon from '@/components/Icon';
+import { ArrowRight02Icon } from '@hugeicons/core-free-icons';
 
-const INITIAL_VISIBLE_COUNT = 12;
+// 11 cards + the View More card fill two rows of six.
+const INITIAL_VISIBLE_COUNT = 11;
 
 const defaultCategories = [];
 
@@ -64,7 +67,7 @@ export default function CategoriesSection({
                                     </h3>
                                     <div className="mt-3 flex items-center justify-between border-t border-[#312e81]/10 pt-2.5 text-[11px] font-semibold text-brand-primary">
                                         <span>{section.buttonText || 'View Products'}</span>
-                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/60">→</span>
+                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/60"><Icon icon={ArrowRight02Icon} size={14} /></span>
                                     </div>
                                 </div>
                             </Link>
@@ -80,21 +83,7 @@ export default function CategoriesSection({
                             className="group mx-auto flex h-full min-h-[15rem] w-full max-w-[220px] flex-col items-center justify-center rounded-[1.35rem] border border-white/10 bg-[#17153b] px-5 text-center text-white shadow-[0_16px_40px_rgba(30,27,75,0.16)] transition-all duration-300 hover:-translate-y-1"
                         >
                             <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full border border-white/30 bg-white/8">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="34"
-                                    height="34"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="transition-transform duration-300 group-hover:translate-x-1"
-                                >
-                                    <path d="M5 12h14" />
-                                    <path d="m12 5 7 7-7 7" />
-                                </svg>
+                                <Icon icon={ArrowRight02Icon} size={34} strokeWidth={2.2} className="transition-transform duration-300 group-hover:translate-x-1" />
                             </div>
                             <h3 className="text-3xl font-bold">View More</h3>
                             <p className="mt-3 text-sm font-medium text-white/85">

@@ -4,12 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../core/services/api_client.dart';
 import '../core/services/order_export_service.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/app_fonts.dart';
 import '../l10n/l10n.dart';
+import '../screens/orders/order_parts.dart';
+import 'ui/ui.dart';
 
 class OrderCheckoutActionsSheet {
   static Future<void> handleSuccessfulCheckout({
@@ -113,56 +116,41 @@ class OrderCheckoutActionsSheet {
         '';
 
     final l10n = context.l10n;
+    HapticFeedback.mediumImpact();
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 22),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 68,
-                height: 68,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFDCFCE7),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_rounded,
-                  color: Color(0xFF15803D),
-                  size: 38,
-                ),
-              ),
-              const SizedBox(height: 18),
+              const OrderSuccessBadge(size: 68),
               Text(
                 l10n.checkoutOrderSubmitted,
+                textAlign: TextAlign.center,
                 style: AppFonts.jakarta(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
-                ),
-              ),
-              const SizedBox(height: 7),
-              Text(
-                l10n.checkoutAwaitingApproval,
-                style: AppFonts.jakarta(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFFD97706),
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 10),
+              StatusChip(
+                label: l10n.checkoutAwaitingApproval,
+                tone: ChipTone.warning,
+                icon: HugeIcons.strokeRoundedClock01,
+              ),
+              const SizedBox(height: 12),
               Text(
                 l10n.checkoutApprovalNote,
                 textAlign: TextAlign.center,
                 style: AppFonts.jakarta(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: const Color(0xFF64748B),
+                  fontSize: 14,
+                  height: 1.45,
+                  color: AppColors.textSecondary,
                 ),
               ),
               if (orderNumber.isNotEmpty) ...[
@@ -173,42 +161,39 @@ class OrderCheckoutActionsSheet {
                     vertical: 9,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    color: AppColors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                   ),
                   child: Text(
                     l10n.orderNumberLabel(orderNumber),
-                    style: AppFonts.jakarta(
+                    style: AppText.price(
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF334155),
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
               ],
-              const SizedBox(height: 22),
-              if (orderId.isNotEmpty)
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                      context.push('/tracking/$orderId');
-                    },
-                    icon: const Icon(Icons.receipt_long_outlined),
-                    label: Text(l10n.checkoutViewOrder),
-                  ),
-                ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
+              const SizedBox(height: 20),
+              if (orderId.isNotEmpty) ...[
+                AppButton(
+                  label: l10n.checkoutViewOrder,
+                  icon: HugeIcons.strokeRoundedInvoice01,
                   onPressed: () {
                     Navigator.of(dialogContext).pop();
-                    context.go('/home');
+                    context.push('/tracking/$orderId');
                   },
-                  child: Text(l10n.checkoutContinueShopping),
                 ),
+                const SizedBox(height: 4),
+              ],
+              AppButton(
+                label: l10n.checkoutContinueShopping,
+                variant: AppButtonVariant.ghost,
+                size: AppButtonSize.medium,
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  context.go('/home');
+                },
               ),
             ],
           ),
@@ -224,14 +209,10 @@ class OrderCheckoutActionsSheet {
   }
 
   static void _showShareSheetOpenedMessage(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          context.l10n.checkoutShareSheetOpened,
-          style: AppFonts.jakarta(fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: const Color(0xFF16A34A),
-      ),
+    showAppSnack(
+      context,
+      context.l10n.checkoutShareSheetOpened,
+      tone: SnackTone.success,
     );
   }
 
@@ -267,11 +248,10 @@ class OrderCheckoutActionsSheet {
             if (!sheetContext.mounted) return;
             file = exportResult.file;
             if (file == null) {
-              ScaffoldMessenger.of(sheetContext).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.checkoutReceiptUnavailableNow),
-                  backgroundColor: AppColors.error,
-                ),
+              showAppSnack(
+                sheetContext,
+                l10n.checkoutReceiptUnavailableNow,
+                tone: SnackTone.error,
               );
               return;
             }
@@ -284,162 +264,115 @@ class OrderCheckoutActionsSheet {
           if (!sheetContext.mounted) return;
           if (shareResult.shareSheetOpened) {
             Navigator.of(sheetContext).pop();
-            _showShareSheetOpenedMessage(context);
+            if (context.mounted) _showShareSheetOpenedMessage(context);
             return;
           }
 
-          ScaffoldMessenger.of(sheetContext).showSnackBar(
-            SnackBar(
-              content: Text(l10n.checkoutShareOptionsFailed),
-              backgroundColor: AppColors.error,
-            ),
+          showAppSnack(
+            sheetContext,
+            l10n.checkoutShareOptionsFailed,
+            tone: SnackTone.error,
           );
         }
 
         Future<void> copyOrderDetails() async {
           await Clipboard.setData(ClipboardData(text: orderMessage));
           if (!sheetContext.mounted) return;
-          ScaffoldMessenger.of(sheetContext).showSnackBar(
-            SnackBar(content: Text(l10n.checkoutOrderDetailsCopied)),
+          showAppSnack(
+            sheetContext,
+            l10n.checkoutOrderDetailsCopied,
+            tone: SnackTone.success,
           );
         }
 
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.12),
-                    blurRadius: 28,
-                    offset: const Offset(0, 12),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 42,
-                        height: 5,
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surfaceLight,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(AppRadius.xl),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SheetHandle(),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFCBD5E1),
-                          borderRadius: BorderRadius.circular(999),
+                          color: AppColors.primarySoft,
+                          borderRadius: BorderRadius.circular(AppRadius.lg),
+                        ),
+                        child: const Center(
+                          child: HugeIcon(
+                            icon: HugeIcons.strokeRoundedInvoice01,
+                            color: AppColors.primary,
+                            size: 26,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF0F766E), Color(0xFF0F9D58)],
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.checkoutOrderSaved,
+                              style: AppFonts.jakarta(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.description_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.checkoutOrderSaved,
-                                style: AppFonts.jakarta(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF0F172A),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                orderNumber == null || orderNumber.isEmpty
-                                    ? l10n.checkoutChooseAnotherWay
-                                    : l10n.checkoutOrderSavedChooseAnotherWay(
-                                        orderNumber,
-                                      ),
-                                style: AppFonts.jakarta(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF64748B),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7ED),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFFED7AA)),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(
-                            Icons.info_outline_rounded,
-                            color: Color(0xFFEA580C),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              failureMessage,
+                            const SizedBox(height: 4),
+                            Text(
+                              orderNumber == null || orderNumber.isEmpty
+                                  ? l10n.checkoutChooseAnotherWay
+                                  : l10n.checkoutOrderSavedChooseAnotherWay(
+                                      orderNumber,
+                                    ),
                               style: AppFonts.jakarta(
                                 fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF334155),
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                                height: 1.4,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: shareReceipt,
-                        icon: const Icon(Icons.ios_share_rounded),
-                        label: Text(
-                          l10n.checkoutShareReceipt,
-                          style: AppFonts.jakarta(fontWeight: FontWeight.w700),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TextButton.icon(
-                        onPressed: copyOrderDetails,
-                        icon: const Icon(Icons.copy_outlined),
-                        label: Text(
-                          l10n.checkoutCopyOrderDetails,
-                          style: AppFonts.jakarta(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  OrderInfoPanel(
+                    message: failureMessage,
+                    tone: ChipTone.warning,
+                    icon: HugeIcons.strokeRoundedAlert02,
+                  ),
+                  const SizedBox(height: 16),
+                  AppButton(
+                    label: l10n.checkoutShareReceipt,
+                    icon: HugeIcons.strokeRoundedShare08,
+                    onPressed: shareReceipt,
+                  ),
+                  const SizedBox(height: 10),
+                  const SizedBox(height: 10),
+                  AppButton(
+                    label: l10n.checkoutCopyOrderDetails,
+                    icon: HugeIcons.strokeRoundedCopy01,
+                    variant: AppButtonVariant.ghost,
+                    size: AppButtonSize.medium,
+                    onPressed: copyOrderDetails,
+                  ),
+                ],
               ),
             ),
           ),

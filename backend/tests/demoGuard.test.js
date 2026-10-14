@@ -3,6 +3,7 @@ const {
   isDemoMode,
   parseMongoUri,
   findDemoConfigProblems,
+  findFirebaseProblems,
   enforceDemoGuard,
   assertDemoDatabase,
 } = require('../src/config/demoGuard');
@@ -11,10 +12,12 @@ const {
 const j = (...parts) => parts.join('');
 const BRAND = j('lax', 'mi');
 const CITY = j('rai', 'pur');
+// Fragment of the original client's Firebase project id (must stay forbidden).
+const CLIENT_FIREBASE_ID = j('1df', '4b');
 
 const GOOD = {
   DEMO_MODE: 'true',
-  MONGODB_URI: 'mongodb://127.0.0.1:27017/tradehub_demo?replicaSet=rs0',
+  MONGODB_URI: 'mongodb://127.0.0.1:27017/demomart_demo?replicaSet=rs0',
   CORS_ORIGIN: 'http://localhost:3000,http://localhost:3001',
   FILE_STORAGE_DRIVER: 'local',
   SMTP_HOST: '',
@@ -32,8 +35,8 @@ assert.strictEqual(isDemoMode({}), false);
 
 // parseMongoUri
 assert.deepStrictEqual(
-  parseMongoUri('mongodb://127.0.0.1:27017/tradehub_demo?replicaSet=rs0'),
-  { scheme: 'mongodb', hosts: ['127.0.0.1'], dbName: 'tradehub_demo', valid: true },
+  parseMongoUri('mongodb://127.0.0.1:27017/demomart_demo?replicaSet=rs0'),
+  { scheme: 'mongodb', hosts: ['127.0.0.1'], dbName: 'demomart_demo', valid: true },
 );
 assert.strictEqual(parseMongoUri('mongodb://u:p@localhost/x_demo').dbName, 'x_demo');
 assert.strictEqual(parseMongoUri('nonsense').valid, false);
@@ -47,14 +50,56 @@ assert.ok(problems({ MONGODB_URI: 'mongodb://127.0.0.1:27017' }).some((p) => /de
 assert.ok(problems({ MONGODB_URI: '' }).some((p) => /MONGODB_URI is not set/.test(p)));
 
 // Hosted Mongo is rejected.
-assert.ok(problems({ MONGODB_URI: 'mongodb+srv://u:p@cluster0.abcde.mongodb.net/tradehub_demo' }).length >= 2);
-assert.ok(problems({ MONGODB_URI: 'mongodb://u:p@shard-00.abcde.mongodb.net:27017/tradehub_demo' }).some((p) => /mongodb\.net/.test(p)));
+assert.ok(problems({ MONGODB_URI: 'mongodb+srv://u:p@cluster0.abcde.mongodb.net/demomart_demo' }).length >= 2);
+assert.ok(problems({ MONGODB_URI: 'mongodb://u:p@shard-00.abcde.mongodb.net:27017/demomart_demo' }).some((p) => /mongodb\.net/.test(p)));
 // Remote non-Atlas host is rejected too.
-assert.ok(problems({ MONGODB_URI: 'mongodb://db.example.org:27017/tradehub_demo' }).some((p) => /local/.test(p)));
+assert.ok(problems({ MONGODB_URI: 'mongodb://db.example.org:27017/demomart_demo' }).some((p) => /local/.test(p)));
 
 // Third-party credentials are rejected.
-assert.ok(problems({ FIREBASE_PROJECT_ID: 'some-project' }).some((p) => /Firebase/.test(p)));
-assert.ok(problems({ FIREBASE_PRIVATE_KEY: 'x' }).some((p) => /Firebase/.test(p)));
+// Firebase: refused unless it is the demo's own project (FIREBASE_PROJECT_ID === DEMO_FIREBASE_PROJECT_ID).
+assert.ok(problems({ FIREBASE_PROJECT_ID: 'some-project' }).some((p) => /DEMO_FIREBASE_PROJECT_ID/.test(p)));
+assert.ok(problems({ FIREBASE_PRIVATE_KEY: 'x' }).some((p) => /FIREBASE_PROJECT_ID is empty/.test(p)));
+assert.ok(problems({ FIREBASE_CLIENT_EMAIL: 'a@demo-push-1.iam.gserviceaccount.com' }).some((p) => /FIREBASE_PROJECT_ID is empty/.test(p)));
+assert.ok(problems({ DEMO_FIREBASE_PROJECT_ID: 'demo-push-1', FIREBASE_PRIVATE_KEY: 'x' }).some((p) => /FIREBASE_PROJECT_ID is empty/.test(p)));
+// Allowed: the demo's own project (value set on both variables, equal).
+const OWN_FIREBASE = {
+  FIREBASE_PROJECT_ID: 'demo-push-1',
+  DEMO_FIREBASE_PROJECT_ID: 'demo-push-1',
+  FIREBASE_CLIENT_EMAIL: 'firebase-adminsdk-abc12@demo-push-1.iam.gserviceaccount.com',
+  FIREBASE_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\\nxxxx\\n-----END PRIVATE KEY-----\\n',
+  FIREBASE_STORAGE_BUCKET: 'demo-push-1.firebasestorage.app',
+};
+assert.deepStrictEqual(problems(OWN_FIREBASE), []);
+assert.deepStrictEqual(problems({ FIREBASE_PROJECT_ID: 'demo-push-1', DEMO_FIREBASE_PROJECT_ID: 'demo-push-1' }), []);
+assert.deepStrictEqual(findFirebaseProblems(withEnv(OWN_FIREBASE)), []);
+assert.doesNotThrow(() => assertDemoDatabase({ env: withEnv(OWN_FIREBASE) }));
+// Refused: a different project, or the allow-list variable missing/empty.
+assert.ok(problems({ ...OWN_FIREBASE, DEMO_FIREBASE_PROJECT_ID: 'another-project' }).some((p) => /does not equal/.test(p)));
+assert.ok(problems({ ...OWN_FIREBASE, DEMO_FIREBASE_PROJECT_ID: '' }).some((p) => /DEMO_FIREBASE_PROJECT_ID/.test(p)));
+assert.ok(problems({ ...OWN_FIREBASE, DEMO_FIREBASE_PROJECT_ID: undefined }).some((p) => /DEMO_FIREBASE_PROJECT_ID/.test(p)));
+assert.ok(problems({ DEMO_FIREBASE_PROJECT_ID: 'demo-push-1', FIREBASE_PROJECT_ID: '', FIREBASE_CLIENT_EMAIL: 'x' }).length > 0);
+// Refused: a service account from another project, even when the ids match.
+assert.ok(problems({ ...OWN_FIREBASE, FIREBASE_CLIENT_EMAIL: 'sa@other-project.iam.gserviceaccount.com' }).some((p) => /service account/.test(p)));
+// Refused: the original client's project (marker), even if both variables agree.
+const CLIENT_PROJECT = `shop-${CLIENT_FIREBASE_ID}`;
+assert.ok(problems({
+  FIREBASE_PROJECT_ID: CLIENT_PROJECT,
+  DEMO_FIREBASE_PROJECT_ID: CLIENT_PROJECT,
+  FIREBASE_CLIENT_EMAIL: `firebase-adminsdk-abc12@${CLIENT_PROJECT}.iam.gserviceaccount.com`,
+}).some((p) => /production marker/.test(p)));
+assert.ok(problems({ ...OWN_FIREBASE, FIREBASE_STORAGE_BUCKET: `${BRAND}-files.firebasestorage.app` }).some((p) => /production marker/.test(p)));
+assert.ok(problems({ ...OWN_FIREBASE, FIREBASE_CLIENT_EMAIL: `firebase-adminsdk@${BRAND}.iam.gserviceaccount.com` }).some((p) => /production marker/.test(p)));
+// Hosted Firebase domains stay refused in the bucket value.
+assert.ok(problems({ ...OWN_FIREBASE, FIREBASE_STORAGE_BUCKET: 'x.firebaseapp.com' }).some((p) => /hosted/.test(p)));
+// The process refuses to start on a mismatched project (and starts on the matching one).
+{
+  let code = null;
+  enforceDemoGuard({ env: withEnv({ ...OWN_FIREBASE, DEMO_FIREBASE_PROJECT_ID: 'another-project' }), exit: (c) => { code = c; }, log: () => {} });
+  assert.strictEqual(code, 1);
+  code = null;
+  enforceDemoGuard({ env: withEnv(OWN_FIREBASE), exit: (c) => { code = c; }, log: () => {} });
+  assert.strictEqual(code, null);
+}
 assert.ok(problems({ SMTP_HOST: 'smtp.example.org' }).some((p) => /SMTP/.test(p)));
 assert.ok(problems({ SMTP_USER: 'user' }).some((p) => /SMTP/.test(p)));
 assert.ok(problems({ GOOGLE_TRANSLATE_API_KEY: 'k' }).some((p) => /GOOGLE_TRANSLATE/.test(p)));
@@ -90,7 +135,7 @@ assert.strictEqual(exitCode, null);
 
 // assertDemoDatabase.
 assert.strictEqual(assertDemoDatabase({ env: withEnv({}) }), true);
-assert.strictEqual(assertDemoDatabase({ env: withEnv({}), actualDbName: 'tradehub_demo' }), true);
+assert.strictEqual(assertDemoDatabase({ env: withEnv({}), actualDbName: 'demomart_demo' }), true);
 assert.throws(() => assertDemoDatabase({ env: withEnv({}), actualDbName: 'production' }), /demo/);
 assert.throws(() => assertDemoDatabase({ env: withEnv({ DEMO_MODE: 'false' }) }), /DEMO_MODE=true/);
 assert.throws(() => assertDemoDatabase({ env: withEnv({ MONGODB_URI: 'mongodb+srv://u:p@c.mongodb.net/demo' }) }), /not a safe demo database/);

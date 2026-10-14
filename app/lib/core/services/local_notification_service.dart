@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart' show RemoteMessage;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../l10n/generated/app_localizations.dart';
@@ -22,8 +23,8 @@ class LocalNotificationService {
 
   static final LocalNotificationService instance = LocalNotificationService._();
 
-  static const String _defaultChannelId = 'tradehub_default';
-  static const String _countdownChannelId = 'tradehub_price_countdown';
+  static const String _defaultChannelId = 'demomart_default';
+  static const String _countdownChannelId = 'demomart_price_countdown';
   static const int _priceCountdownNotificationId = 910159;
 
   final FlutterLocalNotificationsPlugin _plugin =
@@ -97,6 +98,62 @@ class LocalNotificationService {
     );
 
     _isInitialized = true;
+  }
+
+  /// Handles a push received while the app is in the foreground or background.
+  /// Price-campaign pushes drive the countdown notification; other types are
+  /// shown by the system (background) or [showSimpleNotification] (foreground).
+  Future<void> handleRemoteMessage(RemoteMessage message) async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+
+    await ensureInitialized();
+
+    final type = message.data['type']?.toString();
+    if (!isPriceCampaignType(type)) {
+      return;
+    }
+
+    final l10n = await _l10n();
+    if (type == 'price_change_campaign_applied') {
+      await cancelPriceCountdown();
+      await showSimpleNotification(
+        title: _extractTitle(message, fallback: l10n.localNotificationBrand),
+        body: _extractBody(
+          message,
+          fallback: l10n.localNotificationPricesApplied,
+        ),
+        data: message.data,
+        messageId: message.messageId,
+      );
+      return;
+    }
+
+    await syncPriceCountdown(
+      type: type!,
+      title: _extractTitle(
+        message,
+        fallback: l10n.localNotificationPriceUpdateScheduled,
+      ),
+      body: _extractBody(
+        message,
+        fallback: l10n.localNotificationPriceUpdateActive,
+      ),
+      effectiveAtIso: message.data['effectiveAt']?.toString(),
+    );
+  }
+
+  String _extractTitle(RemoteMessage message, {required String fallback}) {
+    return message.notification?.title ??
+        message.data['title']?.toString() ??
+        fallback;
+  }
+
+  String _extractBody(RemoteMessage message, {required String fallback}) {
+    return message.notification?.body ??
+        message.data['body']?.toString() ??
+        fallback;
   }
 
   bool isPriceCampaignType(String? type) {

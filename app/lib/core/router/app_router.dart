@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,7 +35,7 @@ import '../navigation/app_navigator_key.dart';
 final appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
   initialLocation: '/',
-  debugLogDiagnostics: true,
+  debugLogDiagnostics: kDebugMode,
   routes: [
     GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
     GoRoute(
@@ -80,6 +81,11 @@ final appRouter = GoRouter(
           const FeaturedProductsScreen(isHotDeals: true),
     ),
     GoRoute(
+      path: '/coming-soon',
+      builder: (context, state) =>
+          const FeaturedProductsScreen(comingSoon: true),
+    ),
+    GoRoute(
       path: '/brand/:id',
       builder: (context, state) => CategoriesScreen(
         brandId: state.pathParameters['id'],
@@ -96,8 +102,15 @@ final appRouter = GoRouter(
         return ProductDetailScreen(
           productId: state.pathParameters['id'] ?? '',
           heroTag: extra?['heroTag']?.toString(),
+          heroImageUrl: extra?['heroImage']?.toString(),
+          heroBlurHash: extra?['heroBlurHash']?.toString(),
         );
       },
+    ),
+    // Website product links, should one reach the router directly.
+    GoRoute(
+      path: '/products/:slug',
+      redirect: (context, state) => '/product/${state.pathParameters['slug']}',
     ),
     GoRoute(path: '/cart', builder: (context, state) => const CartScreen()),
     GoRoute(

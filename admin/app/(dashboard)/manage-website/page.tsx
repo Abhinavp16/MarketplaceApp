@@ -290,7 +290,7 @@ export default function ManageWebsitePage() {
 
     const uploadUrl = useMemo(() => buildApiUrl("/upload/image?folder=website"), [])
     const websiteBaseUrl = useMemo(() => {
-        const raw = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL || "https://demo.tradehub.example"
+        const raw = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL || "https://demo.demomart.example"
         return raw.replace(/\/+$/, "")
     }, [])
     const catalogTree = useMemo<CatalogTreeBrand[]>(() => {

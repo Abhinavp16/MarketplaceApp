@@ -25,6 +25,9 @@ const accountDeletionController = require('../controllers/accountDeletionControl
 const settingsController = require('../controllers/settingsController');
 const validate = require('../middlewares/validate');
 const { authValidation } = require('../validations');
+const { publicFormLimiter } = require('../middlewares/rateLimits');
+const { protect, adminOnly, optionalAuth } = require('../middlewares/auth');
+const { hiddenCatalogFor, withoutHiddenBanners, hiddenProductConditions } = require('../utils/customerVisibility');
 const { orderWhatsAppNumber } = require('../config/publicBusiness');
 const BRAND = require('../config/brand');
 
@@ -63,7 +66,6 @@ const mapLiveProductToWebsiteProduct = (product, fallback = {}, order = 0) => {
     sku: String(product?.sku || fallback?.sku || '').trim(),
     mrp: normalizeNumber(product?.mrp ?? fallback?.mrp),
     retailPrice: normalizeNumber(product?.retailPrice ?? fallback?.retailPrice),
-    wholesalePrice: normalizeNumber(product?.wholesalePrice ?? fallback?.wholesalePrice),
     stock: normalizeNumber(product?.stock ?? fallback?.stock),
     priceUnit: String(product?.priceUnit || fallback?.priceUnit || '').trim(),
     packing: String(product?.packing || fallback?.packing || '').trim(),
@@ -90,7 +92,6 @@ const mapStoredWebsiteProduct = (product = {}, order = 0) => {
     sku: String(product?.sku || '').trim(),
     mrp: normalizeNumber(product?.mrp),
     retailPrice: normalizeNumber(product?.retailPrice),
-    wholesalePrice: normalizeNumber(product?.wholesalePrice),
     stock: normalizeNumber(product?.stock),
     priceUnit: String(product?.priceUnit || '').trim(),
     packing: String(product?.packing || '').trim(),
@@ -237,12 +238,22 @@ router.get('/health/live', (req, res) => {
     success: true,
     status: 'alive',
     timestamp: new Date().toISOString(),
-    uptimeSec: Math.round(process.uptime()),
   });
 });
 
-// Full health check for API dependencies
+// Public readiness check (for uptime monitors): only whether the API and its
+// database work. Hosts, versions and configuration are admin-only below.
 router.get('/health', async (req, res) => {
+  const mongo = await getMongoHealth();
+  res.status(mongo.ok ? 200 : 503).json({
+    success: mongo.ok,
+    status: mongo.ok ? 'ok' : 'degraded',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Full health check for API dependencies (admins only)
+router.get('/health/details', protect, adminOnly, async (req, res) => {
   const mongo = await getMongoHealth();
   const firebase = getFirebaseHealth();
 
@@ -297,7 +308,7 @@ router.get('/media/private', (req, res, next) => {
 // Public endpoint for hero banners, promo banners & whatsapp (no auth required)
 router.get('/settings/mobile-app', settingsController.getMobileAppSettings);
 
-router.get('/settings/banners', async (req, res, next) => {
+router.get('/settings/banners', optionalAuth, async (req, res, next) => {
   try {
     const { Settings } = require('../models');
     const settings = await Settings.getSettings();
@@ -317,12 +328,18 @@ router.get('/settings/banners', async (req, res, next) => {
       }))
       .filter(b => b.isActive !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
+    // Customers and guests don't get banners that open something hidden from them.
+    const hidden = await hiddenCatalogFor(req.user);
+    const [visibleHeroBanners, visiblePromoBanners] = await Promise.all([
+      withoutHiddenBanners(heroBanners, hidden),
+      withoutHiddenBanners(promoBanners, hidden),
+    ]);
     const whatsapp = orderWhatsAppNumber;
     res.json({
       success: true,
       data: {
-        heroBanners,
-        promoBanners,
+        heroBanners: visibleHeroBanners,
+        promoBanners: visiblePromoBanners,
         whatsapp,
         checkout: {
           mode: settings.checkout?.mode || 'whatsapp',
@@ -357,12 +374,16 @@ router.get('/settings/website-content', async (req, res, next) => {
       ))
     )];
 
+    // Website visitors aren't signed in: products hidden from customers stay off it.
+    const hiddenProductRules = hiddenProductConditions(await hiddenCatalogFor(null));
     const linkedProducts = linkedProductIds.length > 0
       ? await Product.find({
           _id: { $in: linkedProductIds },
           status: PRODUCT_STATUS.ACTIVE,
+          'comingSoon.enabled': { $ne: true },
+          ...(hiddenProductRules.length ? { $and: hiddenProductRules } : {}),
         })
-          .select('name slug category shortDescription description sku mrp retailPrice wholesalePrice stock priceUnit packing status images')
+          .select('name slug category shortDescription description sku mrp retailPrice stock priceUnit packing status images')
           .lean()
       : [];
     const linkedProductsById = new Map(linkedProducts.map((product) => [String(product._id), product]));
@@ -454,7 +475,7 @@ router.get('/website/catalog/categories/:categorySlug/products', websiteCatalogC
 router.get('/website/catalog/products', websiteCatalogController.getProducts);
 router.get('/website/catalog/products/:productSlug', websiteCatalogController.getProduct);
 
-router.post('/account-deletion-request', validate(authValidation.publicAccountDeletionRequest), accountDeletionController.requestDeletionFromWebsite);
+router.post('/account-deletion-request', publicFormLimiter, validate(authValidation.publicAccountDeletionRequest), accountDeletionController.requestDeletionFromWebsite);
 
 const demoRoutes = require('./demoRoutes');
 router.use('/demo', demoRoutes.publicRouter);

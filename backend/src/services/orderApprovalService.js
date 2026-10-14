@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
-const { Order, Product, StockLog } = require('../models');
+const { Order, Payment, Product, StockLog } = require('../models');
 const { BadRequestError, NotFoundError } = require('../utils/errors');
-const { ORDER_STATUS, ORDER_TYPES } = require('../utils/constants');
+const { ORDER_STATUS, ORDER_TYPES, PAYMENT_STATUS } = require('../utils/constants');
 const { recordAudit } = require('./auditService');
 const notificationService = require('./notificationService');
 const { maybeNotifyLowStock } = require('./adminNotificationService');
+
+const round2 = (value) => Math.round((Number(value) || 0) * 100) / 100;
+const formatRupees = (value) => Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
 
 function appendHistory(order, status, note, actorId) {
   order.statusHistory.push({ status, note, updatedBy: actorId, timestamp: new Date() });
@@ -87,6 +90,7 @@ async function runCustomerNotification(order, accepted, reason) {
   try {
     await notificationService.sendLocalizedToUser(order.userId, accepted ? 'orderAccepted' : 'orderRejected', {
       orderNumber: order.orderNumber,
+      total: formatRupees(order.total),
       reason,
     }, {
       type: 'order_update',
@@ -98,7 +102,9 @@ async function runCustomerNotification(order, accepted, reason) {
   }
 }
 
-async function acceptOrder({ orderId, actorId }) {
+// deliveryCharge: typed by the admin when accepting (>= 0). Left out by older
+// admin panels, in which case the order keeps the delivery fee it has.
+async function acceptOrder({ orderId, actorId, deliveryCharge }) {
   const session = await mongoose.startSession();
   let result;
   let lowStockProducts = [];
@@ -128,17 +134,29 @@ async function acceptOrder({ orderId, actorId }) {
         session,
         `Order ${order.orderNumber} accepted - stock deducted`,
       );
+      let deliveryNote = '';
+      if (deliveryCharge !== undefined && deliveryCharge !== null) {
+        order.deliveryFee = round2(Math.max(0, Number(deliveryCharge) || 0));
+        order.total = round2(Math.max(order.subtotal + order.deliveryFee - (order.discount || 0), 0));
+        if (order.deliveryFee > 0) deliveryNote = ` · delivery ₹${formatRupees(order.deliveryFee)} added`;
+        // A screenshot uploaded earlier must match the final amount.
+        await Payment.updateMany(
+          { orderId: order._id, status: { $in: [PAYMENT_STATUS.PENDING, PAYMENT_STATUS.HELD] } },
+          { $set: { amount: order.total } },
+          { session },
+        );
+      }
       order.acceptanceStatus = 'accepted';
       order.acceptedAt = new Date();
       order.acceptedBy = actorId;
-      appendHistory(order, order.status, 'Retail order accepted; inventory committed', actorId);
+      appendHistory(order, order.status, `Retail order accepted; inventory committed${deliveryNote}`, actorId);
       await order.save({ session });
       await recordAudit({
         actorId,
         action: 'order.accepted',
         entityType: 'order',
         entityId: order._id,
-        metadata: { orderNumber: order.orderNumber },
+        metadata: { orderNumber: order.orderNumber, deliveryFee: order.deliveryFee, total: order.total },
         session,
       });
       result = { order, alreadyAccepted: false };

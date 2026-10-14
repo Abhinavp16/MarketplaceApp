@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/models/app_update_config.dart';
-import 'package:tradehub_demo/l10n/l10n.dart';
-import 'package:tradehub_demo/widgets/mandatory_update_dialog.dart';
+import 'package:demomart_demo/core/models/app_update_config.dart';
+import 'package:demomart_demo/l10n/l10n.dart';
+import 'package:demomart_demo/widgets/mandatory_update_dialog.dart';
 
 void main() {
   testWidgets('dialog shows versions and cannot be dismissed with back', (

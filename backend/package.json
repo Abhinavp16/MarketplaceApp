@@ -1,7 +1,7 @@
 {
-  "name": "tradehub-demo-backend",
+  "name": "marketplace-demo-backend",
   "version": "1.0.0",
-  "description": "TradeHub Demo API (synthetic data only)",
+  "description": "DemoMart Distribution Demo API (synthetic data only)",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -20,13 +20,37 @@
     "test:hindi-names": "node tests/hindiNames.test.js",
     "test:notification-templates": "node tests/notificationTemplates.test.js",
     "test:search-query": "node tests/searchQuery.test.js",
+    "test:cart-requirement": "node tests/cartRequirement.test.js",
+    "test:pack-size": "node tests/packSize.test.js",
+    "test:catalog-import": "node tests/catalogImport.test.js",
+    "test:banner-media": "node tests/bannerMedia.test.js",
+    "test:settings-validation": "node tests/settingsValidation.test.js",
+    "test:product-availability": "node tests/productAvailability.test.js",
+    "media:banner-cleanup": "node src/scripts/cleanupBannerMedia.js",
     "test:demo-guard": "node tests/demoGuard.test.js",
     "demo:seed": "node scripts/demo/seed.js",
     "demo:reset": "node scripts/demo/seed.js --wipe",
     "demo:e2e": "node scripts/demo/e2e-flow.js",
+    "catalog:import": "node scripts/catalog-import.js",
+    "catalog:samples": "node scripts/demo/generate-catalog-samples.js",
     "demo:mongo": "bash scripts/dev/start-mongo.sh",
     "demo:mongo:stop": "bash scripts/dev/stop-mongo.sh",
-    "test:unit": "SKIP_DB_TESTS=1 node tests/runAll.js"
+    "export:client-data": "node scripts/export-client-data.js",
+    "admin:create": "node scripts/create-admin.js",
+    "test:unit": "SKIP_DB_TESTS=1 node tests/runAll.js",
+    "test:account-deletion": "node tests/accountDeletion.test.js",
+    "test:auth-security": "node tests/authSecurity.test.js",
+    "test:customer-hidden-brands": "node tests/customerHiddenBrands.test.js",
+    "test:customer-visibility": "node tests/customerVisibility.test.js",
+    "test:firebase-setup": "node tests/firebaseSetup.test.js",
+    "test:http-hardening": "node tests/httpHardening.test.js",
+    "test:input-safety": "node tests/inputSafety.test.js",
+    "test:inventory": "node tests/inventory.test.js",
+    "test:negotiation-socket": "node tests/negotiationSocket.test.js",
+    "test:price-update-notifications": "node tests/priceUpdateNotifications.test.js",
+    "test:price-visibility": "node tests/priceVisibility.test.js",
+    "test:rate-limit": "node tests/rateLimit.test.js",
+    "test:negotiation-socket-real": "node tests/negotiationSocketReal.test.js"
   },
   "keywords": [
     "distribution",
@@ -37,33 +61,31 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.13.4",
+    "axios": "^1.20.0",
     "bcryptjs": "^2.4.3",
     "blurhash": "^2.0.5",
-    "cloudinary": "^1.41.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "exceljs": "^4.4.0",
-    "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
-    "firebase-admin": "^12.0.0",
-    "helmet": "^7.1.0",
-    "joi": "^17.11.0",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.3",
-    "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1",
-    "multer-storage-cloudinary": "^4.0.0",
-    "nodemailer": "^9.0.3",
-    "sharp": "^0.34.5",
+    "express": "^4.22.3",
+    "express-rate-limit": "^7.5.1",
+    "firebase-admin": "^14.5.0",
+    "helmet": "^7.2.0",
+    "joi": "^17.13.8",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.24.5",
+    "morgan": "^1.12.1",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.1.0",
+    "sharp": "^0.35.5",
     "slugify": "^1.6.6",
-    "socket.io": "^4.8.3",
-    "uuid": "^9.0.1"
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "socket.io-client": "^4.8.4"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22"
   }
 }

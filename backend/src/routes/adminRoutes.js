@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { protect, adminOnly } = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
-const { uploadProductImages } = require('../config/cloudinary');
+const { uploadProductImages, uploadCatalogFile } = require('../config/uploads');
 
 const adminProductController = require('../controllers/admin/productController');
+const adminCatalogImportController = require('../controllers/admin/catalogImportController');
 
 // Middleware that conditionally applies multer only for multipart/form-data requests
 const optionalUpload = (multerMiddleware) => {
@@ -44,6 +45,14 @@ router.put('/staff/:id/status', validate(adminValidation.updateStaffStatus), adm
 
 // Products
 router.get('/products/price-snapshot.xlsx', adminProductController.getPriceSnapshot);
+// Catalog import from .xlsx/.csv (registered before the /products/:id routes).
+router.get('/products/import/template', adminCatalogImportController.downloadTemplate);
+router.post(
+  '/products/import',
+  uploadCatalogFile.single('file'),
+  validate(adminValidation.importProducts, 'query'),
+  adminCatalogImportController.importProducts
+);
 router.get('/products', adminProductController.getProducts);
 router.get('/price-changes', adminProductController.getPriceChanges);
 router.get('/price-change-history', adminProductController.getPriceChangeHistory);
@@ -55,6 +64,16 @@ router.post(
 );
 router.get('/products/:id', adminProductController.getProductById);
 router.put('/products/:id/price-change', validate(adminValidation.priceChange), adminProductController.changeProductPrice);
+// The admin panel nudges this after the quiet period; sends only if a batch is due.
+router.post('/price-updates/flush', async (req, res, next) => {
+  try {
+    const { flushDuePriceChangeNotification } = require('../services/priceChangeNotificationService');
+    const sent = await flushDuePriceChangeNotification();
+    res.json({ success: true, data: { sent: Boolean(sent), summary: sent } });
+  } catch (error) {
+    next(error);
+  }
+});
 router.put(
   '/products/:id',
   optionalUpload(uploadProductImages.array('images', 10)),
@@ -70,6 +89,11 @@ router.post('/hindi-name/suggest', adminProductController.suggestHindiName);
 
 // Negotiations
 router.get('/negotiations', adminNegotiationController.getNegotiations);
+router.delete('/negotiations/declined', adminNegotiationController.clearDeclinedNegotiations);
+router.delete('/negotiations/:id', adminNegotiationController.deleteDeclinedNegotiation);
+router.get('/negotiations/groups/:groupId', adminNegotiationController.getRequirementGroup);
+router.put('/negotiations/groups/:groupId/accept', validate(adminValidation.acceptRequirementGroup), adminNegotiationController.acceptRequirementGroup);
+router.put('/negotiations/groups/:groupId/reject', validate(adminValidation.rejectNegotiation), adminNegotiationController.rejectRequirementGroup);
 router.get('/negotiations/:id', adminNegotiationController.getNegotiationById);
 router.post('/negotiations/:id/message', validate(adminValidation.negotiationMessage), adminNegotiationController.sendMessage);
 router.put('/negotiations/:id/accept', validate(adminValidation.acceptNegotiation), adminNegotiationController.acceptNegotiation);
@@ -80,7 +104,8 @@ router.put('/negotiations/:id/counter', validate(adminValidation.counterNegotiat
 router.get('/orders', adminOrderController.getOrders);
 router.get('/orders/:id', adminOrderController.getOrderById);
 router.delete('/orders/:id', adminOrderController.deleteOrder);
-router.put('/orders/:id/accept', adminOrderController.acceptOrder);
+router.get('/orders/:id/receipt', adminOrderController.getOrderReceipt);
+router.put('/orders/:id/accept', validate(adminValidation.acceptOrder), adminOrderController.acceptOrder);
 router.put('/orders/:id/reject', validate(adminValidation.rejectOrder), adminOrderController.rejectOrder);
 router.put('/orders/:id/mark-payment-complete', adminOrderController.markPaymentCompleted);
 router.put('/orders/:id/status', validate(adminValidation.updateOrderStatus), adminOrderController.updateOrderStatus);
@@ -96,6 +121,7 @@ router.get('/customers', adminCustomerController.getCustomers);
 router.get('/customers/:id', adminCustomerController.getCustomerById);
 router.put('/customers/:id/upgrade', adminCustomerController.upgradeCustomer);
 router.put('/customers/:id/category-access', validate(adminValidation.updateWholesalerCategoryAccess), adminCustomerController.updateWholesalerCategoryAccess);
+router.put('/customers/:id/brand-access', validate(adminValidation.updateCustomerBrandAccess), adminCustomerController.updateCustomerBrandAccess);
 router.get('/wholesaler-locations', adminCustomerController.getWholesalerLocations);
 router.post('/customers/notifications', validate(adminValidation.sendNotification), adminCustomerController.sendNotification);
 

@@ -1,0 +1,123 @@
+# One DemoMart client = one compose project named demomart-<slug>.
+#
+#   docker compose -p demomart-<slug> --env-file clients/<slug>/.env up -d
+#
+# The helper scripts (new-client.sh, update-client.sh, ...) always do this for
+# you. Every container, network and volume therefore carries the demomart-<slug>
+# prefix and never touches another project.
+#
+# MongoDB is NOT part of this stack: each client brings its own MongoDB URL
+# (MONGODB_URI in clients/<slug>/.env), for example an Atlas cluster. It must be
+# a replica set (Atlas is one) because the API uses transactions.
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../deploy/backend.Dockerfile
+    restart: unless-stopped
+    extra_hosts:
+      # Lets a MongoDB running on the Docker host be reached as host.docker.internal
+      # (Docker Desktop already provides the name; this makes it work on Linux too).
+      - "host.docker.internal:host-gateway"
+    ports:
+      # Direct API port for debugging; loopback only.
+      - "127.0.0.1:${BACKEND_PORT:?BACKEND_PORT is not set}:5000"
+    volumes:
+      - uploads:/data
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DEMO_MODE: "false"
+      PORT: "5000"
+      HOST: ${API_HOST:?API_HOST is not set}
+      PUBLIC_BASE_URL: ${PUBLIC_API_URL:?PUBLIC_API_URL is not set}
+      MONGODB_URI: ${MONGODB_URI:?MONGODB_URI is not set in the client .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is not set}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-}
+      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-2h}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      MAGIC_LINK_EXPIRY_MINUTES: ${MAGIC_LINK_EXPIRY_MINUTES:-5}
+      CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is not set}
+      ADMIN_PANEL_URL: ${PUBLIC_ADMIN_URL:?PUBLIC_ADMIN_URL is not set}
+      FRONTEND_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is not set}
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-1000}
+      EXPOSE_ERROR_STACK: "false"
+      FILE_STORAGE_DRIVER: local
+      LOCAL_UPLOADS_DIR: /data/uploads
+      LOCAL_PRIVATE_DIR: /data/private
+      PRIVATE_MEDIA_SIGNED_URL_TTL_SECONDS: ${PRIVATE_MEDIA_SIGNED_URL_TTL_SECONDS:-900}
+      PUBLIC_ORDER_WHATSAPP_NUMBER: ${PUBLIC_ORDER_WHATSAPP_NUMBER:-}
+      DEFAULT_UPI_ID: ${DEFAULT_UPI_ID:-}
+      DEFAULT_UPI_NAME: ${DEFAULT_UPI_NAME:-}
+      BRAND_NAME: ${BRAND_NAME:-}
+      BRAND_SHORT_NAME: ${BRAND_SHORT_NAME:-}
+      BRAND_LEGAL_NAME: ${BRAND_LEGAL_NAME:-}
+      BRAND_EMAIL: ${BRAND_EMAIL:-}
+      BRAND_PHONE: ${BRAND_PHONE:-}
+      BRAND_ADDRESS: ${BRAND_ADDRESS:-}
+      BRAND_WEBSITE: ${BRAND_WEBSITE:-}
+      # Optional mail server for admin magic-link emails.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  admin:
+    build:
+      context: ../admin
+      dockerfile: ../deploy/admin.Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_URL:?PUBLIC_API_URL is not set}/api/v1
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_URL}/api/v1
+    ports:
+      - "127.0.0.1:${ADMIN_PORT:?ADMIN_PORT is not set}:3000"
+
+  site:
+    build:
+      context: ../site
+      dockerfile: ../deploy/site.Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_URL:?PUBLIC_API_URL is not set}/api/v1
+        NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is not set}
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_URL}/api/v1
+      NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
+    ports:
+      - "127.0.0.1:${SITE_PORT:?SITE_PORT is not set}:3000"
+
+  proxy:
+    image: ${CADDY_IMAGE:-caddy:2-alpine}
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - admin
+      - site
+    environment:
+      API_ADDR: ${API_ADDR:?API_ADDR is not set}
+      ADMIN_ADDR: ${ADMIN_ADDR:?ADMIN_ADDR is not set}
+      SITE_ADDR: ${SITE_ADDR:?SITE_ADDR is not set}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    ports:
+      - "${PROXY_BIND:-127.0.0.1}:${PROXY_HTTP_PORT:?PROXY_HTTP_PORT is not set}:80"
+      - "${PROXY_BIND:-127.0.0.1}:${PROXY_HTTPS_PORT:?PROXY_HTTPS_PORT is not set}:443"
+
+volumes:
+  uploads:
+  caddy-data:
+  caddy-config:

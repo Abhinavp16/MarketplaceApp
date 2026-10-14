@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/l10n/api_error_text.dart';
-import 'package:tradehub_demo/l10n/generated/app_localizations.dart';
+import 'package:demomart_demo/l10n/api_error_text.dart';
+import 'package:demomart_demo/l10n/generated/app_localizations.dart';
 
 DioException _error(Object? body, {int status = 400}) {
   final options = RequestOptions(path: '/orders');

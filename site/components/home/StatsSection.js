@@ -1,6 +1,14 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import {
+    Agreement01Icon,
+    Location01Icon,
+    PackageIcon,
+    StarIcon,
+} from '@hugeicons/core-free-icons';
 import ScrollReveal from '@/components/ScrollReveal';
+import DitherField from '@/components/DitherField';
+import Icon from '@/components/Icon';
 
 function Counter({ end, duration = 2000, suffix = '' }) {
     const [count, setCount] = useState(0);
@@ -40,10 +48,10 @@ function Counter({ end, duration = 2000, suffix = '' }) {
 }
 
 const stats = [
-    { value: 1000, suffix: '+', label: 'Sample Orders (demo)', icon: 'M20 7.5 12 3 4 7.5m16 0-8 4.5m8-4.5v9L12 21m0-13.5L4 7.5m8 0V21M4 7.5v9L12 21' },
-    { value: 12, suffix: '', label: 'Sample Regions', icon: 'M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Zm0-8.5A2.5 2.5 0 1 0 12 7a2.5 2.5 0 0 0 0 5.5Z' },
-    { value: 50, suffix: '+', label: 'Sample Dealers', icon: 'M8.5 11.5 11 14l4.5-4.5M3.5 12.5l4.2-4.2a3 3 0 0 1 4.2 0l.6.6.6-.6a3 3 0 0 1 4.2 0l3.2 3.2a3 3 0 0 1 0 4.2l-3.8 3.8a3 3 0 0 1-4.2 0L12 19l-.4.4a3 3 0 0 1-4.2 0l-3.9-3.9a2.1 2.1 0 0 1 0-3Z' },
-    { value: 99, suffix: '%', label: 'Placeholder Rating', icon: 'm12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2 7.5 14 3 9.6l6.2-.9L12 3Z' },
+    { value: 1000, suffix: '+', label: 'Sample Orders (demo)', icon: PackageIcon },
+    { value: 12, suffix: '', label: 'Sample Regions', icon: Location01Icon },
+    { value: 50, suffix: '+', label: 'Sample Dealers', icon: Agreement01Icon },
+    { value: 99, suffix: '%', label: 'Placeholder Rating', icon: StarIcon },
 ];
 
 export default function StatsSection() {
@@ -75,12 +83,11 @@ export default function StatsSection() {
                     {stats.map((stat, i) => (
                         <ScrollReveal key={i} delay={i * 150}>
                             <div className="group relative h-full overflow-hidden rounded-[1.8rem] border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.11),rgba(255,255,255,0.035))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.10)] transition-all duration-300 hover:-translate-y-1 hover:border-white/18 hover:bg-white/[0.09] sm:p-6">
-                                <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#e0e7ff]/8 transition-transform duration-500 group-hover:scale-125" />
+                                {/* Dithered glow from the top-right corner. */}
+                                <DitherField reach={0.72} alpha={0.3} className="opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
                                 <div className="relative mb-6 flex items-center justify-between">
                                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e0e7ff]/12 text-[#e0e7ff] ring-1 ring-white/10">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                            <path d={stat.icon} />
-                                        </svg>
+                                        <Icon icon={stat.icon} size={23} />
                                     </span>
                                     <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/32">0{i + 1}</span>
                                 </div>

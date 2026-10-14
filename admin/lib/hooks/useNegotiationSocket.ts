@@ -42,10 +42,13 @@ export function useNegotiationSocket(
     socket.on('connect', () => {
       setIsConnected(true);
       setTypingUsers([]);
+      // The server checks the sign-in token (read fresh on every reconnect)
+      // and only then adds this socket to the deal's room.
       socket.emit('join-negotiation', {
         negotiationId,
         userId,
         userRole: 'admin',
+        token: localStorage.getItem('accessToken'),
       });
       if (hasConnected) setReconnectRevision((revision) => revision + 1);
       hasConnected = true;

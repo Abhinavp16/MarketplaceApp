@@ -51,6 +51,7 @@ import {
 import { apiFetch } from "@/lib/api"
 import { toast } from "sonner"
 import { DiscountBadge, DiscountFields } from "@/components/discount-fields"
+import { HiddenFromCustomersBadge, HideFromCustomersSwitch } from "@/components/hide-from-customers"
 import { HINDI_AUTO_NOTE, HindiNameBatchButtons, SuggestHindiButton } from "@/components/hindi-name-tools"
 import {
     EMPTY_DISCOUNT_FORM,
@@ -72,6 +73,7 @@ interface Category {
     image?: { url?: string; publicId?: string }
     company?: { _id: string; name: string; slug: string } | string | null
     parent?: { _id: string; name: string; nameHindi?: string; slug: string } | null
+    hideFromCustomers?: boolean
     order: number
     isActive: boolean
     productCount: number
@@ -135,6 +137,8 @@ export default function CategoriesPage() {
     const [companyId, setCompanyId] = useState<string>("")
     const [order, setOrder] = useState("0")
     const [isActive, setIsActive] = useState(true)
+    // Top-level categories only; subcategories follow their category.
+    const [hideFromCustomers, setHideFromCustomers] = useState(false)
     const [discounts, setDiscounts] = useState<DiscountFormValues>(EMPTY_DISCOUNT_FORM)
     const [discountsUnavailable, setDiscountsUnavailable] = useState(false)
     const [previewImageUrl, setPreviewImageUrl] = useState("")
@@ -365,6 +369,7 @@ export default function CategoriesPage() {
         setIsActive(true)
         setDiscounts(EMPTY_DISCOUNT_FORM)
         setDiscountsUnavailable(false)
+        setHideFromCustomers(false)
         setIsDialogOpen(true)
     }
 
@@ -386,6 +391,7 @@ export default function CategoriesPage() {
         setIsActive(category.isActive)
         setDiscounts(toDiscountFormValues(category))
         setDiscountsUnavailable(!hasDiscountFields(category))
+        setHideFromCustomers(!category.parent?._id && category.hideFromCustomers === true)
         setIsDialogOpen(true)
     }
 
@@ -475,6 +481,8 @@ export default function CategoriesPage() {
                 order: Number(order) || 0,
                 isActive,
                 ...(discountsUnavailable ? {} : toDiscountPayload(discounts)),
+                // Only top-level categories carry the switch.
+                hideFromCustomers: parentId === "none" ? hideFromCustomers : false,
             }
 
             const endpoint = editingCategory
@@ -821,6 +829,7 @@ export default function CategoriesPage() {
                             <div className="text-xs font-normal text-gray-400">{category.nameHindi}</div>
                         ) : null}
                         <DiscountBadge summary={formatDiscountSummary(category)} className="mt-1" />
+                        <HiddenFromCustomersBadge hidden={category.hideFromCustomers} className="mt-1" />
                     </div>
                 </TableCell>
                 <TableCell className="text-gray-400">
@@ -978,6 +987,7 @@ export default function CategoriesPage() {
                             </span>
                         )}
                         <DiscountBadge summary={formatDiscountSummary(category)} />
+                        <HiddenFromCustomersBadge hidden={category.hideFromCustomers} />
                     </div>
                     {category.parent?.name && (
                         <p className="text-gray-500 text-xs pt-2 border-t border-[#333]">Parent: {category.parent.name}</p>
@@ -1462,6 +1472,12 @@ export default function CategoriesPage() {
                                 })}
                             />
                         </div>
+
+                        {parentId === "none" && (
+                            <div className="order-7 w-full">
+                                <HideFromCustomersSwitch kind="category" checked={hideFromCustomers} onCheckedChange={setHideFromCustomers} />
+                            </div>
+                        )}
 
                         {/* Subcategories Section - Only show when editing */}
                         {editingCategory && (

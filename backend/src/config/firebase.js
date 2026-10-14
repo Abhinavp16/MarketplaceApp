@@ -1,6 +1,9 @@
-const admin = require('firebase-admin');
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getMessaging: getAppMessaging } = require('firebase-admin/messaging');
+const { getStorage: getAppStorage } = require('firebase-admin/storage');
 
 let firebaseApp = null;
+let warnedNotConfigured = false;
 
 const initializeFirebase = () => {
   if (firebaseApp) {
@@ -12,14 +15,18 @@ const initializeFirebase = () => {
     if (!process.env.FIREBASE_PROJECT_ID || 
         !process.env.FIREBASE_PRIVATE_KEY || 
         !process.env.FIREBASE_CLIENT_EMAIL) {
-      console.warn('Firebase credentials not configured. Firebase features will be disabled.');
+      if (!warnedNotConfigured) {
+        warnedNotConfigured = true;
+        console.warn('Firebase credentials not configured. Firebase features will be disabled.');
+      }
       return null;
     }
 
     // Clean and format the private key
     let privateKey = process.env.FIREBASE_PRIVATE_KEY;
     if (privateKey) {
-      // Replace escaped newlines with actual newlines
+      // Drop wrapping quotes some hosts keep, then turn escaped \n sequences into real newlines
+      privateKey = privateKey.trim().replace(/^(["'])([\s\S]*)\1$/, '$2');
       privateKey = privateKey.replace(/\\n/g, '\n');
       // Remove any leading/trailing whitespace
       privateKey = privateKey.trim();
@@ -31,8 +38,8 @@ const initializeFirebase = () => {
         privateKey = privateKey + '\n-----END PRIVATE KEY-----';
       }
     }
-    firebaseApp = admin.initializeApp({
-      credential: admin.credential.cert({
+    firebaseApp = initializeApp({
+      credential: cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
         privateKey: privateKey,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
@@ -58,13 +65,13 @@ const getFirebaseApp = () => {
 const getStorage = () => {
   const app = getFirebaseApp();
   if (!app) return null;
-  return admin.storage().bucket();
+  return getAppStorage(app).bucket();
 };
 
 const getMessaging = () => {
   const app = getFirebaseApp();
   if (!app) return null;
-  return admin.messaging();
+  return getAppMessaging(app);
 };
 
 module.exports = {
@@ -72,5 +79,4 @@ module.exports = {
   getFirebaseApp,
   getStorage,
   getMessaging,
-  admin,
 };

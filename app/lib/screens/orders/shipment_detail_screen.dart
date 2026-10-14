@@ -362,7 +362,7 @@ class ShipmentDetailScreen extends StatelessWidget {
                                       backgroundColor: contactGreen,
                                       foregroundColor: Colors.white,
                                       elevation: 0,
-                                      shape: RoundedRectangleBorder(
+                                      shape: RoundedSuperellipseBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
@@ -387,7 +387,7 @@ class ShipmentDetailScreen extends StatelessWidget {
                                       backgroundColor: primary,
                                       foregroundColor: Colors.white,
                                       elevation: 0,
-                                      shape: RoundedRectangleBorder(
+                                      shape: RoundedSuperellipseBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
@@ -492,7 +492,7 @@ class ShipmentDetailScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                     elevation: 8,
                     shadowColor: primary.withOpacity(0.2),
-                    shape: RoundedRectangleBorder(
+                    shape: RoundedSuperellipseBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),

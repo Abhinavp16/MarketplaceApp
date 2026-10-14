@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { apiFetch, isSessionExpired, logout } from "@/lib/api"
 import { toast } from "sonner"
+import { restoreAdminPush } from "@/lib/hooks/useAdminPush"
 
 export default function DashboardLayout({
   children,
@@ -46,6 +47,8 @@ export default function DashboardLayout({
         }
 
         setIsAuthorized(true)
+        // Switch browser alerts back on if this admin had them on here.
+        void restoreAdminPush()
       } catch {
         logout()
       }

@@ -2,7 +2,7 @@
   {
     "key": "admin",
     "name": "Demo Business Owner",
-    "email": "admin@tradehub.example",
+    "email": "admin@demomart.example",
     "phone": "9000000001",
     "role": "admin",
     "password": "Demo@12345",
@@ -35,7 +35,7 @@
   {
     "key": "priya",
     "name": "Priya Sharma",
-    "email": "priya.sharma@tradehub.example",
+    "email": "priya.sharma@demomart.example",
     "phone": "9000000003",
     "role": "buyer",
     "password": "Demo@12345",
@@ -46,7 +46,7 @@
     "key": "operator",
     "name": "Demo Operator",
     "username": "demo.operator",
-    "email": "demo.operator@tradehub.example",
+    "email": "demo.operator@demomart.example",
     "phone": "9000000004",
     "role": "staff",
     "password": "Demo@12345",
@@ -103,7 +103,7 @@
   {
     "key": "arjun",
     "name": "Arjun Nair",
-    "email": "arjun.nair@tradehub.example",
+    "email": "arjun.nair@demomart.example",
     "phone": "9000000007",
     "role": "buyer",
     "password": "Demo@12345",
@@ -112,11 +112,14 @@
   {
     "key": "sneha",
     "name": "Sneha Kapoor",
-    "email": "sneha.kapoor@tradehub.example",
+    "email": "sneha.kapoor@demomart.example",
     "phone": "9000000008",
     "role": "buyer",
     "password": "Demo@12345",
-    "address": "14 Park Avenue, Sample City, Demo State 000000"
+    "address": "14 Park Avenue, Sample City, Demo State 000000",
+    "hiddenBrands": [
+      "brightguard"
+    ]
   },
   {
     "key": "pending",

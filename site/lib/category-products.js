@@ -39,7 +39,6 @@ export function normalizeCategoryProduct(product, index) {
             priceUnit: '',
             packing: '',
             retailPrice: 0,
-            wholesalePrice: 0,
             mrp: 0,
             order: index,
         };
@@ -62,7 +61,6 @@ export function normalizeCategoryProduct(product, index) {
         priceUnit: String(product?.priceUnit || '').trim(),
         packing: String(product?.packing || '').trim(),
         retailPrice: Number(product?.retailPrice) || 0,
-        wholesalePrice: Number(product?.wholesalePrice) || 0,
         mrp: Number(product?.mrp) || 0,
         order: Number.isFinite(product?.order) ? product.order : index,
     };

@@ -6,7 +6,9 @@ const notificationService = require('../../services/notificationService');
 const { recordAudit } = require('../../services/auditService');
 const {
   acceptNegotiationAndCreateOrder,
+  acceptRequirementGroupAndCreateOrder,
   emitToNegotiationRoom,
+  declineNegotiations,
   notifyWholesaler,
 } = require('../../services/negotiationOrderService');
 
@@ -103,7 +105,10 @@ exports.getNegotiations = async (req, res, next) => {
         name: n.productSnapshot.name,
         price: n.productSnapshot.price,
         image: n.productSnapshot.image,
+        priceUnit: n.productSnapshot.priceUnit || '',
+        packing: n.productSnapshot.packing || '',
       },
+      requestGroup: n.requestGroup?.id ? n.requestGroup : null,
       requestedQuantity: n.requestedQuantity,
       requestedPricePerUnit: n.requestedPricePerUnit,
       requestedTotalPrice: n.requestedTotalPrice,
@@ -223,7 +228,7 @@ exports.sendMessage = async (req, res, next) => {
 
 exports.acceptNegotiation = async (req, res, next) => {
   try {
-    const { message, shippingAddress, customerNote } = req.body;
+    const { message, shippingAddress, customerNote, deliveryCharge } = req.body;
 
     const actorName = req.user.name || req.user.email || 'Admin';
     const { negotiation, order, alreadyConverted, addressSource } =
@@ -233,6 +238,7 @@ exports.acceptNegotiation = async (req, res, next) => {
         message,
         shippingAddress,
         customerNote,
+        deliveryCharge,
         io: req.app.locals.io,
       });
     if (!order) {
@@ -250,6 +256,8 @@ exports.acceptNegotiation = async (req, res, next) => {
         finalTotalPrice: negotiation.finalTotalPrice,
         orderId: String(order._id),
         orderNumber: order.orderNumber,
+        deliveryFee: order.deliveryFee || 0,
+        total: order.total,
         addressSource,
       },
     });
@@ -258,53 +266,130 @@ exports.acceptNegotiation = async (req, res, next) => {
   }
 };
 
-exports.rejectNegotiation = async (req, res, next) => {
+// All products of one requirement (sent together from the cart), for the
+// combined accept form.
+exports.getRequirementGroup = async (req, res, next) => {
   try {
-    const { reason } = req.body;
-
-    const negotiation = await Negotiation.findById(req.params.id);
-    if (!negotiation) {
-      throw new NotFoundError('Negotiation not found', 'NEGOTIATION_NOT_FOUND');
+    const negotiations = await Negotiation.find({ 'requestGroup.id': req.params.groupId })
+      .populate('wholesalerId', 'name email phone address businessInfo')
+      .populate('orderId', 'orderNumber status total')
+      .sort({ createdAt: 1 })
+      .lean();
+    if (negotiations.length === 0) {
+      throw new NotFoundError('Requirement not found', 'NEGOTIATION_NOT_FOUND');
     }
-
-    if ([NEGOTIATION_STATUS.REJECTED, NEGOTIATION_STATUS.CONVERTED, NEGOTIATION_STATUS.ACCEPTED].includes(negotiation.status)) {
-      throw new BadRequestError('Cannot reject in current status', 'INVALID_NEGOTIATION_STATUS');
-    }
-
-    negotiation.history.push({
-      action: NEGOTIATION_ACTIONS.REJECTED,
-      by: 'admin',
-      actorId: req.user._id,
-      actorRole: 'admin',
-      message: reason,
-    });
-
-    negotiation.status = NEGOTIATION_STATUS.REJECTED;
-    await negotiation.save();
-
-    emitToNegotiationRoom(req.app.locals.io, negotiation._id.toString(), 'negotiation-rejected', {
-      negotiationId: negotiation._id.toString(),
-      reason: reason || null,
-      timestamp: new Date(),
-    });
-
-    // Send push notification to user
-    try {
-      await notificationService.sendLocalizedToUser(negotiation.wholesalerId, reason ? 'requirementDeclinedWithReason' : 'requirementDeclined', {
-        productName: negotiation.productSnapshot.name,
-        productNameHindi: negotiation.productSnapshot.nameHindi,
-        reason,
-      }, {
-        type: 'negotiation_rejected',
-        negotiationId: negotiation._id.toString(),
-      });
-    } catch (notifErr) {
-      console.error('Failed to send negotiation rejected notification:', notifErr.message);
-    }
-
+    const wholesaler = negotiations[0].wholesalerId;
+    const { Order } = require('../../models');
+    const lastOrder = await Order.findOne({ userId: wholesaler._id })
+      .sort({ createdAt: -1 })
+      .select('shippingAddress')
+      .lean();
+    const now = new Date();
     res.json({
       success: true,
-      message: 'Negotiation rejected',
+      data: {
+        requestGroup: negotiations[0].requestGroup,
+        wholesaler: {
+          id: wholesaler._id,
+          name: wholesaler.name,
+          email: wholesaler.email,
+          phone: wholesaler.phone,
+          address: wholesaler.address,
+          businessInfo: wholesaler.businessInfo,
+        },
+        lastOrderAddress: lastOrder?.shippingAddress || null,
+        items: negotiations.map((n) => {
+          const pricePerUnit = n.finalPricePerUnit ?? n.currentPricePerUnit;
+          const totalPrice = n.finalTotalPrice ?? n.currentTotalPrice;
+          const isExpired = n.status !== NEGOTIATION_STATUS.ACCEPTED && n.expiresAt <= now;
+          return {
+            id: n._id,
+            negotiationNumber: n.negotiationNumber,
+            product: {
+              id: n.productId,
+              name: n.productSnapshot.name,
+              image: n.productSnapshot.image,
+              priceUnit: n.productSnapshot.priceUnit || '',
+              packing: n.productSnapshot.packing || '',
+            },
+            requestedQuantity: n.requestedQuantity,
+            pricePerUnit,
+            totalPrice,
+            status: n.status,
+            isExpired,
+            order: n.orderId ? { id: n.orderId._id, orderNumber: n.orderId.orderNumber } : null,
+            canAccept: !n.orderId &&
+              [NEGOTIATION_STATUS.PENDING, NEGOTIATION_STATUS.COUNTERED, NEGOTIATION_STATUS.ACCEPTED].includes(n.status) &&
+              !isExpired,
+          };
+        }),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Accept the selected products of a requirement into ONE order.
+exports.acceptRequirementGroup = async (req, res, next) => {
+  try {
+    const { negotiationIds, message, shippingAddress, customerNote, deliveryCharge } = req.body;
+    const actorName = req.user.name || req.user.email || 'Admin';
+    const { order, negotiations } = await acceptRequirementGroupAndCreateOrder({
+      groupId: req.params.groupId,
+      negotiationIds,
+      actor: { id: req.user._id, role: 'admin', name: actorName },
+      message,
+      shippingAddress,
+      customerNote,
+      deliveryCharge,
+      io: req.app.locals.io,
+    });
+    res.json({
+      success: true,
+      message: `Requirement accepted — ${negotiations.length} products in one order`,
+      data: {
+        orderId: String(order._id),
+        orderNumber: order.orderNumber,
+        subtotal: order.subtotal,
+        deliveryFee: order.deliveryFee,
+        total: order.total,
+        negotiationIds: negotiations.map((n) => String(n._id)),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Declines a requirement. Admin and member panels (req.user.role).
+exports.rejectNegotiation = async (req, res, next) => {
+  try {
+    const result = await declineNegotiations({
+      negotiationId: req.params.id,
+      reason: req.body?.reason,
+      actor: { id: req.user._id, role: req.user.role === 'staff' ? 'staff' : 'admin' },
+      io: req.app.locals.io,
+    });
+    res.json({ success: true, message: 'Requirement declined', data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Declines every open product in a requirement (sent together from the cart).
+exports.rejectRequirementGroup = async (req, res, next) => {
+  try {
+    const result = await declineNegotiations({
+      groupId: req.params.groupId,
+      reason: req.body?.reason,
+      actor: { id: req.user._id, role: req.user.role === 'staff' ? 'staff' : 'admin' },
+      io: req.app.locals.io,
+    });
+    res.json({
+      success: true,
+      message: `Requirement ${result.requestNumber || ''} declined (${result.declined.length} products)`.replace('  ', ' '),
+      data: result,
     });
   } catch (error) {
     next(error);
@@ -379,6 +464,49 @@ exports.counterNegotiation = async (req, res, next) => {
         currentTotalPrice: negotiation.currentTotalPrice,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: remove a declined requirement from the Deal Desk (and the database).
+exports.deleteDeclinedNegotiation = async (req, res, next) => {
+  try {
+    const negotiation = await Negotiation.findById(req.params.id).select('status negotiationNumber').lean();
+    if (!negotiation) throw new NotFoundError('Negotiation not found', 'NEGOTIATION_NOT_FOUND');
+    if (negotiation.status !== NEGOTIATION_STATUS.REJECTED) {
+      throw new BadRequestError('Only declined requirements can be deleted', 'NEGOTIATION_NOT_DECLINED');
+    }
+    await Negotiation.deleteOne({ _id: negotiation._id, status: NEGOTIATION_STATUS.REJECTED });
+    await recordAudit({
+      actorId: req.user._id,
+      action: 'negotiation.deleted',
+      entityType: 'negotiation',
+      entityId: negotiation._id,
+      metadata: { negotiationNumber: negotiation.negotiationNumber },
+    }).catch(() => null);
+    res.json({ success: true, message: 'Declined requirement deleted', data: { deleted: 1 } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: clear every declined requirement from the Deal Desk.
+exports.clearDeclinedNegotiations = async (req, res, next) => {
+  try {
+    const declined = await Negotiation.find({ status: NEGOTIATION_STATUS.REJECTED }).select('_id').lean();
+    if (declined.length === 0) {
+      return res.json({ success: true, message: 'No declined requirements to clear', data: { deleted: 0 } });
+    }
+    const { deletedCount } = await Negotiation.deleteMany({ _id: { $in: declined.map((n) => n._id) }, status: NEGOTIATION_STATUS.REJECTED });
+    await recordAudit({
+      actorId: req.user._id,
+      action: 'negotiation.declined_cleared',
+      entityType: 'negotiation',
+      entityId: declined[0]._id,
+      metadata: { count: deletedCount },
+    }).catch(() => null);
+    res.json({ success: true, message: `Cleared ${deletedCount} declined requirement${deletedCount === 1 ? '' : 's'}`, data: { deleted: deletedCount } });
   } catch (error) {
     next(error);
   }

@@ -1,24 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/services.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 
 import '../../core/config/api_config.dart';
-import '../../core/config/feature_flags.dart';
 import '../../core/providers/auth_provider.dart';
-import '../../core/services/shipping_address_service.dart';
 import '../../core/services/negotiation_socket_service.dart';
-import '../../core/utils/deal_desk_presentation.dart';
 import '../../core/utils/number_formatter.dart';
-import '../../widgets/order_checkout_actions_sheet.dart';
-import '../../widgets/state_city_pincode_fields.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/ui/ui.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../l10n/l10n.dart';
+import 'deal_desk_widgets.dart';
 
 class NegotiationDetailScreen extends ConsumerStatefulWidget {
   final String negotiationId;
@@ -33,40 +33,42 @@ class _NegotiationDetailScreenState
     extends ConsumerState<NegotiationDetailScreen>
     with WidgetsBindingObserver {
   bool _isLoading = true;
-  bool _isActioning = false;
+  // A chat message is on its way. The text field stays enabled (so the
+  // keyboard stays open); only the send button waits.
+  bool _isSending = false;
+  bool _summaryExpanded = true;
+  // The summary shows for a moment when the deal opens, then folds away.
+  Timer? _autoCollapseTimer;
+  // The first load jumps straight to the newest message; later ones glide.
+  bool _openedAtBottom = false;
   String? _error;
   Map<String, dynamic>? _negotiation;
   final List<Map<String, dynamic>> _optimisticMessages = [];
   final Map<String, String> _typingUsers = {}; // { userId: displayName }
   final Map<String, bool> _readReceipts = {}; // { messageId: isRead }
   final _counterMessageController = TextEditingController();
+  final FocusNode _composerFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();
   Timer? _refreshTimer;
   Timer? _localTypingTimer;
   Timer? _remoteTypingTimer;
   bool _isTyping = false;
   final NegotiationSocketService _socketService = NegotiationSocketService();
+  // Read once while mounted: `ref` can't be used in dispose(), where the
+  // socket still needs it to leave the room.
+  String? _userId;
   int _detailRequestSequence = 0;
   bool _refreshAfterInitialLoad = false;
   static const int maxMessageLength = 280;
 
-  static const Color primaryBlue = Color(0xFF0F766E);
-  static const Color backgroundWhite = Color(0xFFF8FAFC);
-  static const Color surfaceWhite = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF1E293B);
-  static const Color textMuted = Color(0xFF94A3B8);
-  static const Color borderLight = Color(0xFFE2E8F0);
-  static const Color slateBlue = Color(0xFF4C669A);
-  static const Color greenAccent = Color(0xFF16A34A);
-  static const Color redAccent = Color(0xFFDC2626);
-  static const Color amberAccent = Color(0xFFF59E0B);
-  static const Color incomingBubble = Color(0xFFFFFFFF);
-  static const Color outgoingBubble = Color(0xFFD9FDD3);
+  /// Consecutive messages from one side within this gap share one timestamp.
+  static const Duration _groupGap = Duration(minutes: 5);
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _composerFocus.addListener(_onComposerFocusChanged);
     _fetchDetail();
     _initializeSocket();
     // The REST response remains canonical. Keep a short fallback refresh even
@@ -75,6 +77,10 @@ class _NegotiationDetailScreenState
     _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted) return;
       _fetchDetail(background: true);
+    });
+    // "How Deal Desk works", once per device.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) showDealDeskExplainerOnce(context);
     });
   }
 
@@ -85,8 +91,18 @@ class _NegotiationDetailScreenState
     }
   }
 
+  void _onComposerFocusChanged() {
+    if (!_composerFocus.hasFocus || !mounted) return;
+    // Give the chat the room while typing.
+    if (_summaryExpanded) setState(() => _summaryExpanded = false);
+    Future.delayed(const Duration(milliseconds: 350), () {
+      if (mounted) _scrollToBottom();
+    });
+  }
+
   void _initializeSocket() {
     final auth = ref.read(authProvider);
+    _userId = auth.user?.id;
 
     _socketService.onMessageReceived = (data) {
       if (data['negotiationId']?.toString() != widget.negotiationId) return;
@@ -100,7 +116,7 @@ class _NegotiationDetailScreenState
     _socketService.onUserTyping = (userId, username) {
       if (mounted) {
         setState(() {
-          // Empty name -> shown as the localized platform label.
+          // Empty name -> shown as the localized "DemoMart" label.
           _typingUsers[userId] = username.trim();
         });
         _remoteTypingTimer?.cancel();
@@ -180,19 +196,19 @@ class _NegotiationDetailScreenState
     WidgetsBinding.instance.removeObserver(this);
     _refreshTimer?.cancel();
     _refreshTimer = null;
+    _autoCollapseTimer?.cancel();
     _localTypingTimer?.cancel();
     _remoteTypingTimer?.cancel();
     _emitStopTyping();
+    _composerFocus.removeListener(_onComposerFocusChanged);
+    _composerFocus.dispose();
     _counterMessageController.dispose();
     _scrollController.dispose();
 
-    // Disconnect from socket
-    final auth = ref.read(authProvider);
-    if (auth.user?.id != null) {
-      _socketService.leaveNegotiation(
-        userId: auth.user!.id,
-        userRole: 'wholesaler',
-      );
+    // Disconnect from socket (no `ref` here; it's gone once disposing).
+    final userId = _userId;
+    if (userId != null) {
+      _socketService.leaveNegotiation(userId: userId, userRole: 'wholesaler');
     }
     _socketService.disconnect();
 
@@ -236,10 +252,18 @@ class _NegotiationDetailScreenState
         final currentHistoryLength =
             (_negotiation?['history'] as List?)?.length ?? 0;
         if (!background || currentHistoryLength > previousHistoryLength) {
+          final animate = _openedAtBottom;
+          _openedAtBottom = true;
           Future.delayed(const Duration(milliseconds: 50), () {
-            if (mounted) _scrollToBottom();
+            if (mounted) _scrollToBottom(animate: animate);
           });
         }
+        // First load: show the summary for a moment, then fold it away.
+        _autoCollapseTimer ??= Timer(const Duration(milliseconds: 1200), () {
+          if (mounted && _summaryExpanded) {
+            setState(() => _summaryExpanded = false);
+          }
+        });
         return true;
       } else {
         if (!background) {
@@ -277,328 +301,297 @@ class _NegotiationDetailScreenState
   }
 
   // NOTE: wholesalers negotiate through chat messages only. Accept, counter
-  // and reject are admin/member actions performed from the admin panel, so the
-  // corresponding app actions were removed. _proceedToOrder below is kept as a
-  // legacy fallback for negotiations accepted before order auto-creation.
-  Future<void> _proceedToOrder() async {
-    debugPrint('_proceedToOrder called for ${widget.negotiationId}');
-    try {
-      final checkoutData = await _showAddressDialog();
-      debugPrint('Address dialog returned: $checkoutData');
-      if (checkoutData == null || !mounted) return;
-
-      final address = Map<String, String>.from(checkoutData);
-      final couponCode = (address.remove('couponCode') ?? '').trim();
-      final payload = <String, dynamic>{
-        'negotiationId': widget.negotiationId,
-        'shippingAddress': address,
-      };
-      if (couponCode.isNotEmpty) {
-        payload['couponCode'] = couponCode.toUpperCase();
-      }
-
-      setState(() => _isActioning = true);
-      try {
-        final api = ref.read(apiClientProvider);
-        final response = await api.post(
-          '/orders/from-negotiation',
-          data: payload,
-        );
-
-        if (!mounted) return;
-        if (response.data['success'] == true) {
-          await OrderCheckoutActionsSheet.handleSuccessfulCheckout(
-            context: context,
-            apiClient: api,
-            responseData: response.data,
-          );
-        }
-      } on DioException catch (e) {
-        if (mounted) {
-          _showError(
-            e.response?.data?['message']?.toString() ??
-                context.l10n.dealCreateOrderFailed,
-          );
-        }
-      } finally {
-        if (mounted) setState(() => _isActioning = false);
-      }
-    } catch (e) {
-      debugPrint('_proceedToOrder error: $e');
-      if (mounted) _showError(context.l10n.dealErrorWithDetails('$e'));
-    }
-  }
-
-  Future<Map<String, String>?> _showAddressDialog() async {
-    final savedAddress = await ShippingAddressService.getSelectedAddress();
-    if (!mounted) return null;
-    final auth = ref.read(authProvider);
-    final nameCtrl = TextEditingController(
-      text: savedAddress?.fullName ?? auth.user?.name ?? '',
-    );
-    final phoneCtrl = TextEditingController(
-      text: savedAddress?.phone ?? auth.user?.phone ?? '',
-    );
-    final addr1Ctrl = TextEditingController(
-      text: savedAddress?.addressLine1 ?? '',
-    );
-    final cityCtrl = TextEditingController(text: savedAddress?.city ?? '');
-    final stateCtrl = TextEditingController(text: savedAddress?.state ?? '');
-    final pinCtrl = TextEditingController(text: savedAddress?.pincode ?? '');
-    final couponCtrl = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    final l10n = context.l10n;
-
-    Map<String, String>? result =
-        await showModalBottomSheet<Map<String, String>>(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (ctx) => Container(
-            margin: EdgeInsets.only(top: MediaQuery.of(ctx).padding.top + 40),
-            decoration: const BoxDecoration(
-              color: surfaceWhite,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                16,
-                20,
-                MediaQuery.of(ctx).viewInsets.bottom + 20,
-              ),
-              child: Form(
-                key: formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 5,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            color: borderLight,
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        l10n.dealShippingAddressTitle,
-                        style: AppFonts.jakarta(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      _addrField(l10n.dealFieldFullName, nameCtrl),
-                      const SizedBox(height: 12),
-                      _addrField(
-                        l10n.dealFieldPhone,
-                        phoneCtrl,
-                        keyboard: TextInputType.phone,
-                      ),
-                      const SizedBox(height: 12),
-                      _addrField(l10n.dealFieldAddressLine1, addr1Ctrl),
-                      const SizedBox(height: 12),
-                      StateCityPincodeFields(
-                        stateController: stateCtrl,
-                        cityController: cityCtrl,
-                        pincodeController: pinCtrl,
-                      ),
-                      if (!kHideOfferCouponUi) ...[
-                        const SizedBox(height: 12),
-                        _addrField(
-                          l10n.dealFieldCouponCode,
-                          couponCtrl,
-                          required: false,
-                        ),
-                      ],
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              Navigator.of(ctx).pop({
-                                'fullName': nameCtrl.text.trim(),
-                                'phone': phoneCtrl.text.trim(),
-                                'addressLine1': addr1Ctrl.text.trim(),
-                                'city': cityCtrl.text.trim(),
-                                'state': stateCtrl.text.trim(),
-                                'pincode': pinCtrl.text.trim(),
-                                'couponCode': couponCtrl.text
-                                    .trim()
-                                    .toUpperCase(),
-                              });
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: greenAccent,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            l10n.dealConfirmAndProceed,
-                            style: AppFonts.jakarta(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-
-    if (result != null) {
-      final address = ShippingAddress(
-        id: savedAddress?.id ?? ShippingAddress.generateId(),
-        slot: savedAddress?.slot ?? ShippingAddressService.slotPrimary,
-        fullName: result['fullName'] ?? '',
-        phone: result['phone'] ?? '',
-        addressLine1: result['addressLine1'] ?? '',
-        city: result['city'] ?? '',
-        state: result['state'] ?? '',
-        pincode: result['pincode'] ?? '',
-      );
-      await ShippingAddressService.upsertAddress(address);
-      await ShippingAddressService.setSelectedAddressId(address.id);
-      result = {
-        ...address.toOrderPayload(),
-        'couponCode': result['couponCode'] ?? '',
-      };
-    }
-
-    nameCtrl.dispose();
-    phoneCtrl.dispose();
-    addr1Ctrl.dispose();
-    cityCtrl.dispose();
-    stateCtrl.dispose();
-    pinCtrl.dispose();
-    couponCtrl.dispose();
-    return result;
-  }
-
-  Widget _addrField(
-    String label,
-    TextEditingController ctrl, {
-    TextInputType? keyboard,
-    bool required = true,
-  }) {
-    return TextFormField(
-      controller: ctrl,
-      keyboardType: keyboard,
-      validator: required
-          ? (v) => (v == null || v.trim().isEmpty)
-                ? context.l10n.commonRequired
-                : null
-          : null,
-      style: AppFonts.jakarta(fontSize: 14, fontWeight: FontWeight.w500),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: AppFonts.jakarta(fontSize: 13, color: textMuted),
-        filled: true,
-        fillColor: backgroundWhite,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: borderLight),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: borderLight),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: primaryBlue, width: 2),
-        ),
-      ),
-    );
-  }
+  // and reject are admin/member actions performed from the admin panel, which
+  // also creates the order, so the app has no order step.
 
   void _showError(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          msg,
-          style: AppFonts.jakarta(fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: redAccent,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+    showAppSnack(context, msg, tone: SnackTone.error);
   }
 
   // NOTE: counter sheet removed — wholesalers reply through chat messages only.
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final n = _negotiation;
+    final negotiationNumber = n?['negotiationNumber'] as String? ?? '';
+    final Widget body;
+    if (_isLoading) {
+      body = const _DetailSkeleton(key: ValueKey('loading'));
+    } else if (_error != null) {
+      body = ListView(
+        key: const ValueKey('error'),
+        children: [
+          const SizedBox(height: 60),
+          EmptyState(
+            icon: HugeIcons.strokeRoundedAlert02,
+            tone: ChipTone.error,
+            title: _error!,
+            actionLabel: l10n.commonRetry,
+            onAction: _fetchDetail,
+          ),
+        ],
+      );
+    } else {
+      body = KeyedSubtree(
+        key: const ValueKey('content'),
+        child: _buildContent(),
+      );
+    }
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.transparent,
       ),
       child: Scaffold(
-        backgroundColor: backgroundWhite,
-        body: SafeArea(
-          child: _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(color: primaryBlue),
-                )
-              : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(_error!, style: AppFonts.jakarta(color: textMuted)),
-                      const SizedBox(height: 12),
-                      TextButton(
-                        onPressed: _fetchDetail,
-                        child: Text(context.l10n.commonRetry),
-                      ),
-                    ],
-                  ),
-                )
-              : _buildContent(),
+        backgroundColor: AppColors.backgroundLight,
+        appBar: AppHeader(
+          title: negotiationNumber.isNotEmpty
+              ? negotiationNumber
+              : l10n.negotiationTitleFallback,
+          subtitle: n == null
+              ? null
+              : localizedName(
+                  context,
+                  n['productSnapshot'] as Map<String, dynamic>?,
+                  fallback: l10n.dealProductFallback,
+                ),
+          actions: [
+            HeaderIconButton(
+              icon: HugeIcons.strokeRoundedInformationCircle,
+              tooltip: l10n.dealExplainerTitle,
+              onPressed: () => showDealDeskExplainer(context),
+            ),
+            const SizedBox(width: 4),
+          ],
         ),
+        // No cross-fade here: the chat list owns _scrollController, and an
+        // outgoing copy must never share it with the incoming one.
+        body: body,
       ),
     );
   }
 
   Widget _buildContent() {
-    final l10n = context.l10n;
-    final timeFormat = DateFormat(
-      'h:mm a',
-      Localizations.localeOf(context).languageCode,
-    );
     final n = _negotiation!;
     final status = n['status'] as String? ?? 'pending';
+    final currentOfferBy = n['currentOfferBy'] as String? ?? '';
+
+    return Column(
+      children: [
+        _buildSummaryCard(n),
+        Expanded(
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: _fetchDetail,
+            child: _buildChatList(n),
+          ),
+        ),
+
+        // Bottom Action Bar — chat stays open on converted orders so the
+        // wholesaler can follow up; only closed states hide the composer.
+        if (!['rejected', 'expired'].contains(status))
+          _buildBottomActions(status, currentOfferBy)
+        else
+          _buildClosedBar(n),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Pinned summary
+  // ---------------------------------------------------------------------------
+
+  Widget _buildSummaryCard(Map<String, dynamic> n) {
+    final l10n = context.l10n;
     final productSnapshot = n['productSnapshot'] as Map<String, dynamic>? ?? {};
-    final history = (n['history'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     final quantity = n['requestedQuantity'] ?? 0;
     final currentPrice = n['currentPricePerUnit'] ?? 0;
     final currentTotal = n['currentTotalPrice'] ?? 0;
-    final currentOfferBy = n['currentOfferBy'] as String? ?? '';
-    final negotiationNumber = n['negotiationNumber'] as String? ?? '';
     final imageUrl = productSnapshot['image'] as String? ?? '';
     final productName = localizedName(
       context,
       productSnapshot,
       fallback: l10n.dealProductFallback,
     );
+    final suffix = DealDeskPresentation.unitSuffix(productSnapshot, l10n);
+    final quantityText = dealQuantityText(
+      l10n,
+      productSnapshot,
+      _quantityCount(quantity),
+    );
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Pressable(
+            onTap: () {
+              // The user took over: no more folding it on a timer.
+              _autoCollapseTimer?.cancel();
+              setState(() => _summaryExpanded = !_summaryExpanded);
+            },
+            scale: 0.99,
+            borderRadius: BorderRadius.zero,
+            semanticLabel: _summaryExpanded
+                ? l10n.dealSummaryHideDetails
+                : l10n.dealSummaryShowDetails,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      color: AppColors.gray50,
+                      child: AppImage(
+                        imageUrl: imageUrl,
+                        category: (productSnapshot['category'] ?? '')
+                            .toString(),
+                        name: productName,
+                        width: 48,
+                        height: 48,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          productName,
+                          maxLines: _summaryExpanded ? 2 : 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppFonts.jakarta(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                            height: 1.25,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              quantityText,
+                              style: AppFonts.jakarta(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textTertiary,
+                              ),
+                            ),
+                            DealStatusChip(negotiation: n, dense: true),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: DealDeskPresentation.rupees(currentPrice),
+                              style: AppText.price(fontSize: 15),
+                            ),
+                            TextSpan(
+                              text: suffix,
+                              style: AppFonts.jakarta(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        DealDeskPresentation.rupees(currentTotal),
+                        style: AppText.price(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 2),
+                  SizedBox(
+                    width: 32,
+                    height: 44,
+                    child: Center(
+                      child: AnimatedRotation(
+                        turns: _summaryExpanded ? 0.5 : 0,
+                        duration: AppMotion.of(context, AppMotion.base),
+                        curve: AppMotion.standard,
+                        child: const HugeIcon(
+                          icon: HugeIcons.strokeRoundedArrowDown01,
+                          size: 20,
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          AnimatedSize(
+            duration: AppMotion.of(context, AppMotion.base),
+            curve: AppMotion.standard,
+            alignment: Alignment.topCenter,
+            child: _summaryExpanded
+                ? ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.sizeOf(context).height * 0.42,
+                    ),
+                    child: SingleChildScrollView(
+                      child: _buildSummaryDetails(n, suffix),
+                    ),
+                  )
+                : const SizedBox(width: double.infinity),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryDetails(Map<String, dynamic> n, String suffix) {
+    final l10n = context.l10n;
+    final productSnapshot = n['productSnapshot'] as Map<String, dynamic>? ?? {};
+    final quantity = n['requestedQuantity'] ?? 0;
+    final currentTotal = n['currentTotalPrice'] ?? 0;
     final originalPrice = productSnapshot['price'] ?? 0;
-    final canPay = n['canPay'] == true;
+    final kind = DealDeskPresentation.statusKind(n);
+    final agreed =
+        kind == DealStatusKind.acceptedOrderPending ||
+        kind == DealStatusKind.orderCreated;
+    final yourPrice = DealDeskPresentation.latestPriceBy(n, 'wholesaler');
+    final rawCurrent = n['currentPricePerUnit'];
+    final currentPrice = rawCurrent is num
+        ? rawCurrent
+        : num.tryParse(rawCurrent?.toString() ?? '');
+    final platformPrice = agreed
+        ? currentPrice ?? DealDeskPresentation.latestPriceBy(n, 'admin')
+        : DealDeskPresentation.latestPriceBy(n, 'admin');
     final orderRef = n['orderId'];
     final orderId = orderRef is Map
         ? orderRef['_id']?.toString()
@@ -614,276 +607,160 @@ class _NegotiationDetailScreenState
         ? l10n.dealAcceptedByPlatformName(approvedByName)
         : l10n.dealAcceptedByPlatform;
 
-    return Column(
-      children: [
-        // Header
-        Container(
-          padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
-          child: Row(
+    Widget priceCell(String label, num? price, {bool highlight = false}) {
+      return Expanded(
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: highlight ? AppColors.primaryTint : AppColors.gray50,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(
+              color: highlight ? AppColors.primarySoft : AppColors.border,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                onPressed: () => context.pop(),
-                icon: const Icon(
-                  Icons.arrow_back_ios_rounded,
-                  size: 20,
-                  color: textPrimary,
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.jakarta(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textTertiary,
                 ),
               ),
-              Expanded(
-                child: Text(
-                  negotiationNumber.isNotEmpty
-                      ? negotiationNumber
-                      : l10n.negotiationTitleFallback,
-                  textAlign: TextAlign.center,
+              const SizedBox(height: 4),
+              if (price != null)
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: DealDeskPresentation.rupees(price),
+                        style: AppText.price(
+                          fontSize: 16,
+                          color: highlight
+                              ? AppColors.primaryDeep
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                      TextSpan(
+                        text: suffix,
+                        style: AppFonts.jakarta(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )
+              else
+                Text(
+                  l10n.dealAwaitingPrice,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppFonts.jakarta(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: textPrimary,
-                    letterSpacing: -0.3,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
                   ),
                 ),
-              ),
-              const SizedBox(width: 40),
             ],
           ),
         ),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: _fetchDetail,
-            child: ListView(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Product Card
-                Container(
-                  decoration: BoxDecoration(
-                    color: surfaceWhite,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: borderLight),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Row(
-                    children: [
-                      if (imageUrl.isNotEmpty)
-                        SizedBox(
-                          width: 90,
-                          height: 90,
-                          child: CachedNetworkImage(
-                            imageUrl: imageUrl,
-                            fit: BoxFit.cover,
-                            errorWidget: (_, __, ___) =>
-                                Container(color: backgroundWhite),
-                          ),
-                        ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                productName,
-                                style: AppFonts.jakarta(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                l10n.dealRetailPrice(
-                                  NumberFormatter.formatPrice(originalPrice),
-                                ),
-                                style: AppFonts.jakarta(
-                                  fontSize: 13,
-                                  color: slateBlue,
-                                ),
-                              ),
-                              Text(
-                                l10n.dealQtyUnits(_quantityCount(quantity)),
-                                style: AppFonts.jakarta(
-                                  fontSize: 13,
-                                  color: slateBlue,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
+      );
+    }
 
-                // Optional buyer message / delivery requirement
-                if ((n['message']?.toString().trim() ?? '').isNotEmpty) ...[
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: surfaceWhite,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: borderLight),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.negotiationBuyerMessage,
-                          style: AppFonts.jakarta(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: slateBlue,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          n['message'].toString().trim(),
-                          style: AppFonts.jakarta(
-                            fontSize: 14,
-                            color: textPrimary,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                // Current Status Card
-                _buildStatusCard(
-                  n,
-                  status,
-                  currentPrice,
-                  currentTotal,
-                  currentOfferBy,
-                  quantity,
-                ),
-                if (approvedByLabel != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: greenAccent.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.verified_rounded,
-                          color: greenAccent,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            approvedByLabel,
-                            style: AppFonts.jakarta(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: greenAccent,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                if (orderId != null && orderId.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push('/tracking/$orderId'),
-                      icon: const Icon(Icons.local_shipping_outlined, size: 18),
-                      label: Text(
-                        orderNumber.isNotEmpty
-                            ? l10n.dealViewOrderNumber(orderNumber)
-                            : l10n.dealViewOrder,
-                        style: AppFonts.jakarta(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: primaryBlue,
-                        side: BorderSide(color: primaryBlue),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildOrderTrackingCard(
-                    orderRef is Map
-                        ? Map<String, dynamic>.from(orderRef as Map)
-                        : null,
-                  ),
-                ],
-                const SizedBox(height: 20),
-
-                // History Timeline
-                Text(
-                  l10n.dealChatAndHistory,
-                  style: AppFonts.jakarta(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(10, 14, 10, 6),
-                  child: Column(
-                    children: [
-                      ...history.map((entry) {
-                        if (entry['action'] == 'message') {
-                          return _buildChatMessage(
-                            entry['by'] as String,
-                            entry['message'] as String,
-                            entry['timestamp'] != null
-                                ? timeFormat.format(
-                                    DateTime.parse(
-                                      entry['timestamp'] as String,
-                                    ),
-                                  )
-                                : '',
-                            messageId: entry['messageId'] as String?,
-                            actorName: _entryActorName(entry),
-                          );
-                        }
-                        return _buildHistoryItem(entry);
-                      }),
-                      ..._optimisticMessages.map(
-                        (msg) => _buildChatMessage(
-                          msg['by'] as String,
-                          msg['message'] as String,
-                          timeFormat.format(
-                            DateTime.parse(msg['timestamp'] as String),
-                          ),
-                          messageId: msg['messageId'] as String?,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 80),
-              ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              priceCell(l10n.dealPriceYours, yourPrice),
+              const SizedBox(width: 8),
+              priceCell(
+                agreed ? l10n.dealPriceAgreed : l10n.dealPricePlatform,
+                platformPrice,
+                highlight: platformPrice != null,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          SummaryRow(
+            label: l10n.dealTotalForUnits(_quantityCount(quantity)),
+            value: DealDeskPresentation.rupees(currentTotal),
+            emphasize: true,
+          ),
+          Text(
+            l10n.dealRetailPrice(NumberFormatter.formatPrice(originalPrice)),
+            style: AppFonts.jakarta(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textTertiary,
             ),
           ),
-        ),
-
-        // Bottom Action Bar — chat stays open on converted orders so the
-        // wholesaler can follow up; only closed states hide it.
-        if (!['rejected', 'expired'].contains(status))
-          _buildBottomActions(status, currentOfferBy, canPay),
-      ],
+          if (DealDeskPresentation.stepIndex(n) >= 0) ...[
+            const SizedBox(height: 14),
+            DealStatusStepper(negotiation: n),
+          ],
+          if (approvedByLabel != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.successSoft,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Row(
+                children: [
+                  const HugeIcon(
+                    icon: HugeIcons.strokeRoundedCheckmarkBadge01,
+                    color: AppColors.primaryDeep,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      approvedByLabel,
+                      style: AppFonts.jakarta(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryDeep,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (orderId != null && orderId.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            AppButton(
+              label: orderNumber.isNotEmpty
+                  ? l10n.dealViewOrderNumber(orderNumber)
+                  : l10n.dealViewOrder,
+              icon: HugeIcons.strokeRoundedTruckDelivery,
+              variant: AppButtonVariant.tonal,
+              size: AppButtonSize.medium,
+              onPressed: () => context.push('/tracking/$orderId'),
+            ),
+            const SizedBox(height: 8),
+            _buildOrderTrackingCard(
+              orderRef is Map
+                  ? Map<String, dynamic>.from(orderRef as Map)
+                  : null,
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -931,19 +808,19 @@ class _NegotiationDetailScreenState
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: surfaceWhite,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderLight),
+        color: AppColors.gray50,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.receipt_long_rounded,
+              const HugeIcon(
+                icon: HugeIcons.strokeRoundedInvoice01,
                 size: 18,
-                color: primaryBlue,
+                color: AppColors.secondary,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -954,8 +831,8 @@ class _NegotiationDetailScreenState
                   ),
                   style: AppFonts.jakarta(
                     fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: textPrimary,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -972,8 +849,8 @@ class _NegotiationDetailScreenState
                     right: i == stages.length - 1 ? 0 : 4,
                   ),
                   decoration: BoxDecoration(
-                    color: done ? greenAccent : borderLight,
-                    borderRadius: BorderRadius.circular(100),
+                    color: done ? AppColors.primary : AppColors.border,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
                 ),
               );
@@ -988,7 +865,11 @@ class _NegotiationDetailScreenState
                       courier,
                     )
                   : l10n.dealLrLine(tracking.isNotEmpty ? tracking : '-'),
-              style: AppFonts.jakarta(fontSize: 12, color: slateBlue),
+              style: AppFonts.jakarta(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
             ),
           if (history.isNotEmpty)
             ...history.reversed.take(3).map((h) {
@@ -997,135 +878,21 @@ class _NegotiationDetailScreenState
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   '• ${label((m['status'] ?? '').toString())}',
-                  style: AppFonts.jakarta(fontSize: 11, color: textMuted),
+                  style: AppFonts.jakarta(
+                    fontSize: 12,
+                    color: AppColors.textTertiary,
+                  ),
                 ),
               );
             }),
           const SizedBox(height: 4),
           Text(
             l10n.dealOrderTrackingNote,
-            style: AppFonts.jakarta(fontSize: 11, color: textMuted),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusCard(
-    Map<String, dynamic> negotiation,
-    String status,
-    dynamic currentPrice,
-    dynamic currentTotal,
-    String currentOfferBy,
-    dynamic quantity,
-  ) {
-    Color statusColor;
-    String statusLabel;
-    IconData statusIcon;
-    final l10n = context.l10n;
-    final orderStatusLabel = DealDeskPresentation.orderStatusLabel(
-      negotiation,
-      l10n: l10n,
-    );
-
-    switch (status) {
-      case 'pending':
-        statusColor = textMuted;
-        statusLabel = l10n.dealStatusRequirementSent;
-        statusIcon = Icons.hourglass_empty_rounded;
-        break;
-      case 'countered':
-        statusColor = amberAccent;
-        statusLabel = currentOfferBy == 'admin'
-            ? l10n.dealStatusNewPriceFromPlatform
-            : l10n.dealStatusYourCounterOffer;
-        statusIcon = Icons.swap_horiz_rounded;
-        break;
-      case 'accepted':
-        statusColor = greenAccent;
-        statusLabel = orderStatusLabel ?? l10n.statusDealAcceptedOrderPending;
-        statusIcon = Icons.check_circle_rounded;
-        break;
-      case 'converted':
-        statusColor = greenAccent;
-        statusLabel = orderStatusLabel ?? l10n.statusDealOrderCreated;
-        statusIcon = Icons.check_circle_rounded;
-        break;
-      case 'rejected':
-        statusColor = redAccent;
-        statusLabel = l10n.dealStatusRequirementDeclined;
-        statusIcon = Icons.cancel_rounded;
-        break;
-      case 'expired':
-        statusColor = textMuted;
-        statusLabel = l10n.dealStatusRequirementExpired;
-        statusIcon = Icons.info_outline;
-        break;
-      default:
-        statusColor = textMuted;
-        statusLabel = status.toUpperCase();
-        statusIcon = Icons.info_outline;
-    }
-    statusLabel = orderStatusLabel ?? statusLabel;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: surfaceWhite,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: statusColor.withOpacity(0.3)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Icon(statusIcon, color: statusColor, size: 22),
-              const SizedBox(width: 8),
-              Text(
-                statusLabel,
-                style: AppFonts.jakarta(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: statusColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.dealCurrentPricePerUnit,
-                style: AppFonts.jakarta(fontSize: 13, color: slateBlue),
-              ),
-              Text(
-                '₹${NumberFormatter.formatPrice(currentPrice)}',
-                style: AppFonts.jakarta(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: statusColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.dealTotalForUnits(_quantityCount(quantity)),
-                style: AppFonts.jakarta(fontSize: 13, color: slateBlue),
-              ),
-              Text(
-                '₹${NumberFormatter.formatPrice(currentTotal)}',
-                style: AppFonts.jakarta(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: textPrimary,
-                ),
-              ),
-            ],
+            style: AppFonts.jakarta(
+              fontSize: 12,
+              color: AppColors.textTertiary,
+              height: 1.4,
+            ),
           ),
         ],
       ),
@@ -1158,56 +925,129 @@ class _NegotiationDetailScreenState
         : context.l10n.dealPlatformActor(actorName);
   }
 
-  Widget _buildHistoryItem(Map<String, dynamic> entry) {
+  // ---------------------------------------------------------------------------
+  // Chat
+  // ---------------------------------------------------------------------------
+
+  DateTime? _entryTime(Map<String, dynamic> entry) {
+    final raw = entry['timestamp'];
+    if (raw == null) return null;
+    return DateTime.tryParse(raw.toString())?.toLocal();
+  }
+
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  /// Whether [b] continues [a]'s message group (same sender, same day, close
+  /// in time, both plain messages).
+  bool _continuesGroup(Map<String, dynamic>? a, Map<String, dynamic>? b) {
+    if (a == null || b == null) return false;
+    if (a['action'] != 'message' || b['action'] != 'message') return false;
+    if (a['by'] != b['by']) return false;
+    final ta = _entryTime(a);
+    final tb = _entryTime(b);
+    if (ta == null || tb == null) return ta == tb;
+    return _sameDay(ta, tb) && tb.difference(ta).abs() <= _groupGap;
+  }
+
+  Widget _buildChatList(Map<String, dynamic> n) {
+    final history = (n['history'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final entries = <Map<String, dynamic>>[...history, ..._optimisticMessages];
+    final timeFormat = DateFormat(
+      'h:mm a',
+      Localizations.localeOf(context).languageCode,
+    );
+
+    final children = <Widget>[];
+    DateTime? lastDay;
+    for (var i = 0; i < entries.length; i++) {
+      final entry = entries[i];
+      final time = _entryTime(entry);
+      if (time != null && (lastDay == null || !_sameDay(lastDay, time))) {
+        children.add(DealDateSeparator(label: dealDayLabel(context, time)));
+        lastDay = time;
+      }
+      final previous = i > 0 ? entries[i - 1] : null;
+      final next = i < entries.length - 1 ? entries[i + 1] : null;
+      final timeText = time == null
+          ? ''
+          : NumberFormatter.ensureEnglishNumerals(timeFormat.format(time));
+
+      if (entry['action'] == 'message') {
+        children.add(
+          _buildChatMessage(
+            entry['by'] as String? ?? '',
+            entry['message'] as String? ?? '',
+            timeText,
+            messageId: entry['messageId'] as String?,
+            actorName: _entryActorName(entry),
+            sending: entry['isOptimistic'] == true,
+            isFirstInGroup: !_continuesGroup(previous, entry),
+            isLastInGroup: !_continuesGroup(entry, next),
+          ),
+        );
+      } else {
+        children.add(_buildHistoryItem(entry, n, timeText));
+      }
+    }
+
+    // Scrolling the chat folds the summary away, to give the chat the room.
+    // Only the chat list itself counts (depth 0), not scrollables inside it.
+    return NotificationListener<UserScrollNotification>(
+      onNotification: (notification) {
+        if (notification.depth == 0 &&
+            notification.direction != ScrollDirection.idle &&
+            _summaryExpanded) {
+          _autoCollapseTimer?.cancel();
+          setState(() => _summaryExpanded = false);
+        }
+        return false;
+      },
+      child: ListView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        children: children,
+      ),
+    );
+  }
+
+  /// A price event (requested / countered / accepted / rejected) as an offer
+  /// card. Same information as before: who, what, price, total and note.
+  Widget _buildHistoryItem(
+    Map<String, dynamic> entry,
+    Map<String, dynamic> n,
+    String formattedTime,
+  ) {
     final action = entry['action'] as String? ?? '';
     final by = entry['by'] as String? ?? '';
     final price = entry['pricePerUnit'];
     final total = entry['totalPrice'];
     final message = entry['message'] as String? ?? '';
-    final timestamp = entry['timestamp'] as String? ?? '';
     final actorName = _entryActorName(entry);
     final l10n = context.l10n;
+    final productSnapshot = n['productSnapshot'] as Map<String, dynamic>? ?? {};
 
-    String formattedTime = '';
-    if (timestamp.isNotEmpty) {
-      try {
-        formattedTime = DateFormat(
-          'MMM d, h:mm a',
-          Localizations.localeOf(context).languageCode,
-        ).format(DateTime.parse(timestamp));
-      } catch (_) {}
-    }
-
-    // Handle chat messages differently
-    if (action == 'message') {
-      return _buildChatMessage(
-        by,
-        message,
-        formattedTime,
-        actorName: actorName,
-      );
-    }
-
-    Color accentColor;
     IconData actionIcon;
     String actionLabel;
+    ChipTone tone;
 
     switch (action) {
       case 'requested':
-        accentColor = primaryBlue;
-        actionIcon = Icons.send_rounded;
+        tone = ChipTone.info;
+        actionIcon = HugeIcons.strokeRoundedSent;
         actionLabel = l10n.dealStatusRequirementSent;
         break;
       case 'countered':
-        accentColor = amberAccent;
-        actionIcon = Icons.swap_horiz_rounded;
+        tone = ChipTone.warning;
+        actionIcon = HugeIcons.strokeRoundedExchange01;
         actionLabel = by == 'admin'
             ? l10n.dealStatusNewPriceFromPlatform
             : l10n.dealStatusYourCounterOffer;
         break;
       case 'accepted':
-        accentColor = greenAccent;
-        actionIcon = Icons.check_circle_rounded;
+        tone = ChipTone.success;
+        actionIcon = HugeIcons.strokeRoundedCheckmarkCircle02;
         actionLabel = by == 'admin'
             ? (actorName.isNotEmpty
                   ? l10n.dealAcceptedByPlatformName(actorName)
@@ -1215,133 +1055,49 @@ class _NegotiationDetailScreenState
             : l10n.dealYouAccepted;
         break;
       case 'rejected':
-        accentColor = redAccent;
-        actionIcon = Icons.cancel_rounded;
+        tone = ChipTone.error;
+        actionIcon = HugeIcons.strokeRoundedCancelCircle;
         actionLabel = by == 'admin'
             ? l10n.dealDeclinedByPlatform
             : l10n.dealYouCancelled;
         break;
       default:
-        accentColor = textMuted;
-        actionIcon = Icons.circle;
+        tone = ChipTone.neutral;
+        actionIcon = HugeIcons.strokeRoundedInformationCircle;
         actionLabel = action;
     }
 
     final isAdmin = by == 'admin';
-    return Align(
-      alignment: isAdmin ? Alignment.centerLeft : Alignment.centerRight,
-      child: FractionallySizedBox(
-        widthFactor: 0.84,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.fromLTRB(11, 9, 11, 7),
-          decoration: BoxDecoration(
-            color: isAdmin ? incomingBubble : outgoingBubble,
-            borderRadius: _chatBubbleRadius(isAdmin),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x16000000),
-                blurRadius: 2,
-                offset: Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isAdmin
-                    ? _platformActorLabel(actorName)
-                    : context.l10n.dealYou,
-                style: AppFonts.jakarta(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: isAdmin ? primaryBlue : greenAccent,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(actionIcon, size: 15, color: accentColor),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      actionLabel,
-                      style: AppFonts.jakarta(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: accentColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (price != null) ...[
-                const SizedBox(height: 6),
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 5,
-                  children: [
-                    Text(
-                      l10n.commonPricePerUnit(
-                        NumberFormatter.formatPrice(price),
-                      ),
-                      style: AppFonts.jakarta(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: textPrimary,
-                      ),
-                    ),
-                    if (total != null)
-                      Text(
-                        l10n.dealBulletTotal(
-                          NumberFormatter.formatPrice(total),
-                        ),
-                        style: AppFonts.jakarta(fontSize: 12, color: slateBlue),
-                      ),
-                  ],
-                ),
-              ],
-              if (message.isNotEmpty &&
-                  !(action == 'accepted' &&
-                      _isLegacyAcceptedMessage(message))) ...[
-                const SizedBox(height: 5),
-                Text(
-                  message,
-                  style: AppFonts.jakarta(
-                    fontSize: 13,
-                    color: textPrimary,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-              if (formattedTime.isNotEmpty) ...[
-                const SizedBox(height: 3),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    formattedTime,
-                    style: AppFonts.jakarta(
-                      fontSize: 9.5,
-                      color: const Color(0xFF667781),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
+    final showMessage =
+        message.isNotEmpty &&
+        !(action == 'accepted' && _isLegacyAcceptedMessage(message));
+    return DealOfferCard(
+      title: actionLabel,
+      icon: actionIcon,
+      tone: tone,
+      fromPlatform: isAdmin,
+      senderLabel: isAdmin
+          ? _platformActorLabel(actorName)
+          : context.l10n.dealYou,
+      itemName: localizedName(
+        context,
+        productSnapshot,
+        fallback: l10n.dealProductFallback,
       ),
-    );
-  }
-
-  BorderRadius _chatBubbleRadius(bool isAdmin) {
-    return BorderRadius.only(
-      topLeft: Radius.circular(isAdmin ? 4 : 14),
-      topRight: Radius.circular(isAdmin ? 14 : 4),
-      bottomLeft: const Radius.circular(14),
-      bottomRight: const Radius.circular(14),
+      quantityText: dealQuantityText(
+        l10n,
+        productSnapshot,
+        _quantityCount(n['requestedQuantity']),
+      ),
+      pricePerUnit: price != null ? DealDeskPresentation.rupees(price) : null,
+      unitSuffix: DealDeskPresentation.unitSuffix(productSnapshot, l10n),
+      total: price != null && total != null
+          ? DealDeskPresentation.rupees(total)
+          : null,
+      message: showMessage ? message : null,
+      time: formattedTime,
+      // The accepted price gets the teal, dithered card.
+      highlight: action == 'accepted',
     );
   }
 
@@ -1351,84 +1107,26 @@ class _NegotiationDetailScreenState
     String timestamp, {
     String? messageId,
     String actorName = '',
+    bool sending = false,
+    bool isFirstInGroup = true,
+    bool isLastInGroup = true,
   }) {
     final isAdmin = by == 'admin';
     final isRead = messageId != null
         ? _readReceipts[messageId] ?? false
         : false;
 
-    return Align(
-      alignment: isAdmin ? Alignment.centerLeft : Alignment.centerRight,
-      child: FractionallySizedBox(
-        widthFactor: 0.78,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.fromLTRB(11, 8, 9, 6),
-          decoration: BoxDecoration(
-            color: isAdmin ? incomingBubble : outgoingBubble,
-            borderRadius: _chatBubbleRadius(isAdmin),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x16000000),
-                blurRadius: 2,
-                offset: Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isAdmin
-                    ? _platformActorLabel(actorName)
-                    : context.l10n.dealYou,
-                style: AppFonts.jakarta(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: isAdmin ? primaryBlue : greenAccent,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                message,
-                style: AppFonts.jakarta(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: textPrimary,
-                  height: 1.35,
-                ),
-              ),
-              if (timestamp.isNotEmpty || (!isAdmin && isRead)) ...[
-                const SizedBox(height: 2),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (timestamp.isNotEmpty)
-                        Text(
-                          timestamp,
-                          style: AppFonts.jakarta(
-                            fontSize: 9.5,
-                            color: const Color(0xFF667781),
-                          ),
-                        ),
-                      if (!isAdmin && isRead) ...[
-                        const SizedBox(width: 3),
-                        const Icon(
-                          Icons.done_all_rounded,
-                          size: 14,
-                          color: Color(0xFF53BDEB),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
+    return DealMessageBubble(
+      text: message,
+      outgoing: !isAdmin,
+      senderLabel: isAdmin
+          ? _platformActorLabel(actorName)
+          : context.l10n.dealYou,
+      time: timestamp,
+      read: !isAdmin && isRead,
+      sending: sending,
+      isFirstInGroup: isFirstInGroup,
+      isLastInGroup: isLastInGroup,
     );
   }
 
@@ -1457,7 +1155,8 @@ class _NegotiationDetailScreenState
     _localTypingTimer = null;
     if (!_isTyping) return;
 
-    final userId = ref.read(authProvider).user?.id;
+    // Also runs from dispose(), so it uses the id saved at start.
+    final userId = _userId;
     if (userId != null) {
       _socketService.emitStopTyping(userId: userId);
     }
@@ -1465,6 +1164,8 @@ class _NegotiationDetailScreenState
   }
 
   Future<void> _sendChatMessage() async {
+    // One message at a time; the text field stays usable meanwhile.
+    if (_isSending) return;
     final messageText = _counterMessageController.text.trim();
     if (messageText.isEmpty) {
       _showError(context.l10n.dealEnterMessage);
@@ -1491,14 +1192,14 @@ class _NegotiationDetailScreenState
     setState(() {
       _optimisticMessages.add(optimisticMessage);
       _counterMessageController.clear();
+      _isSending = true;
     });
 
     // Auto-scroll to newest message
     Future.delayed(const Duration(milliseconds: 100), () {
-      _scrollToBottom();
+      if (mounted) _scrollToBottom();
     });
 
-    setState(() => _isActioning = true);
     try {
       final api = ref.read(apiClientProvider);
       await api.post(
@@ -1509,20 +1210,6 @@ class _NegotiationDetailScreenState
         },
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.l10n.dealMessageSent,
-              style: AppFonts.jakarta(fontWeight: FontWeight.w600),
-            ),
-            backgroundColor: primaryBlue,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            duration: const Duration(milliseconds: 1500),
-          ),
-        );
         await _fetchDetail(background: true);
       }
     } on DioException catch (e) {
@@ -1538,83 +1225,125 @@ class _NegotiationDetailScreenState
         ),
       );
     } finally {
-      if (mounted) setState(() => _isActioning = false);
+      if (mounted) setState(() => _isSending = false);
     }
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+  /// Quick reply: send a ready-made message through [_sendChatMessage].
+  void _sendQuickReply(String text) {
+    if (_isSending) return;
+    _counterMessageController.text = text;
+    _sendChatMessage();
   }
 
-  Widget _buildBottomActions(
-    String status,
-    String currentOfferBy,
-    bool canPay,
-  ) {
+  void _scrollToBottom({bool animate = true}) {
+    if (_scrollController.positions.length != 1) return;
+    final target = _scrollController.position.maxScrollExtent;
+    if (!animate || AppMotion.reduced(context)) {
+      _scrollController.jumpTo(target);
+      _settleAtBottom();
+      return;
+    }
+    _scrollController
+        .animateTo(target, duration: AppMotion.slow, curve: AppMotion.standard)
+        .then((_) => _settleAtBottom());
+  }
+
+  /// The list only knows its full length once its last rows are laid out,
+  /// so a scroll to "the end" can stop short. Keep following the end for a
+  /// few frames until it stops moving.
+  void _settleAtBottom([int tries = 6]) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || tries == 0 || _scrollController.positions.length != 1) {
+        return;
+      }
+      final position = _scrollController.position;
+      if (position.maxScrollExtent - position.pixels > 1) {
+        _scrollController.jumpTo(position.maxScrollExtent);
+      }
+      // The end can still move on the next frame, so keep looking.
+      _settleAtBottom(tries - 1);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Bottom bar: composer / legacy proceed / completed
+  // ---------------------------------------------------------------------------
+
+  Widget _buildBottomActions(String status, String currentOfferBy) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      decoration: BoxDecoration(
-        color: surfaceWhite,
-        border: const Border(top: BorderSide(color: borderLight)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceLight,
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
-      child: SafeArea(child: _buildActionRow(status, currentOfferBy, canPay)),
+      child: SafeArea(
+        top: false,
+        child: _buildActionRow(status, currentOfferBy),
+      ),
     );
   }
 
-  Widget _buildActionRow(String status, String currentOfferBy, bool canPay) {
-    if (status == 'accepted' && canPay) {
-      return SizedBox(
-        width: double.infinity,
-        height: 48,
-        child: ElevatedButton.icon(
-          onPressed: _proceedToOrder,
-          icon: const Icon(Icons.account_balance_wallet_rounded, size: 18),
-          label: Text(
-            context.l10n.commonViewDetails,
-            style: AppFonts.jakarta(fontSize: 15, fontWeight: FontWeight.w700),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: greenAccent,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+  Widget _buildActionRow(String status, String currentOfferBy) {
+    if (status == 'accepted' &&
+        !DealDeskPresentation.hasLinkedOrder(_negotiation ?? const {})) {
+      // Accepted before orders were created on acceptance: DemoMart
+      // creates the order (with delivery charges) from the admin panel.
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.successSoft,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        child: Row(
+          children: [
+            const HugeIcon(
+              icon: HugeIcons.strokeRoundedClock01,
+              color: AppColors.primaryDeep,
+              size: 18,
             ),
-          ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                context.l10n.dealAwaitingOrderConfirmation,
+                style: AppFonts.jakarta(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryDeep,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
-
+    // Accepted with its order: the deal is done.
     if (status == 'accepted') {
       return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: greenAccent.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
+          color: AppColors.successSoft,
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_rounded, color: greenAccent, size: 18),
+            const HugeIcon(
+              icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+              color: AppColors.primaryDeep,
+              size: 18,
+            ),
             const SizedBox(width: 8),
-            Text(
-              context.l10n.negotiationCompleted,
-              style: AppFonts.jakarta(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: greenAccent,
+            Flexible(
+              child: Text(
+                context.l10n.negotiationCompleted,
+                style: AppFonts.jakarta(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryDeep,
+                ),
               ),
             ),
           ],
@@ -1627,59 +1356,117 @@ class _NegotiationDetailScreenState
     return _buildChatInput();
   }
 
+  /// Declined / expired: no composer, just say why.
+  Widget _buildClosedBar(Map<String, dynamic> n) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceLight,
+        border: Border(top: BorderSide(color: AppColors.border)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const HugeIcon(
+              icon: HugeIcons.strokeRoundedInformationCircle,
+              size: 18,
+              color: AppColors.textTertiary,
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                DealDeskPresentation.statusLabel(n, l10n: context.l10n),
+                style: AppFonts.jakarta(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildChatInput() {
+    final l10n = context.l10n;
     final typingName = _typingUsers.values.isEmpty
         ? ''
         : _typingUsers.values.first;
     final typingIndicatorText = _typingUsers.isNotEmpty
-        ? context.l10n.dealTyping(_platformActorLabel(typingName))
+        ? l10n.dealTyping(_platformActorLabel(typingName))
         : '';
+    final text = _counterMessageController.text;
+    final canSend = text.trim().isNotEmpty && !_isSending;
+    final quickReplies = [
+      l10n.dealQuickBetterPrice,
+      l10n.dealQuickDeliveryTime,
+      l10n.dealQuickConfirmStock,
+    ];
+    final duration = AppMotion.of(context, AppMotion.fast);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (typingIndicatorText.isNotEmpty)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: backgroundWhite,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: borderLight),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.more_horiz_rounded,
-                    size: 18,
-                    color: greenAccent,
+        AnimatedSize(
+          duration: duration,
+          alignment: Alignment.bottomCenter,
+          child: typingIndicatorText.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 8, left: 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: DealTypingIndicator(label: typingIndicatorText),
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    typingIndicatorText,
-                    style: AppFonts.jakarta(
-                      fontSize: 12,
-                      color: slateBlue,
-                      fontStyle: FontStyle.italic,
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+        AnimatedSize(
+          duration: duration,
+          alignment: Alignment.bottomCenter,
+          child: text.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  // Inside the text field's tap region: tapping a chip keeps
+                  // the keyboard open.
+                  child: TextFieldTapRegion(
+                    child: Semantics(
+                      label: l10n.dealQuickRepliesLabel,
+                      container: true,
+                      child: SizedBox(
+                        height: 36,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          itemCount: quickReplies.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 8),
+                          itemBuilder: (context, index) => _QuickReplyChip(
+                            label: quickReplies[index],
+                            enabled: !_isSending,
+                            onTap: () => _sendQuickReply(quickReplies[index]),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
+                )
+              : const SizedBox(width: double.infinity),
+        ),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: TextField(
                 controller: _counterMessageController,
-                enabled: !_isActioning,
-                maxLines: 3,
+                focusNode: _composerFocus,
+                maxLines: 4,
                 minLines: 1,
                 maxLength: maxMessageLength,
+                textCapitalization: TextCapitalization.sentences,
                 buildCounter:
                     (
                       _, {
@@ -1693,81 +1480,342 @@ class _NegotiationDetailScreenState
                   _emitStopTyping();
                 },
                 style: AppFonts.jakarta(
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
+                  color: AppColors.textPrimary,
                 ),
                 decoration: InputDecoration(
-                  hintText: context.l10n.dealMessageHint,
-                  prefixIcon: const Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    size: 19,
-                    color: textMuted,
-                  ),
-                  hintStyle: AppFonts.jakarta(color: textMuted),
+                  hintText: l10n.dealMessageHint,
                   filled: true,
-                  fillColor: backgroundWhite,
+                  fillColor: AppColors.gray50,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
+                    horizontal: 16,
                     vertical: 12,
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: borderLight),
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    borderSide: const BorderSide(color: AppColors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: borderLight),
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    borderSide: const BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: greenAccent, width: 1.5),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: borderLight),
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            SizedBox(
-              height: 48,
-              width: 48,
-              child: ElevatedButton(
-                onPressed:
-                    (_isActioning || _counterMessageController.text.isEmpty)
-                    ? null
-                    : _sendChatMessage,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryBlue,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: textMuted.withOpacity(0.3),
-                  shape: const CircleBorder(),
-                  padding: EdgeInsets.zero,
+            const SizedBox(width: 8),
+            // Inside the text field's tap region: sending doesn't close the
+            // keyboard.
+            TextFieldTapRegion(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: SizedBox(
+                  width: 46,
+                  height: 46,
+                  child: IconButton(
+                    tooltip: l10n.dealSend,
+                    onPressed: canSend
+                        ? () {
+                            HapticFeedback.lightImpact();
+                            _sendChatMessage();
+                          }
+                        : null,
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      disabledBackgroundColor: AppColors.gray200,
+                      shape: const CircleBorder(),
+                      padding: EdgeInsets.zero,
+                    ),
+                    icon: AnimatedSwitcher(
+                      duration: duration,
+                      child: _isSending
+                          ? const SizedBox(
+                              key: ValueKey('sending'),
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.textTertiary,
+                              ),
+                            )
+                          : HugeIcon(
+                              key: const ValueKey('send'),
+                              icon: HugeIcons.strokeRoundedSent,
+                              size: 20,
+                              color: canSend
+                                  ? Colors.white
+                                  : AppColors.textTertiary,
+                            ),
+                    ),
+                  ),
                 ),
-                child: _isActioning
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.send_rounded, size: 18),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            '${_counterMessageController.text.length}/$maxMessageLength',
-            style: AppFonts.jakarta(
-              fontSize: 11,
-              color: textMuted,
-              fontWeight: FontWeight.w500,
+        if (text.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, right: 60),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                '${text.length}/$maxMessageLength',
+                style: AppText.price(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: text.length > maxMessageLength
+                      ? AppColors.error
+                      : AppColors.textTertiary,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _QuickReplyChip extends StatelessWidget {
+  const _QuickReplyChip({
+    required this.label,
+    required this.onTap,
+    required this.enabled,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: enabled ? onTap : null,
+      haptic: true,
+      color: AppColors.primaryTint,
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      semanticLabel: label,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          border: Border.all(color: AppColors.primarySoft),
+        ),
+        child: Text(
+          label,
+          style: AppFonts.jakarta(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: enabled ? AppColors.primaryDeep : AppColors.textTertiary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Loading placeholder: summary card and a few chat bubbles.
+/// Placeholder laid out like the loaded screen: the pinned summary (open,
+/// as it is for the first moment), a date, an offer card from you and a reply,
+/// then the composer bar at the bottom.
+class _DetailSkeleton extends StatelessWidget {
+  const _DetailSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final card = BoxDecoration(
+      color: AppColors.surfaceLight,
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      border: Border.all(color: AppColors.border),
+    );
+
+    Widget dot() =>
+        const Skeleton(width: 16, height: 16, radius: AppRadius.pill);
+    Widget line() => const Expanded(child: Skeleton(height: 3));
+
+    final summary = Container(
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      decoration: card,
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+      child: SkeletonShimmer(
+        child: Column(
+          children: [
+            const Row(
+              children: [
+                Skeleton(width: 48, height: 48, radius: AppRadius.md),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Skeleton(width: 170, height: 15),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Skeleton(width: 48, height: 11),
+                          SizedBox(width: 8),
+                          Skeleton(
+                            width: 110,
+                            height: 20,
+                            radius: AppRadius.pill,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Skeleton(width: 72, height: 15),
+                    SizedBox(height: 6),
+                    Skeleton(width: 52, height: 11),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            const Row(
+              children: [
+                Expanded(child: Skeleton(height: 56, radius: AppRadius.md)),
+                SizedBox(width: 8),
+                Expanded(child: Skeleton(height: 56, radius: AppRadius.md)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Row(
+              children: [
+                Skeleton(width: 110, height: 16),
+                Spacer(),
+                Skeleton(width: 84, height: 18),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(children: [dot(), line(), dot(), line(), dot(), line(), dot()]),
+          ],
+        ),
+      ),
+    );
+
+    final offer = Align(
+      alignment: Alignment.centerRight,
+      child: FractionallySizedBox(
+        widthFactor: 0.86,
+        child: Container(
+          decoration: card,
+          clipBehavior: Clip.antiAlias,
+          child: const SkeletonShimmer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Skeleton(height: 34, radius: 0),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Skeleton(width: 170, height: 14),
+                      SizedBox(height: 6),
+                      Skeleton(width: 56, height: 11),
+                      SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Skeleton(width: 60, height: 12),
+                          Spacer(),
+                          Skeleton(width: 80, height: 12),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Skeleton(width: 40, height: 12),
+                          Spacer(),
+                          Skeleton(width: 64, height: 12),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    return Column(
+      children: [
+        summary,
+        Expanded(
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            children: [
+              const SkeletonShimmer(
+                child: Center(
+                  child: Skeleton(
+                    width: 92,
+                    height: 24,
+                    radius: AppRadius.pill,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Align(
+                alignment: Alignment.centerRight,
+                child: SkeletonShimmer(child: Skeleton(width: 28, height: 11)),
+              ),
+              const SizedBox(height: 6),
+              offer,
+              const SizedBox(height: 14),
+              const SkeletonShimmer(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Skeleton(width: 200, height: 44, radius: AppRadius.lg),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // The composer bar: quick replies above the message field.
+        Container(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          decoration: const BoxDecoration(
+            color: AppColors.surfaceLight,
+            border: Border(top: BorderSide(color: AppColors.border)),
+          ),
+          child: const SafeArea(
+            top: false,
+            child: SkeletonShimmer(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Skeleton(width: 150, height: 32, radius: AppRadius.pill),
+                      SizedBox(width: 8),
+                      Skeleton(width: 150, height: 32, radius: AppRadius.pill),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Skeleton(height: 44, radius: AppRadius.pill),
+                      ),
+                      SizedBox(width: 8),
+                      Skeleton(width: 44, height: 44, radius: AppRadius.pill),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

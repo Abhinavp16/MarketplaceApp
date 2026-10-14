@@ -4,8 +4,9 @@ const orderController = require('../controllers/orderController');
 const { protect, optionalAuth } = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
 const { orderValidation } = require('../validations');
+const { couponPreviewLimiter } = require('../middlewares/rateLimits');
 
-router.post('/preview-coupon', optionalAuth, validate(orderValidation.previewCoupon), orderController.previewCouponForCart);
+router.post('/preview-coupon', couponPreviewLimiter, optionalAuth, validate(orderValidation.previewCoupon), orderController.previewCouponForCart);
 router.post('/', optionalAuth, validate(orderValidation.createFromCart), orderController.createOrderFromCart);
 router.post('/from-negotiation', protect, validate(orderValidation.createFromNegotiation), orderController.createOrderFromNegotiation);
 

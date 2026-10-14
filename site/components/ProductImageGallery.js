@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Icon from '@/components/Icon';
+import { ArrowLeft01Icon, ArrowRight01Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
 
 export default function ProductImageGallery({ images, name, displayPrice }) {
     const galleryImages = images?.length > 0 ? images.slice(0, 4) : [];
@@ -206,9 +208,7 @@ function Lightbox({ images, currentIndex, onClose, onNext, onPrev }) {
                 className="absolute top-6 right-6 z-[110] rounded-full bg-neutral-surface p-3 text-text-primary transition-all hover:bg-gray-100 hover:scale-110 active:scale-95 shadow-sm"
                 aria-label="Close"
             >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <Icon icon={Cancel01Icon} size={24} strokeWidth={2.5} className="h-6 w-6" />
             </button>
 
             {/* Navigation Arrows */}
@@ -219,18 +219,14 @@ function Lightbox({ images, currentIndex, onClose, onNext, onPrev }) {
                         className="absolute left-6 z-[110] rounded-full bg-neutral-surface p-4 text-brand-primary transition-all hover:bg-gray-100 hover:scale-110 active:scale-95 shadow-md lg:left-10"
                         aria-label="Previous image"
                     >
-                        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                        </svg>
+                        <Icon icon={ArrowLeft01Icon} size={32} strokeWidth={2.5} className="h-8 w-8" />
                     </button>
                     <button 
                         onClick={onNext}
                         className="absolute right-6 z-[110] rounded-full bg-neutral-surface p-4 text-brand-primary transition-all hover:bg-gray-100 hover:scale-110 active:scale-95 shadow-md lg:right-10"
                         aria-label="Next image"
                     >
-                        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                        </svg>
+                        <Icon icon={ArrowRight01Icon} size={32} strokeWidth={2.5} className="h-8 w-8" />
                     </button>
                 </>
             )}

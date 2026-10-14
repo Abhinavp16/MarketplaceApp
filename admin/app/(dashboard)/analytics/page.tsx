@@ -514,7 +514,7 @@ export default function AnalyticsPage() {
                                                                 <Eye className="w-3 h-3" /> {product.views} views
                                                             </span>
                                                             <span className={`text-xs flex items-center gap-1 ${product.stock > 0 ? 'text-blue-400' : 'text-red-400'}`}>
-                                                                <Package className="w-3 h-3" /> {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                                                                <Package className="w-3 h-3" /> {product.stock > 0 ? `${product.stock} in stock` : 'Sold out'}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -552,7 +552,7 @@ export default function AnalyticsPage() {
                                                                 <span className="text-xs text-purple-400">{product.recentNegotiations} negotiations</span>
                                                             </div>
                                                         </div>
-                                                        <Badge variant="destructive" className="text-xs">Out of Stock</Badge>
+                                                        <Badge variant="destructive" className="text-xs">Sold Out</Badge>
                                                     </div>
                                                 ))}
                                             </div>

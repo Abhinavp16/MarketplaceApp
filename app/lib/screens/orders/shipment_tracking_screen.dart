@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/config/brand_config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/config/api_config.dart';
 import '../../core/services/storage_service.dart';
@@ -11,6 +15,10 @@ import '../../core/utils/customer_order_presentation.dart';
 import '../../core/utils/number_formatter.dart';
 import '../../core/theme/app_fonts.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/app_image.dart';
+import '../../widgets/state_city_pincode_fields.dart';
+import '../../widgets/ui/ui.dart';
+import 'order_parts.dart';
 
 class ShipmentTrackingScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -24,6 +32,9 @@ class ShipmentTrackingScreen extends ConsumerStatefulWidget {
 
 class _ShipmentTrackingScreenState
     extends ConsumerState<ShipmentTrackingScreen> {
+  /// Delivered orders whose celebration already played this session.
+  static final Set<String> _celebrated = {};
+
   late final Dio _dio;
   Map<String, dynamic>? _order;
   bool _isLoading = true;
@@ -155,530 +166,439 @@ class _ShipmentTrackingScreenState
     ).format(value);
   }
 
-  Color _getStatusColor(String status) =>
-      CustomerOrderPresentation.color(status);
-
-  IconData _getStatusIcon(String status) =>
-      CustomerOrderPresentation.icon(status);
-
-  String? _timelineTimestamp(
-    Map<String, dynamic> order,
-    List<dynamic> history,
-    String stage,
-  ) {
-    dynamic value;
-    switch (stage) {
-      case 'awaiting_acceptance':
-        value = order['createdAt'];
-      case 'accepted_awaiting_payment':
-        value = order['acceptedAt'];
-      case 'rejected':
-        value = order['rejectedAt'];
-      default:
-        for (final item in history) {
-          if (item is Map && item['status'] == stage) {
-            value = item['timestamp'];
-            break;
-          }
-        }
-    }
+  String? _formatRaw(dynamic value, String pattern) {
     final parsed = value == null ? null : DateTime.tryParse(value.toString());
-    return parsed == null
-        ? null
-        : _formatDate(parsed.toLocal(), 'MMM dd, yyyy hh:mm a');
+    return parsed == null ? null : _formatDate(parsed.toLocal(), pattern);
+  }
+
+  Future<void> _callShop() async {
+    final uri = Uri(
+      scheme: 'tel',
+      path: BrandConfig.supportPhone.replaceAll(RegExp(r'[^\d+]'), ''),
+    );
+    final opened = await launchUrl(uri);
+    if (!opened && mounted) {
+      showAppSnack(
+        context,
+        context.l10n.commonSomethingWentWrong,
+        tone: SnackTone.error,
+      );
+    }
+  }
+
+  Future<void> _emailShop(String orderNumber) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: BrandConfig.supportEmail,
+      query: 'subject=${Uri.encodeComponent(orderNumber)}',
+    );
+    final opened = await launchUrl(uri);
+    if (!opened && mounted) {
+      showAppSnack(
+        context,
+        context.l10n.commonSomethingWentWrong,
+        tone: SnackTone.error,
+      );
+    }
+  }
+
+  Future<void> _copy(String value) async {
+    await Clipboard.setData(ClipboardData(text: value));
+    if (!mounted) return;
+    showAppSnack(context, context.l10n.commonCopied, tone: SnackTone.success);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    if (_isLoading) {
-      return Scaffold(
-        backgroundColor: AppColors.backgroundLight,
-        appBar: AppBar(
-          backgroundColor: AppColors.backgroundLight,
-          elevation: 0,
-          leading: IconButton(
-            onPressed: _goBack,
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          title: Text(
-            l10n.trackingTitle,
-            style: AppFonts.jakarta(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          centerTitle: true,
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
+    final order = _order;
+    final orderNumber = order?['orderNumber']?.toString() ?? '';
+
+    final Widget body;
+    if (_isLoading && order == null) {
+      body = const _TrackingSkeleton(key: ValueKey('loading'));
+    } else if (_error != null || order == null) {
+      body = _buildError(l10n);
+    } else {
+      body = KeyedSubtree(
+        key: const ValueKey('content'),
+        child: _buildContent(order),
       );
     }
-
-    if (_error != null || _order == null) {
-      return Scaffold(
-        backgroundColor: AppColors.backgroundLight,
-        appBar: AppBar(
-          backgroundColor: AppColors.backgroundLight,
-          elevation: 0,
-          leading: IconButton(
-            onPressed: _goBack,
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          title: Text(
-            l10n.trackingTitle,
-            style: AppFonts.jakarta(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          centerTitle: true,
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 48,
-                  color: AppColors.textTertiary,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _errorText(l10n, _error),
-                  textAlign: TextAlign.center,
-                  style: AppFonts.jakarta(
-                    fontSize: 16,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                if (_requiresLogin)
-                  FilledButton(
-                    onPressed: () => context.go('/login'),
-                    child: Text(l10n.commonLogin),
-                  )
-                else
-                  FilledButton.icon(
-                    onPressed: _fetchOrder,
-                    icon: const Icon(Icons.refresh),
-                    label: Text(l10n.commonTryAgain),
-                  ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () => context.go('/previous-orders'),
-                  child: Text(l10n.trackingViewPreviousOrders),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    final order = _order!;
-    final orderNumber = order['orderNumber'] ?? '';
-    final status = CustomerOrderPresentation.stage(order);
-    final trackingNumber = order['trackingNumber'];
-    final courierName = order['courierName'];
-    final shippedAt = order['shippedAt'];
-    final deliveredAt = order['deliveredAt'];
-    final statusHistory = order['statusHistory'] as List? ?? [];
-    final items = order['items'] as List? ?? [];
-
-    final statusColor = _getStatusColor(status);
-    final statusDisplay = _getStatusDisplay(status);
-    final timelineStatuses = CustomerOrderPresentation.timeline(order);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: AppColors.backgroundLight,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: _goBack,
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
-        ),
-        title: Text(
-          l10n.trackingTitle,
-          style: AppFonts.jakarta(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        centerTitle: true,
+      appBar: AppHeader(
+        title: l10n.trackingTitle,
+        subtitle: orderNumber.isEmpty ? null : '#$orderNumber',
+        onBack: _goBack,
       ),
-      body: RefreshIndicator(
-        onRefresh: _fetchOrder,
-        color: AppColors.primary,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Order Summary Card
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.gray100),
+      body: AnimatedSwitcher(
+        duration: AppMotion.of(context, AppMotion.base),
+        switchInCurve: AppMotion.standard,
+        switchOutCurve: AppMotion.exit,
+        child: body,
+      ),
+    );
+  }
+
+  Widget _buildError(AppLocalizations l10n) {
+    return Center(
+      key: const ValueKey('error'),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EmptyState(
+              icon: _requiresLogin
+                  ? HugeIcons.strokeRoundedUserCircle
+                  : HugeIcons.strokeRoundedAlert02,
+              tone: _requiresLogin ? ChipTone.brand : ChipTone.neutral,
+              title: _errorText(l10n, _error),
+              actionLabel: _requiresLogin
+                  ? l10n.commonLogin
+                  : l10n.commonTryAgain,
+              onAction: _requiresLogin
+                  ? () => context.go('/login')
+                  : _fetchOrder,
+            ),
+            TextButton(
+              onPressed: () => context.go('/previous-orders'),
+              child: Text(l10n.trackingViewPreviousOrders),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+      child: Text(
+        title,
+        style: AppFonts.jakarta(
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+          color: AppColors.textPrimary,
+          letterSpacing: -0.3,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(Map<String, dynamic> order) {
+    final l10n = context.l10n;
+    final orderNumber = order['orderNumber']?.toString() ?? '';
+    final status = CustomerOrderPresentation.stage(order);
+    final trackingNumber = order['trackingNumber']?.toString() ?? '';
+    final courierName = order['courierName']?.toString() ?? '';
+    final shippedAt = _formatRaw(order['shippedAt'], 'MMM dd, yyyy');
+    final deliveredAt = _formatRaw(order['deliveredAt'], 'MMM dd, yyyy');
+    final statusHistory = order['statusHistory'] as List? ?? [];
+    final items = order['items'] as List? ?? [];
+    final steps = CustomerOrderPresentation.journey(order);
+    final action = CustomerOrderPresentation.customerAction(l10n, status);
+    final orderKey = order['_id']?.toString() ?? orderNumber;
+    final delivered = status == 'delivered';
+    final celebrate = delivered && !_celebrated.contains(orderKey);
+    if (delivered) _celebrated.add(orderKey);
+    final placedOn = _formatRaw(order['createdAt'], 'MMM dd, yyyy · hh:mm a');
+    final address = order['shippingAddress'] is Map
+        ? Map<String, dynamic>.from(order['shippingAddress'] as Map)
+        : null;
+
+    return RefreshIndicator(
+      onRefresh: _fetchOrder,
+      color: AppColors.primary,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        children: [
+          // Summary
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (delivered) ...[
+                  Center(
+                    child: OrderSuccessBadge(
+                      size: 60,
+                      animate: celebrate,
+                      icon: HugeIcons.strokeRoundedPackageDelivered,
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.orderIdLabel,
-                                style: AppFonts.jakarta(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '#$orderNumber',
-                                style: AppFonts.jakarta(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                statusDisplay,
-                                textAlign: TextAlign.center,
-                                style: AppFonts.jakarta(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: statusColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                  Center(
+                    child: Text(
+                      l10n.ordDeliveredTitle,
+                      textAlign: TextAlign.center,
+                      style: AppFonts.jakarta(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryDeep,
                       ),
-                      if (items.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        const Divider(color: AppColors.gray100),
-                        const SizedBox(height: 16),
-                        ...items
-                            .take(2)
-                            .map(
-                              (item) => Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 50,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.backgroundLight,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child:
-                                          item['productSnapshot']?['image'] !=
-                                              null
-                                          ? ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              child: Image.network(
-                                                item['productSnapshot']['image'],
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    const Icon(
-                                                      Icons.agriculture,
-                                                      color: AppColors.primary,
-                                                    ),
-                                              ),
-                                            )
-                                          : const Icon(
-                                              Icons.agriculture,
-                                              color: AppColors.primary,
-                                            ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            localizedName(
-                                              context,
-                                              item['productSnapshot'] is Map
-                                                  ? item['productSnapshot']
-                                                        as Map
-                                                  : null,
-                                              fallback:
-                                                  l10n.ordersProductFallback,
-                                            ),
-                                            style: AppFonts.jakarta(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: AppColors.textPrimary,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          Text(
-                                            l10n.trackingItemQtyTotal(
-                                              '${item['quantity']}',
-                                              NumberFormatter.formatPrice(
-                                                item['totalPrice'],
-                                              ),
-                                            ),
-                                            style: AppFonts.jakarta(
-                                              fontSize: 12,
-                                              color: AppColors.textSecondary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                        if (items.length > 2)
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  const Divider(height: 1),
+                  const SizedBox(height: 14),
+                ],
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            l10n.trackingMoreItems(items.length - 2),
+                            l10n.orderIdLabel,
                             style: AppFonts.jakarta(
                               fontSize: 12,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textTertiary,
                             ),
                           ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-
-              // Order Journey Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  l10n.trackingOrderJourney,
-                  style: AppFonts.jakarta(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              if (status == 'rejected')
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFFECACA)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.trackingNotApproved,
-                          style: AppFonts.jakarta(
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF991B1B),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          order['rejectionReason']
-                                      ?.toString()
-                                      .trim()
-                                      .isNotEmpty ==
-                                  true
-                              ? order['rejectionReason'].toString()
-                              : l10n.trackingContactSupport,
-                          style: AppFonts.jakarta(
-                            fontSize: 13,
-                            height: 1.4,
-                            color: const Color(0xFF7F1D1D),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // Timeline
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: timelineStatuses.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final s = entry.value;
-                    final isLast = index == timelineStatuses.length - 1;
-                    final isCompleted = true;
-                    final isCurrent = index == timelineStatuses.length - 1;
-                    final subtitle =
-                        _timelineTimestamp(order, statusHistory, s) ?? '';
-
-                    return _buildTimelineItem(
-                      icon: _getStatusIcon(s),
-                      iconColor: isCurrent ? statusColor : AppColors.success,
-                      title: _getStatusDisplay(s),
-                      subtitle: subtitle,
-                      isCompleted: isCompleted,
-                      isLast: isLast,
-                      isCurrent: isCurrent,
-                      badge: isCurrent ? l10n.trackingLatestBadge : null,
-                    );
-                  }).toList(),
-                ),
-              ),
-
-              // Courier Information (only show if shipped)
-              if (trackingNumber != null && trackingNumber.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    l10n.trackingCourierInfo,
-                    style: AppFonts.jakarta(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.gray100),
-                    ),
-                    child: Column(
-                      children: [
-                        if (courierName != null && courierName.isNotEmpty)
-                          _buildInfoRow(l10n.trackingCourier, courierName),
-                        if (courierName != null && courierName.isNotEmpty)
-                          const SizedBox(height: 12),
-                        _buildInfoRow(l10n.trackingNumberLabel, trackingNumber),
-                        if (shippedAt != null) ...[
-                          const SizedBox(height: 12),
-                          _buildInfoRow(
-                            l10n.trackingShippedDate,
-                            _formatDate(
-                              DateTime.parse(shippedAt),
-                              'MMM dd, yyyy',
+                          const SizedBox(height: 2),
+                          Text(
+                            '#$orderNumber',
+                            style: AppFonts.jakarta(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textPrimary,
                             ),
                           ),
-                        ],
-                        if (deliveredAt != null) ...[
-                          const SizedBox(height: 12),
-                          _buildInfoRow(
-                            l10n.trackingDeliveredDate,
-                            _formatDate(
-                              DateTime.parse(deliveredAt),
-                              'MMM dd, yyyy',
+                          if (placedOn != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              l10n.ordPlacedOn(placedOn),
+                              style: AppFonts.jakarta(
+                                fontSize: 12,
+                                color: AppColors.textTertiary,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: StatusChip(
+                        label: _getStatusDisplay(status),
+                        tone: CustomerOrderPresentation.chipTone(status),
+                        icon: CustomerOrderPresentation.hugeIcon(status),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 14),
+                OrderProgressBar(
+                  value: CustomerOrderPresentation.progress(order),
+                  color: CustomerOrderPresentation.toneColor(status),
+                ),
               ],
+            ),
+          ),
+          const SizedBox(height: 12),
 
-              // Shipping Address
-              if (order['shippingAddress'] != null) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    l10n.checkoutShippingAddress,
-                    style: AppFonts.jakarta(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+          // What the customer needs to do / why the order stopped
+          if (action != null) ...[
+            OrderInfoPanel(
+              title: l10n.ordActionTitle,
+              message: action,
+              tone: ChipTone.warning,
+              icon: HugeIcons.strokeRoundedTask01,
+            ),
+            const SizedBox(height: 12),
+          ] else if (status == 'awaiting_acceptance') ...[
+            OrderInfoPanel(
+              message: l10n.checkoutApprovalNote,
+              tone: ChipTone.info,
+              icon: HugeIcons.strokeRoundedClock01,
+            ),
+            const SizedBox(height: 12),
+          ],
+          if (status == 'rejected') ...[
+            OrderInfoPanel(
+              title: l10n.trackingNotApproved,
+              message:
+                  order['rejectionReason']?.toString().trim().isNotEmpty == true
+                  ? order['rejectionReason'].toString()
+                  : l10n.trackingContactSupport,
+              tone: ChipTone.error,
+              icon: HugeIcons.strokeRoundedCancelCircle,
+            ),
+            const SizedBox(height: 12),
+          ] else if (status == 'cancelled') ...[
+            OrderInfoPanel(
+              title: l10n.ordCancelledTitle,
+              message: l10n.trackingContactSupport,
+              tone: ChipTone.error,
+              icon: HugeIcons.strokeRoundedCancel01,
+            ),
+            const SizedBox(height: 12),
+          ],
+
+          // Journey
+          const SizedBox(height: 12),
+          _sectionTitle(l10n.trackingOrderJourney),
+          AppCard(
+            child: OrderStepTracker(
+              steps: steps,
+              label: _getStatusDisplay,
+              currentBadge: l10n.trackingLatestBadge,
+              subtitle: (step) {
+                if (step.at != null) {
+                  return _formatDate(step.at!, 'MMM dd, yyyy · hh:mm a');
+                }
+                return step.state == OrderStepState.upcoming
+                    ? l10n.ordStepUpcoming
+                    : null;
+              },
+            ),
+          ),
+
+          // Transport
+          if (trackingNumber.isNotEmpty || courierName.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _sectionTitle(l10n.trackingCourierInfo),
+            AppCard(
+              child: Column(
+                children: [
+                  if (courierName.isNotEmpty)
+                    _InfoRow(
+                      icon: HugeIcons.strokeRoundedDeliveryTruck01,
+                      label: l10n.ordTransporterLabel,
+                      value: courierName,
                     ),
+                  if (trackingNumber.isNotEmpty) ...[
+                    if (courierName.isNotEmpty) const SizedBox(height: 12),
+                    _InfoRow(
+                      icon: HugeIcons.strokeRoundedInvoice01,
+                      label: l10n.ordLrNumberLabel,
+                      value: trackingNumber,
+                      trailing: IconButton(
+                        tooltip: l10n.commonCopy,
+                        onPressed: () => _copy(trackingNumber),
+                        style: IconButton.styleFrom(
+                          fixedSize: const Size(44, 44),
+                        ),
+                        icon: const HugeIcon(
+                          icon: HugeIcons.strokeRoundedCopy01,
+                          size: 18,
+                          color: AppColors.secondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (shippedAt != null) ...[
+                    const SizedBox(height: 12),
+                    _InfoRow(
+                      icon: HugeIcons.strokeRoundedCalendar03,
+                      label: l10n.trackingShippedDate,
+                      value: shippedAt,
+                    ),
+                  ],
+                  if (deliveredAt != null) ...[
+                    const SizedBox(height: 12),
+                    _InfoRow(
+                      icon: HugeIcons.strokeRoundedPackageDelivered,
+                      label: l10n.trackingDeliveredDate,
+                      value: deliveredAt,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+
+          // Items
+          if (items.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _sectionTitle(l10n.commonItemsCount(items.length)),
+            AppCard(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final item in items.take(3)) _buildItemRow(item),
+                  if (items.length > 3)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        l10n.trackingMoreItems(items.length - 3),
+                        style: AppFonts.jakarta(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+
+          // Dated history
+          if (statusHistory.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _sectionTitle(l10n.ordersStatusHistory),
+            AppCard(
+              child: Column(
+                children: [
+                  for (final raw in statusHistory.reversed)
+                    if (raw is Map) _buildHistoryRow(raw),
+                ],
+              ),
+            ),
+          ],
+
+          // Shipping address
+          if (address != null) ...[
+            const SizedBox(height: 24),
+            _sectionTitle(l10n.checkoutShippingAddress),
+            AppCard(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const HugeIcon(
+                    icon: HugeIcons.strokeRoundedLocation01,
+                    size: 20,
+                    color: AppColors.primary,
                   ),
-                ),
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.gray100),
-                    ),
+                  const SizedBox(width: 12),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          order['shippingAddress']['fullName'] ?? '',
+                          address['fullName']?.toString() ?? '',
                           style: AppFonts.jakarta(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
-                          '${order['shippingAddress']['addressLine1'] ?? ''}${order['shippingAddress']['addressLine2'] != null ? ', ${order['shippingAddress']['addressLine2']}' : ''}',
+                          '${address['addressLine1'] ?? ''}${address['addressLine2'] != null ? ', ${address['addressLine2']}' : ''}',
                           style: AppFonts.jakarta(
                             fontSize: 13,
                             color: AppColors.textSecondary,
+                            height: 1.4,
                           ),
                         ),
                         Text(
-                          '${order['shippingAddress']['city'] ?? ''}, ${order['shippingAddress']['state'] ?? ''} - ${order['shippingAddress']['pincode'] ?? ''}',
+                          '${address['city'] ?? ''}, ${localizedStateName(context, address['state']?.toString() ?? '')} - ${address['pincode'] ?? ''}',
                           style: AppFonts.jakarta(
                             fontSize: 13,
                             color: AppColors.textSecondary,
+                            height: 1.4,
                           ),
                         ),
-                        if (order['shippingAddress']['phone'] != null) ...[
-                          const SizedBox(height: 8),
+                        if (address['phone'] != null) ...[
+                          const SizedBox(height: 4),
                           Text(
-                            l10n.checkoutPhoneValue(
-                              '${order['shippingAddress']['phone']}',
-                            ),
+                            l10n.checkoutPhoneValue('${address['phone']}'),
                             style: AppFonts.jakarta(
                               fontSize: 12,
                               color: AppColors.textTertiary,
@@ -688,20 +608,214 @@ class _ShipmentTrackingScreenState
                       ],
                     ),
                   ),
+                ],
+              ),
+            ),
+          ],
+
+          // Help
+          const SizedBox(height: 24),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.ordNeedHelp,
+                  style: AppFonts.jakarta(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  l10n.ordNeedHelpSubtitle,
+                  style: AppFonts.jakarta(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppButton(
+                        label: l10n.commonCall,
+                        icon: HugeIcons.strokeRoundedCall02,
+                        variant: AppButtonVariant.secondary,
+                        size: AppButtonSize.medium,
+                        onPressed: _callShop,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AppButton(
+                        label: l10n.helpEmailUs,
+                        icon: HugeIcons.strokeRoundedMail01,
+                        variant: AppButtonVariant.secondary,
+                        size: AppButtonSize.medium,
+                        onPressed: () => _emailShop(orderNumber),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-
-              const SizedBox(height: 100),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildItemRow(dynamic rawItem) {
+    final l10n = context.l10n;
+    final item = rawItem is Map ? rawItem : const {};
+    final snapshot = item['productSnapshot'] is Map
+        ? item['productSnapshot'] as Map
+        : null;
+    final name = localizedName(
+      context,
+      snapshot,
+      fallback: l10n.ordersProductFallback,
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: AppColors.gray50,
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.xs),
+              child: AppImage(
+                imageUrl: snapshot?['image']?.toString() ?? '',
+                category: '',
+                name: name,
+                width: 48,
+                height: 48,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFonts.jakarta(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  l10n.trackingItemQtyTotal(
+                    '${item['quantity']}',
+                    NumberFormatter.formatPrice(item['totalPrice']),
+                  ),
+                  style: AppFonts.jakarta(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryRow(Map entry) {
+    final status = entry['status']?.toString() ?? '';
+    final note = entry['note']?.toString();
+    final when = _formatRaw(entry['timestamp'], 'MMM dd, yyyy · hh:mm a');
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            margin: const EdgeInsets.only(top: 6, right: 12),
+            decoration: BoxDecoration(
+              color: CustomerOrderPresentation.toneColor(status),
+              shape: BoxShape.circle,
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _getStatusDisplay(status),
+                  style: AppFonts.jakarta(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  [
+                    ?when,
+                    if (note != null && note.isNotEmpty) note,
+                  ].join(' · '),
+                  style: AppFonts.jakarta(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.trailing,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: const BoxDecoration(
+            color: AppColors.secondarySoft,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: HugeIcon(icon: icon, size: 18, color: AppColors.secondary),
+          ),
+        ),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,111 +828,82 @@ class _ShipmentTrackingScreenState
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
+              SelectableText(
                 value,
                 style: AppFonts.jakarta(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
         ),
+        ?trailing,
       ],
     );
   }
+}
 
-  Widget _buildTimelineItem({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required bool isCompleted,
-    required bool isLast,
-    bool isCurrent = false,
-    String? badge,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: iconColor, size: 20),
-            ),
-            if (!isLast)
-              Container(
-                width: 2,
-                height: 40,
-                color: isCompleted ? AppColors.success : AppColors.gray300,
-              ),
-          ],
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+class _TrackingSkeleton extends StatelessWidget {
+  const _TrackingSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SkeletonShimmer(
+      child: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        children: [
+          const AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Skeleton(width: 60, height: 10),
+                SizedBox(height: 8),
                 Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        title,
-                        style: AppFonts.jakarta(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isCurrent
-                              ? AppColors.textPrimary
-                              : AppColors.textPrimary.withOpacity(0.7),
-                        ),
-                      ),
-                    ),
-                    if (badge != null) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          badge,
-                          style: AppFonts.jakarta(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
+                    Skeleton(width: 140, height: 18),
+                    Spacer(),
+                    Skeleton(width: 90, height: 24, radius: AppRadius.pill),
                   ],
                 ),
-                if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: AppFonts.jakarta(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
+                SizedBox(height: 16),
+                Skeleton(height: 4, radius: AppRadius.pill),
               ],
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 24),
+          const Skeleton(width: 150, height: 16),
+          const SizedBox(height: 12),
+          AppCard(
+            child: Column(
+              children: [
+                for (var i = 0; i < 5; i++)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Skeleton(width: 32, height: 32, radius: AppRadius.pill),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Skeleton(width: 160, height: 12),
+                              SizedBox(height: 6),
+                              Skeleton(width: 100, height: 10),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

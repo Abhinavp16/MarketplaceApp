@@ -56,6 +56,12 @@ const categorySchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  // Only wholesalers (and the team) see this top-level category, its subcategories and their products; retail customers and
+  // anyone not signed in (app guests, the website) don't. See utils/customerVisibility.
+  hideFromCustomers: {
+    type: Boolean,
+    default: false,
+  },
   productCount: {
     type: Number,
     default: 0,

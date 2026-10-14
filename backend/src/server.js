@@ -12,13 +12,22 @@ const connectDB = require('./config/database');
 const { initializeFirebase } = require('./config/firebase');
 const { startPriceChangeScheduler } = require('./services/productPriceSchedulerService');
 const { startHindiNameScheduler } = require('./services/hindiNameSchedulerService');
+const { startBannerMediaSweepScheduler } = require('./services/bannerMediaCleanupService');
+const { startProductLaunchScheduler } = require('./services/productLaunchService');
+const { startDeclinedNegotiationCleanupScheduler } = require('./services/declinedNegotiationCleanupService');
+const { startAccountDeletionReminderScheduler } = require('./services/accountDeletionReminderService');
+const { startPriceUpdateNotifier } = require('./services/priceChangeNotificationService');
 const NegotiationSocketService = require('./services/negotiationSocketService');
 const logger = require('./utils/logger');
+const { assertJwtConfig } = require('./utils/jwtTokens');
+const { isAllowedOrigin } = require('./config/corsOrigins');
 
 const PORT = process.env.PORT || (isDemoMode() ? 5050 : 5000);
 
 const startServer = async () => {
   try {
+    // In production, refuse to run with a missing, short or leaked JWT secret.
+    assertJwtConfig();
     await connectDB();
 
     // Create HTTP server
@@ -27,14 +36,8 @@ const startServer = async () => {
     // Initialize Socket.io
     const io = new SocketIOServer(server, {
       cors: {
-        origin: [
-          'http://localhost:3000',
-          'http://127.0.0.1:3000',
-          'http://localhost:3001',
-          'http://127.0.0.1:3001',
-          process.env.ADMIN_PANEL_URL || '',
-          process.env.FRONTEND_URL || '',
-        ].filter(Boolean),
+        // Same websites as the API (the app sends no Origin).
+        origin: (origin, callback) => callback(null, !origin || isAllowedOrigin(origin)),
         credentials: true,
       },
       transports: ['websocket', 'polling'],
@@ -49,8 +52,16 @@ const startServer = async () => {
     // Initialize Firebase (optional - will warn if not configured)
     initializeFirebase();
     startPriceChangeScheduler();
-    // Demo mode is offline: the Hindi-name sweep calls external services.
-    if (!isDemoMode()) startHindiNameScheduler();
+    // Demo mode is offline: the Hindi-name sweep calls external services and
+    // the banner-media sweep deletes files, so neither runs.
+    if (!isDemoMode()) {
+      startHindiNameScheduler();
+      startBannerMediaSweepScheduler();
+    }
+    startProductLaunchScheduler();
+    startDeclinedNegotiationCleanupScheduler();
+    startAccountDeletionReminderScheduler();
+    startPriceUpdateNotifier();
 
     server.listen(PORT, '0.0.0.0', () => {
       logger.info(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);

@@ -48,7 +48,7 @@ export default async function ProductDetailPage({ params }) {
         );
     }
 
-    const displayPrice = product.mrp ? `MRP: ${formatPrice(product.mrp)}` : formatPrice(product.retailPrice || product.wholesalePrice);
+    const displayPrice = product.mrp ? `MRP: ${formatPrice(product.mrp)}` : formatPrice(product.retailPrice);
     const highlights = getProductHighlights(product);
     const inquiryDetails = buildProductInquiryDetails(product);
     const productKey = product.productId || product.slug || product.name;

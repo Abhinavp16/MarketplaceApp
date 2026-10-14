@@ -8,6 +8,7 @@ test('refreshes canonical chat on socket messages and accepts an admin counter',
   let orderId: null | { _id: string; orderNumber: string; status: string; total: number } = null
   let acceptPayload: Record<string, unknown> | null = null
   let emitLiveMessage: (() => void) | null = null
+  let joinedWithToken = false
   const history = [{
     action: 'countered',
     by: 'admin',
@@ -79,7 +80,7 @@ test('refreshes canonical chat on socket messages and accepts an admin counter',
             _id: negotiationId,
             negotiationNumber: 'NEG-TEST',
             productSnapshot: { name: 'Test Product', sku: 'TEST-1', price: 100 },
-            wholesalerId: { _id: 'buyer-1', name: 'Test Buyer', phone: '9135724680' },
+            wholesalerId: { _id: 'buyer-1', name: 'Test Buyer', phone: '9000000092' },
             requestedQuantity: 5,
             requestedPricePerUnit: 80,
             currentPricePerUnit: 90,
@@ -116,10 +117,12 @@ test('refreshes canonical chat on socket messages and accepts an admin counter',
   await page.routeWebSocket('**/socket.io/**', (webSocket) => {
     webSocket.send('0{"sid":"engine-test","upgrades":[],"pingInterval":20000,"pingTimeout":20000,"maxPayload":1000000}')
     webSocket.onMessage((message) => {
-      if (message === '40') {
+      if (typeof message === 'string' && (message === '40' || message.startsWith('40{'))) {
         webSocket.send('40{"sid":"socket-test"}')
       }
       if (typeof message === 'string' && message.startsWith('42["join-negotiation"')) {
+        // The server only lets a signed-in socket into the deal's room.
+        joinedWithToken = message.includes('"token":"test-token"')
         emitLiveMessage = () => {
           history.push({
             action: 'message',
@@ -143,12 +146,12 @@ test('refreshes canonical chat on socket messages and accepts an admin counter',
   })
 
   await page.goto('/negotiations', { waitUntil: 'domcontentloaded' })
-  const row = page.getByRole('row').filter({ hasText: 'NEG-TEST' })
-  await row.getByRole('button').click()
+  await page.getByRole('button', { name: 'Open NEG-TEST' }).click()
 
   await expect(page.getByText('Admin counter', { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Accept Deal' })).toBeVisible()
   await expect.poll(() => Boolean(emitLiveMessage)).toBe(true)
+  expect(joinedWithToken).toBe(true)
   const requestsBeforeMessage = detailRequests
   ;(emitLiveMessage as unknown as () => void)()
   await expect(page.getByText('Live wholesaler reply', { exact: true })).toBeVisible()
@@ -159,19 +162,19 @@ test('refreshes canonical chat on socket messages and accepts an admin counter',
   const inputs = dialog.getByRole('textbox')
   await inputs.nth(2).fill('1 Test Road')
   await inputs.nth(4).fill('Sample City')
-  await inputs.nth(5).fill('Chhattisgarh')
-  await inputs.nth(6).fill('492001')
+  await inputs.nth(5).fill('Demo State')
+  await inputs.nth(6).fill('000001')
   await dialog.getByRole('button', { name: 'Accept · ₹450' }).click()
 
   await expect(page.getByRole('button', { name: /Order Created · ORD-TEST/ })).toBeVisible()
   expect(acceptPayload).toMatchObject({
     shippingAddress: {
       fullName: 'Test Buyer',
-      phone: '9135724680',
+      phone: '9000000092',
       addressLine1: '1 Test Road',
       city: 'Sample City',
-      state: 'Chhattisgarh',
-      pincode: '492001',
+      state: 'Demo State',
+      pincode: '000001',
     },
   })
 })
@@ -208,7 +211,7 @@ test('offers recovery for a legacy accepted deal and rejects a missing order res
             _id: negotiationId,
             negotiationNumber: 'NEG-LEGACY',
             productSnapshot: { name: 'Legacy Product', sku: 'LEGACY-1', price: 100 },
-            wholesalerId: { _id: 'buyer-1', name: 'Legacy Buyer', phone: '9135724680' },
+            wholesalerId: { _id: 'buyer-1', name: 'Legacy Buyer', phone: '9000000092' },
             requestedQuantity: 5,
             requestedPricePerUnit: 80,
             currentPricePerUnit: 90,
@@ -251,8 +254,8 @@ test('offers recovery for a legacy accepted deal and rejects a missing order res
   const inputs = dialog.getByRole('textbox')
   await inputs.nth(2).fill('1 Recovery Road')
   await inputs.nth(4).fill('Sample City')
-  await inputs.nth(5).fill('Chhattisgarh')
-  await inputs.nth(6).fill('492001')
+  await inputs.nth(5).fill('Demo State')
+  await inputs.nth(6).fill('000001')
   await dialog.getByRole('button', { name: 'Create Order' }).click()
 
   await expect(page.getByText(/no valid order reference was returned/i)).toBeVisible()
@@ -260,11 +263,11 @@ test('offers recovery for a legacy accepted deal and rejects a missing order res
   expect(acceptPayload).toMatchObject({
     shippingAddress: {
       fullName: 'Legacy Buyer',
-      phone: '9135724680',
+      phone: '9000000092',
       addressLine1: '1 Recovery Road',
       city: 'Sample City',
-      state: 'Chhattisgarh',
-      pincode: '492001',
+      state: 'Demo State',
+      pincode: '000001',
     },
   })
 })

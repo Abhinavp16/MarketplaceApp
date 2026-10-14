@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:tradehub_demo/core/config/api_config.dart';
+import 'package:demomart_demo/core/config/api_config.dart';
 import 'storage_service.dart';
 
 class ApiClient {

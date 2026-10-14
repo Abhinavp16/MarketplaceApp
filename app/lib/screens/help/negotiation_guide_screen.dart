@@ -1,140 +1,135 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
+
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/ui/ui.dart';
 
 class NegotiationGuideScreen extends StatelessWidget {
   const NegotiationGuideScreen({super.key});
-
-  static const Color primary = Color(0xFF2D6A4F);
-  static const Color backgroundLight = Color(0xFFF6F8F6);
-  static const Color backgroundDark = Color(0xFF142210);
-  static const Color textDark = Color(0xFF111B0D);
-  static const Color gray200 = Color(0xFFE5E7EB);
-  static const Color gray600 = Color(0xFF4B5563);
-  static const Color gray700 = Color(0xFF374151);
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      backgroundColor: backgroundLight,
-      appBar: AppBar(
-        backgroundColor: backgroundLight,
-        surfaceTintColor: backgroundLight,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios_new, color: textDark),
-          tooltip: l10n.commonBack,
-        ),
-        title: Text(
-          l10n.guideTitle,
-          style: AppFonts.jakarta(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: textDark,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppHeader(title: l10n.guideTitle),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: backgroundDark,
-                borderRadius: BorderRadius.circular(20),
-              ),
+            AppCard(
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.handshake_outlined,
-                    color: Colors.white,
-                    size: 40,
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primarySoft,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: HugeIcon(
+                        icon: HugeIcons.strokeRoundedAgreement02,
+                        color: AppColors.primaryDeep,
+                        size: 26,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   Text(
                     l10n.guideHeroTitle,
                     style: AppFonts.jakarta(
-                      fontSize: 27,
+                      fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -0.3,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     l10n.guideHeroSubtitle,
                     style: AppFonts.jakarta(
                       fontSize: 14,
                       height: 1.5,
-                      color: Colors.white.withValues(alpha: 0.84),
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
             Text(
               l10n.guideHowItWorksTitle,
               style: AppFonts.jakarta(
-                fontSize: 22,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: textDark,
+                color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               l10n.guideHowItWorksBody,
               style: AppFonts.jakarta(
                 fontSize: 14,
-                height: 1.55,
-                color: gray600,
+                height: 1.5,
+                color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 24),
-            _GuideStep(
-              number: '1',
-              icon: Icons.request_quote_outlined,
-              title: l10n.guideStep1Title,
-              description: l10n.guideStep1Body,
+            const SizedBox(height: 16),
+            AppCard(
+              padding: const EdgeInsets.fromLTRB(16, 18, 16, 2),
+              child: Column(
+                children: [
+                  _GuideStep(
+                    number: '1',
+                    icon: HugeIcons.strokeRoundedNote01,
+                    title: l10n.guideStep1Title,
+                    description: l10n.guideStep1Body,
+                  ),
+                  _GuideStep(
+                    number: '2',
+                    icon: HugeIcons.strokeRoundedExchange01,
+                    title: l10n.guideStep2Title,
+                    description: l10n.guideStep2Body,
+                  ),
+                  _GuideStep(
+                    number: '3',
+                    icon: HugeIcons.strokeRoundedInvoice01,
+                    title: l10n.guideStep3Title,
+                    description: l10n.guideStep3Body,
+                  ),
+                  _GuideStep(
+                    number: '4',
+                    icon: HugeIcons.strokeRoundedShield01,
+                    title: l10n.guideStep4Title,
+                    description: l10n.guideStep4Body,
+                    isLast: true,
+                  ),
+                ],
+              ),
             ),
-            _GuideStep(
-              number: '2',
-              icon: Icons.handshake_outlined,
-              title: l10n.guideStep2Title,
-              description: l10n.guideStep2Body,
-            ),
-            _GuideStep(
-              number: '3',
-              icon: Icons.receipt_long_outlined,
-              title: l10n.guideStep3Title,
-              description: l10n.guideStep3Body,
-            ),
-            _GuideStep(
-              number: '4',
-              icon: Icons.verified_user_outlined,
-              title: l10n.guideStep4Title,
-              description: l10n.guideStep4Body,
-              isLast: true,
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: primary.withValues(alpha: 0.2)),
+                color: AppColors.primaryTint,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(color: AppColors.primarySoft),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.lightbulb_outline, color: primary),
+                  const HugeIcon(
+                    icon: HugeIcons.strokeRoundedIdea01,
+                    color: AppColors.primaryDeep,
+                    size: 22,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -142,46 +137,25 @@ class NegotiationGuideScreen extends StatelessWidget {
                       style: AppFonts.jakarta(
                         fontSize: 13,
                         height: 1.5,
-                        color: gray700,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              height: 54,
-              child: FilledButton.icon(
-                onPressed: () => context.go('/negotiations'),
-                icon: const Icon(Icons.handshake_outlined),
-                label: Text(l10n.guideViewNegotiations),
-                style: FilledButton.styleFrom(
-                  backgroundColor: primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
+            const SizedBox(height: 24),
+            AppButton(
+              label: l10n.guideViewNegotiations,
+              icon: HugeIcons.strokeRoundedAgreement02,
+              onPressed: () => context.go('/negotiations'),
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 54,
-              child: OutlinedButton.icon(
-                onPressed: () => context.push('/help'),
-                icon: const Icon(Icons.support_agent_outlined),
-                label: Text(l10n.guideContactSupport),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: textDark,
-                  side: const BorderSide(color: gray200),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
+            AppButton(
+              label: l10n.guideContactSupport,
+              icon: HugeIcons.strokeRoundedCustomerSupport,
+              variant: AppButtonVariant.secondary,
+              onPressed: () => context.push('/help'),
             ),
           ],
         ),
@@ -212,22 +186,22 @@ class _GuideStep extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            width: 42,
+            width: 34,
             child: Column(
               children: [
                 Container(
-                  width: 34,
-                  height: 34,
+                  width: 32,
+                  height: 32,
                   decoration: const BoxDecoration(
-                    color: NegotiationGuideScreen.primary,
+                    color: AppColors.primarySoft,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     number,
-                    style: AppFonts.jakarta(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
+                    style: AppText.price(
+                      fontSize: 14,
+                      color: AppColors.primaryDeep,
                     ),
                   ),
                 ),
@@ -235,7 +209,8 @@ class _GuideStep extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: NegotiationGuideScreen.gray200,
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      color: AppColors.border,
                     ),
                   ),
               ],
@@ -244,12 +219,10 @@ class _GuideStep extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.only(bottom: 18, top: 4),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, color: NegotiationGuideScreen.primary, size: 22),
-                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,21 +232,23 @@ class _GuideStep extends StatelessWidget {
                           style: AppFonts.jakarta(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: NegotiationGuideScreen.textDark,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 4),
                         Text(
                           description,
                           style: AppFonts.jakarta(
                             fontSize: 13,
-                            height: 1.48,
-                            color: NegotiationGuideScreen.gray600,
+                            height: 1.5,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  HugeIcon(icon: icon, color: AppColors.textTertiary, size: 20),
                 ],
               ),
             ),

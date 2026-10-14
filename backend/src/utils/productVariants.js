@@ -1,5 +1,6 @@
 const { USER_ROLES } = require('./constants');
 const { applyMrpDiscount } = require('./productDiscount');
+const { getMinimumCustomerQuantity, getPackSize } = require('./packSize');
 
 const normalizeObjectIdLike = (value) => {
   if (value === null || value === undefined) return null;
@@ -88,6 +89,8 @@ const getPriceForUser = (product = {}, userRole = USER_ROLES.BUYER, variantInput
     discountSource: roleDiscount ? roleDiscount.source : null,
     discountSourceName: roleDiscount ? roleDiscount.sourceName : null,
     minWholesaleQuantity: toPositiveNumber(product?.minWholesaleQuantity, 1),
+    minCustomerQuantity: getMinimumCustomerQuantity(product),
+    packSize: getPackSize(product),
     negotiationEnabled: Boolean(product?.negotiationEnabled),
     canNegotiate: isWholesaler && Boolean(product?.negotiationEnabled),
   };

@@ -140,7 +140,7 @@ export default function CategoryProductsPage() {
 
     const loadCategory = async () => {
       try {
-        const response = await apiFetch(`/categories/${categoryId}`, { skipAuth: true });
+        const response = await apiFetch(`/categories/${categoryId}`);
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data?.message || "Category not found");

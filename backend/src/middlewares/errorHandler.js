@@ -2,6 +2,13 @@ const logger = require('../utils/logger');
 const { AppError } = require('../utils/errors');
 const { isDemoMode } = require('../config/demoGuard');
 
+// Stack traces and the raw message of unexpected errors stay in the server
+// log. Set EXPOSE_ERROR_STACK=true on a local machine to see them in responses.
+// Always off in demo mode.
+const exposeErrorDetails = () => process.env.EXPOSE_ERROR_STACK === 'true' && !isDemoMode();
+
+const GENERIC_SERVER_ERROR = 'Something went wrong. Please try again.';
+
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
@@ -50,12 +57,24 @@ const errorHandler = (err, req, res, next) => {
     }
   }
 
+  // Request body errors from express.json (too large, not valid JSON).
+  if (err.type === 'entity.too.large') {
+    error = new AppError('Request is too large', 413, 'PAYLOAD_TOO_LARGE');
+  } else if (err.type === 'entity.parse.failed') {
+    error = new AppError('Request body is not valid JSON', 400, 'INVALID_JSON');
+  }
+
   const statusCode = error.statusCode || 500;
+  // Our own errors (AppError) carry messages meant for users; anything
+  // unexpected could reveal internals (database, file paths, services).
+  const isExpected = Boolean(error.isOperational) || statusCode < 500;
   const response = {
     success: false,
-    message: error.message || 'Internal server error',
+    message: isExpected || exposeErrorDetails()
+      ? (error.message || GENERIC_SERVER_ERROR)
+      : GENERIC_SERVER_ERROR,
     error: {
-      code: error.code || 'SERVER_ERROR',
+      code: (isExpected || exposeErrorDetails()) && error.code ? error.code : 'SERVER_ERROR',
     },
   };
 
@@ -63,7 +82,7 @@ const errorHandler = (err, req, res, next) => {
     response.error.details = error.details;
   }
 
-  if (process.env.NODE_ENV === 'development' && !isDemoMode()) {
+  if (exposeErrorDetails()) {
     response.error.stack = err.stack;
   }
 

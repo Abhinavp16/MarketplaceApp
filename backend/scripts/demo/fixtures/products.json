@@ -905,5 +905,380 @@
     ],
     "negotiationEnabled": true,
     "image": "products/bg-bts-st.jpg"
+  },
+  {
+    "sku": "AP-WSH-M10",
+    "name": "Zinc Plated Flat Washer M10, Grade A (Packet of 100 pcs)",
+    "nameHindi": "ज़िंक प्लेटेड फ्लैट वॉशर M10 (100 पीस का पैकेट)",
+    "category": "bolts-nuts",
+    "mrp": 8,
+    "retailPrice": 6.5,
+    "wholesalePrice": 4.8,
+    "minWholesaleQuantity": 5,
+    "stock": 60000,
+    "priceUnit": "Packet",
+    "packing": "100 pcs",
+    "shortDescription": "M10 zinc plated flat washers sold by the packet of 100 and priced per piece.",
+    "description": "Flat washers for M10 bolts, zinc plated for corrosion resistance. Wholesalers buy whole packets of 100 pieces; customers can buy loose pieces from 10 upwards. The price shown is per piece.",
+    "tags": [
+      "washer",
+      "m10",
+      "packet",
+      "fasteners"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "M10 (10.5 mm hole, 20 mm OD)"
+      },
+      {
+        "key": "Finish",
+        "value": "Zinc plated"
+      },
+      {
+        "key": "Pack",
+        "value": "100 pieces per packet"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-hxn-m10.jpg",
+    "minCustomerQuantity": 10
+  },
+  {
+    "sku": "AP-HSE-12",
+    "name": "Nylon Braided Water Hose 1/2 inch, 10 bar (Coil of 50 m)",
+    "nameHindi": "नायलॉन ब्रेडेड वॉटर होज़ 1/2 इंच (50 मीटर कॉइल)",
+    "category": "pipe-fittings",
+    "mrp": 95,
+    "retailPrice": 78,
+    "wholesalePrice": 62,
+    "minWholesaleQuantity": 2,
+    "stock": 4000,
+    "priceUnit": "Coil",
+    "packing": "50 m",
+    "shortDescription": "Flexible 1/2 inch braided water hose, sold by the 50 m coil and priced per metre.",
+    "description": "Kink-resistant nylon braided hose for water and air lines up to 10 bar. Wholesalers buy whole 50 m coils; customers can buy cut lengths from 5 m. The price shown is per metre.",
+    "tags": [
+      "hose",
+      "coil",
+      "water",
+      "per metre"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Bore",
+        "value": "1/2 inch (12.5 mm)"
+      },
+      {
+        "key": "Working pressure",
+        "value": "10 bar"
+      },
+      {
+        "key": "Pack",
+        "value": "50 m coil"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-bel-34.jpg",
+    "minCustomerQuantity": 5
+  },
+  {
+    "sku": "AP-RPE-08",
+    "name": "Polypropylene Utility Rope 8 mm, Twisted (Bundle of 100 m)",
+    "nameHindi": "पॉलीप्रोपिलीन यूटिलिटी रस्सी 8 मिमी (100 मीटर बंडल)",
+    "category": "cables-rope",
+    "mrp": 28,
+    "retailPrice": 22,
+    "wholesalePrice": 17,
+    "minWholesaleQuantity": 3,
+    "stock": 9000,
+    "priceUnit": "Bundle",
+    "packing": "100 m",
+    "shortDescription": "8 mm twisted utility rope in 100 m bundles, priced per metre.",
+    "description": "General purpose twisted polypropylene rope for site, packing and tie-down use. Wholesalers buy whole 100 m bundles; customers can buy cut lengths from 10 m. The price shown is per metre.",
+    "tags": [
+      "rope",
+      "bundle",
+      "per metre"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Diameter",
+        "value": "8 mm"
+      },
+      {
+        "key": "Material",
+        "value": "Polypropylene"
+      },
+      {
+        "key": "Pack",
+        "value": "100 m bundle"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-tpe-5m.jpg",
+    "minCustomerQuantity": 10
+  },
+  {
+    "sku": "AP-BLT-M12C",
+    "name": "Hex Bolt M12 x 80 mm, Galvanised, Grade 8.8 (Carton of 1000)",
+    "nameHindi": "हेक्स बोल्ट M12 x 80 मिमी, गैल्वनाइज़्ड (1000 का कार्टन)",
+    "category": "bulk-fasteners",
+    "mrp": 5200,
+    "retailPrice": 4600,
+    "wholesalePrice": 3600,
+    "minWholesaleQuantity": 2,
+    "stock": 400,
+    "priceUnit": "carton",
+    "packing": "Carton of 1000",
+    "shortDescription": "Contractor carton of 1,000 galvanised M12 hex bolts.",
+    "description": "Hot-dip galvanised M12 x 80 mm hex bolts, strength grade 8.8, packed 1,000 to a carton for contractors and wholesalers.",
+    "tags": [
+      "bolt",
+      "m12",
+      "bulk",
+      "carton"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "M12 x 80 mm"
+      },
+      {
+        "key": "Grade",
+        "value": "8.8"
+      },
+      {
+        "key": "Finish",
+        "value": "Hot-dip galvanised"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-hxb-m10.jpg"
+  },
+  {
+    "sku": "AP-ANC-16C",
+    "name": "Wedge Anchor 16 x 150 mm, Zinc Plated (Carton of 250)",
+    "nameHindi": "वेज एंकर 16 x 150 मिमी (250 का कार्टन)",
+    "category": "bulk-fasteners",
+    "mrp": 7800,
+    "retailPrice": 6900,
+    "wholesalePrice": 5400,
+    "minWholesaleQuantity": 2,
+    "stock": 300,
+    "priceUnit": "carton",
+    "packing": "Carton of 250",
+    "shortDescription": "Contractor carton of 250 heavy-duty wedge anchors.",
+    "description": "Heavy-duty 16 x 150 mm wedge anchors for concrete, packed 250 to a carton for contractors and wholesalers.",
+    "tags": [
+      "anchor",
+      "wedge",
+      "bulk",
+      "carton"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "16 x 150 mm"
+      },
+      {
+        "key": "Finish",
+        "value": "Zinc plated"
+      },
+      {
+        "key": "Base material",
+        "value": "Concrete"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-fra-10.jpg"
+  },
+  {
+    "sku": "KW-HMR-24V",
+    "name": "24V Cordless SDS-plus Rotary Hammer, 26 mm, 3 Modes (Bare Tool)",
+    "nameHindi": "24V कॉर्डलेस SDS-प्लस रोटरी हैमर, 26 मिमी (बेयर टूल)",
+    "category": "drills-drivers",
+    "mrp": 12999,
+    "retailPrice": 10999,
+    "wholesalePrice": 8900,
+    "minWholesaleQuantity": 3,
+    "stock": 250,
+    "priceUnit": "piece",
+    "packing": "1 piece (bare tool, side handle, depth stop)",
+    "shortDescription": "Coming soon: 24V brushless SDS-plus rotary hammer. Launch price shown.",
+    "description": "Brushless 24V SDS-plus rotary hammer with 3 modes and 2.6 J impact energy. Arriving soon; tap Notify me to hear the moment it is available.",
+    "tags": [
+      "rotary hammer",
+      "cordless",
+      "24v",
+      "new"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Voltage",
+        "value": "24 V Li-ion"
+      },
+      {
+        "key": "Impact energy",
+        "value": "2.6 J"
+      },
+      {
+        "key": "Chuck",
+        "value": "SDS-plus"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-rhd-800.jpg",
+    "comingSoon": {
+      "enabled": true,
+      "showPrice": true,
+      "expectedInDays": 14,
+      "autoLaunch": false
+    }
+  },
+  {
+    "sku": "BG-WLD-AF",
+    "name": "Auto-Darkening Welding Helmet, Shade 9-13, Solar Assist",
+    "nameHindi": "ऑटो-डार्कनिंग वेल्डिंग हेलमेट, शेड 9-13",
+    "category": "head-eye-protection",
+    "mrp": 3499,
+    "retailPrice": 2899,
+    "wholesalePrice": 2300,
+    "minWholesaleQuantity": 5,
+    "stock": 400,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "Coming soon: auto-darkening welding helmet. Price to be announced at launch.",
+    "description": "Auto-darkening welding helmet with adjustable shade 9-13 and solar assist. Price will be announced at launch; tap Notify me.",
+    "tags": [
+      "welding",
+      "helmet",
+      "safety",
+      "new"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Shade",
+        "value": "9-13 adjustable"
+      },
+      {
+        "key": "Power",
+        "value": "Solar assist"
+      },
+      {
+        "key": "Reaction time",
+        "value": "1/25000 s"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/bg-hlm-rt.jpg",
+    "comingSoon": {
+      "enabled": true,
+      "showPrice": false,
+      "expectedInDays": 30,
+      "autoLaunch": false
+    }
+  },
+  {
+    "sku": "KW-MSD-1200",
+    "name": "1200 W Compound Mitre Saw 254 mm, Laser Guide (Blade Included)",
+    "nameHindi": "1200 W कंपाउंड मीटर सॉ 254 मिमी, लेज़र गाइड",
+    "category": "saws",
+    "mrp": 11999,
+    "retailPrice": 9999,
+    "wholesalePrice": 8200,
+    "minWholesaleQuantity": 3,
+    "stock": 150,
+    "priceUnit": "piece",
+    "packing": "1 piece + 40T blade",
+    "shortDescription": "Coming soon: 254 mm compound mitre saw. Goes live automatically in a few days.",
+    "description": "254 mm compound mitre saw with laser guide and 40T blade. Goes on sale automatically on its launch date, and everyone who tapped Notify me gets a message.",
+    "tags": [
+      "mitre saw",
+      "saw",
+      "new"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Power",
+        "value": "1200 W"
+      },
+      {
+        "key": "Blade",
+        "value": "254 mm, 40T"
+      },
+      {
+        "key": "Cutting depth",
+        "value": "90 mm"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/kw-csw-1200.jpg",
+    "comingSoon": {
+      "enabled": true,
+      "showPrice": true,
+      "expectedInDays": 3,
+      "autoLaunch": true
+    }
+  },
+  {
+    "sku": "AP-TBX-24",
+    "name": "Steel Tool Box 24 inch, 3 Tray, Powder Coated",
+    "nameHindi": "स्टील टूल बॉक्स 24 इंच, 3 ट्रे",
+    "category": "wrenches-pliers",
+    "mrp": 2999,
+    "retailPrice": 2499,
+    "wholesalePrice": 1900,
+    "minWholesaleQuantity": 5,
+    "stock": 300,
+    "priceUnit": "piece",
+    "packing": "1 piece",
+    "shortDescription": "Coming soon: 24 inch steel tool box. No date yet.",
+    "description": "Powder-coated steel tool box with three trays and a lockable lid. Launch date not fixed yet; tap Notify me.",
+    "tags": [
+      "tool box",
+      "storage",
+      "new"
+    ],
+    "isFeatured": false,
+    "isHot": false,
+    "specifications": [
+      {
+        "key": "Size",
+        "value": "24 inch"
+      },
+      {
+        "key": "Trays",
+        "value": "3"
+      },
+      {
+        "key": "Finish",
+        "value": "Powder coated"
+      }
+    ],
+    "negotiationEnabled": true,
+    "image": "products/ap-css-12.jpg",
+    "comingSoon": {
+      "enabled": true,
+      "showPrice": true,
+      "expectedInDays": null,
+      "autoLaunch": false
+    }
   }
 ]

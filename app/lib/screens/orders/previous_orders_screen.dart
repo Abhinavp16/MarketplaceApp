@@ -1,17 +1,22 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers/auth_provider.dart';
+import '../../core/services/order_export_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/customer_order_presentation.dart';
 import '../../core/utils/order_pagination.dart';
+import '../../widgets/app_image.dart';
 import '../../widgets/order_checkout_actions_sheet.dart';
+import '../../widgets/state_city_pincode_fields.dart';
+import '../../widgets/ui/ui.dart';
 import '../../core/theme/app_fonts.dart';
 import '../../core/utils/number_formatter.dart';
 import '../../l10n/l10n.dart';
+import 'order_parts.dart';
 
 class PreviousOrdersScreen extends ConsumerStatefulWidget {
   const PreviousOrdersScreen({super.key});
@@ -25,6 +30,11 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
   List<Map<String, dynamic>> _orders = [];
   bool _isLoading = true;
   bool _loadFailed = false;
+  final Set<String> _expanded = {};
+  String? _sendingReceiptFor;
+
+  /// Cards built in the first frame after loading fade in; later ones don't.
+  bool _animateEntrance = true;
 
   @override
   void initState() {
@@ -65,6 +75,9 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
         _orders = allOrders;
         _isLoading = false;
       });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _animateEntrance = false;
+      });
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -89,119 +102,83 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
     ).format(parsed.toLocal());
   }
 
-  Color _statusColor(String status) => CustomerOrderPresentation.color(status);
-
   String _statusLabel(String status) =>
       CustomerOrderPresentation.label(context.l10n, status);
 
-  IconData _statusIcon(String status) => CustomerOrderPresentation.icon(status);
+  String _orderKey(Map<String, dynamic> order, int index) =>
+      order['id']?.toString() ?? order['orderNumber']?.toString() ?? '$index';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
-        ),
-        title: Text(
-          context.l10n.ordersTitle,
-          style: AppFonts.jakarta(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        centerTitle: true,
+      appBar: AppHeader(title: context.l10n.ordersTitle),
+      body: AnimatedSwitcher(
+        duration: AppMotion.of(context, AppMotion.base),
+        switchInCurve: AppMotion.standard,
+        switchOutCurve: AppMotion.exit,
+        child: _buildBody(),
       ),
-      body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+    if (_isLoading && _orders.isEmpty) {
+      return SkeletonShimmer(
+        key: const ValueKey('loading'),
+        child: ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          itemCount: 4,
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
+          itemBuilder: (_, _) => const OrderCardSkeleton(),
+        ),
+      );
     }
 
     final l10n = context.l10n;
     if (_loadFailed) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 12),
-            Text(
-              l10n.ordersLoadFailed,
-              style: AppFonts.jakarta(
-                fontSize: 16,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchOrders,
-              child: Text(l10n.commonRetry),
-            ),
-          ],
-        ),
+      return EmptyState(
+        key: const ValueKey('error'),
+        icon: HugeIcons.strokeRoundedAlert02,
+        tone: ChipTone.error,
+        title: l10n.ordersLoadFailed,
+        actionLabel: l10n.commonRetry,
+        onAction: _fetchOrders,
       );
     }
 
     if (_orders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.receipt_long_outlined,
-              size: 64,
-              color: AppColors.gray300,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.ordersEmpty,
-              style: AppFonts.jakarta(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => context.go('/home'),
-              child: Text(
-                l10n.ordersStartShopping,
-                style: AppFonts.jakarta(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
+      return EmptyState(
+        key: const ValueKey('empty'),
+        icon: HugeIcons.strokeRoundedPackage,
+        title: l10n.ordersEmpty,
+        actionLabel: l10n.ordersStartShopping,
+        onAction: () => context.go('/home'),
       );
     }
 
     return RefreshIndicator(
+      key: const ValueKey('list'),
       onRefresh: _fetchOrders,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+      color: AppColors.primary,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         itemCount: _orders.length,
-        itemBuilder: (_, index) => _buildOrderCard(_orders[index]),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
+        itemBuilder: (_, index) => _FadeSlideIn(
+          animate: _animateEntrance && index < 6,
+          child: _buildOrderCard(_orders[index], index),
+        ),
       ),
     );
   }
 
-  Widget _buildOrderCard(Map<String, dynamic> order) {
+  Widget _buildOrderCard(Map<String, dynamic> order, int index) {
     final l10n = context.l10n;
     final fulfillmentStatus = order['status']?.toString() ?? '';
     final status = CustomerOrderPresentation.stage(order);
-    final statusColor = _statusColor(status);
     final items = order['items'] as List<dynamic>? ?? [];
     final orderNumber = order['orderNumber']?.toString() ?? '';
     final orderType = order['orderType']?.toString() == 'wholesale'
@@ -210,146 +187,155 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
     final isNegotiated =
         order['negotiationId'] != null &&
         order['negotiationId'].toString().isNotEmpty;
+    final key = _orderKey(order, index);
+    final expanded = _expanded.contains(key);
+    final duration = AppMotion.of(context, AppMotion.base);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
-        childrenPadding: EdgeInsets.zero,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        title: Text(
-          orderNumber,
-          style: AppFonts.jakarta(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isNegotiated
-                    ? l10n.ordersCardSubtitleNegotiated(
-                        orderType,
-                        _formatDate(order['createdAt']),
-                      )
-                    : l10n.ordersCardSubtitle(
-                        orderType,
-                        _formatDate(order['createdAt']),
-                      ),
-                style: AppFonts.jakarta(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              if (isNegotiated) ...[
-                const SizedBox(height: 5),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF134E4A).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+    return AppCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Pressable(
+            onTap: () => setState(() {
+              if (!_expanded.remove(key)) _expanded.add(key);
+            }),
+            scale: 0.99,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            semanticLabel: orderNumber,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.handshake_outlined,
-                        size: 13,
-                        color: Color(0xFF134E4A),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              orderNumber,
+                              style: AppFonts.jakarta(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              isNegotiated
+                                  ? l10n.ordersCardSubtitleNegotiated(
+                                      orderType,
+                                      _formatDate(order['createdAt']),
+                                    )
+                                  : l10n.ordersCardSubtitle(
+                                      orderType,
+                                      _formatDate(order['createdAt']),
+                                    ),
+                              style: AppFonts.jakarta(
+                                fontSize: 12,
+                                color: AppColors.textTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            _rupees(order['total'] as num?),
+                            style: AppText.price(fontSize: 16),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            l10n.commonItemsCount(items.length),
+                            style: AppFonts.jakarta(
+                              fontSize: 12,
+                              color: AppColors.textTertiary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      StatusChip(
+                        label: _statusLabel(status),
+                        tone: CustomerOrderPresentation.chipTone(status),
+                        icon: CustomerOrderPresentation.hugeIcon(status),
+                      ),
+                      if (isNegotiated)
+                        StatusChip(
+                          label: l10n.ordersNegotiatedChip,
+                          tone: ChipTone.neutral,
+                          icon: HugeIcons.strokeRoundedAgreement01,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  OrderProgressBar(
+                    value: CustomerOrderPresentation.progress(order),
+                    color: CustomerOrderPresentation.toneColor(status),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      _ItemThumbs(items: items),
+                      const Spacer(),
                       Text(
-                        l10n.ordersNegotiatedChip,
+                        expanded ? l10n.ordHideDetails : l10n.commonViewDetails,
                         style: AppFonts.jakarta(
-                          fontSize: 10,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF134E4A),
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      AnimatedRotation(
+                        turns: expanded ? 0.5 : 0,
+                        duration: duration,
+                        curve: AppMotion.standard,
+                        child: const HugeIcon(
+                          icon: HugeIcons.strokeRoundedArrowDown01,
+                          size: 18,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-              const SizedBox(height: 7),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(_statusIcon(status), size: 13, color: statusColor),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        _statusLabel(status),
-                        style: AppFonts.jakarta(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: statusColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              _rupees(order['total'] as num?),
-              style: AppFonts.jakarta(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            Text(
-              l10n.commonItemsCount(items.length),
-              style: AppFonts.jakarta(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-        children: [
-          const Divider(height: 1, color: AppColors.border),
-          _buildItems(items),
-          const Divider(height: 1, color: AppColors.border),
-          _buildPriceBreakdown(order),
-          _buildShippingAddress(order),
-          _buildTrackingDetails(order),
-          _buildRejectionDetails(order),
-          _buildStatusHistory(order),
-          _buildActions(order, fulfillmentStatus),
+          AnimatedSize(
+            duration: duration,
+            curve: AppMotion.standard,
+            alignment: Alignment.topCenter,
+            child: !expanded
+                ? const SizedBox(width: double.infinity)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(height: 1),
+                      _buildItems(items),
+                      const Divider(height: 1),
+                      _buildPriceBreakdown(order),
+                      _buildShippingAddress(order),
+                      _buildTrackingDetails(order),
+                      _buildRejectionDetails(order),
+                      _buildStatusHistory(order),
+                      _buildActions(order, fulfillmentStatus, key),
+                    ],
+                  ),
+          ),
         ],
       ),
     );
@@ -357,115 +343,98 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
 
   Widget _buildItems(List<dynamic> items) {
     final l10n = context.l10n;
-    return Column(
-      children: items.map<Widget>((rawItem) {
-        final item = rawItem as Map<String, dynamic>;
-        final image = item['image']?.toString();
-        final quantity = item['quantity'] as num? ?? 1;
-        final price = item['pricePerUnit'] as num? ?? 0;
-        final totalPrice = item['totalPrice'] as num? ?? quantity * price;
-        final mrpPerUnit = item['mrpPerUnit'] as num?;
-        final discountPercent = item['discountPercent'] as num?;
-        final hasCatalogDiscount =
-            discountPercent != null &&
-            discountPercent > 0 &&
-            mrpPerUnit != null &&
-            mrpPerUnit > price;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        children: items.map<Widget>((rawItem) {
+          final item = rawItem as Map<String, dynamic>;
+          final image = item['image']?.toString();
+          final quantity = item['quantity'] as num? ?? 1;
+          final price = item['pricePerUnit'] as num? ?? 0;
+          final totalPrice = item['totalPrice'] as num? ?? quantity * price;
+          final mrpPerUnit = item['mrpPerUnit'] as num?;
+          final discountPercent = item['discountPercent'] as num?;
+          final hasCatalogDiscount =
+              discountPercent != null &&
+              discountPercent > 0 &&
+              mrpPerUnit != null &&
+              mrpPerUnit > price;
+          final name = localizedName(
+            context,
+            item,
+            fallback: l10n.ordersProductFallback,
+          );
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: image != null && image.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: image,
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, _, _) => _imagePlaceholder(),
-                      )
-                    : _imagePlaceholder(),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      localizedName(
-                        context,
-                        item,
-                        fallback: l10n.ordersProductFallback,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Thumb(image: image, name: name, size: 48),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.jakarta(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                      style: AppFonts.jakarta(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.ordersItemQtyPrice(
-                        NumberFormatter.formatPrice(quantity),
-                        _fmt(price),
-                      ),
-                      style: AppFonts.jakarta(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    if (hasCatalogDiscount) ...[
                       const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Text(
-                            l10n.ordersMrpValue(_fmt(mrpPerUnit)),
-                            style: AppFonts.jakarta(
-                              fontSize: 11,
-                              color: AppColors.textSecondary,
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            l10n.commonPercentOff(
-                              '${discountPercent % 1 == 0 ? discountPercent.toInt() : discountPercent}',
-                            ),
-                            style: AppFonts.jakarta(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF15803D),
-                            ),
-                          ),
-                        ],
+                      Text(
+                        l10n.ordersItemQtyPrice(
+                          NumberFormatter.formatPrice(quantity),
+                          _fmt(price),
+                        ),
+                        style: AppFonts.jakarta(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
+                      if (hasCatalogDiscount) ...[
+                        const SizedBox(height: 2),
+                        Wrap(
+                          spacing: 6,
+                          children: [
+                            Text(
+                              l10n.ordersMrpValue(_fmt(mrpPerUnit)),
+                              style: AppText.mrp(fontSize: 11),
+                            ),
+                            Text(
+                              l10n.commonPercentOff(
+                                '${discountPercent % 1 == 0 ? discountPercent.toInt() : discountPercent}',
+                              ),
+                              style: AppFonts.jakarta(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              Text(
-                _rupees(totalPrice),
-                style: AppFonts.jakarta(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                const SizedBox(width: 8),
+                Text(
+                  _rupees(totalPrice),
+                  style: AppText.price(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _imagePlaceholder() {
-    return Container(
-      width: 50,
-      height: 50,
-      color: AppColors.gray100,
-      child: const Icon(Icons.image_outlined, size: 20),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -474,65 +443,42 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
     final delivery = order['deliveryFee'] as num? ?? 0;
     final discount = order['discount'] as num? ?? 0;
     final l10n = context.l10n;
+    // Delivery is added by DemoMart when it accepts the order.
+    final awaitingAcceptance =
+        order['acceptanceStatus']?.toString().toLowerCase() == 'pending';
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
       child: Column(
         children: [
-          _detailRow(l10n.commonSubtotal, _rupees(subtotal)),
-          const SizedBox(height: 6),
-          _detailRow(
-            l10n.ordersDelivery,
-            delivery == 0 ? l10n.ordersFree : _rupees(delivery),
+          SummaryRow(label: l10n.commonSubtotal, value: _rupees(subtotal)),
+          SummaryRow(
+            label: l10n.ordersDelivery,
+            value: awaitingAcceptance && delivery == 0
+                ? l10n.dealDeliveryOnConfirmation
+                : delivery == 0
+                ? l10n.ordersFree
+                : _rupees(delivery),
           ),
-          if (discount > 0) ...[
-            const SizedBox(height: 6),
-            _detailRow(
-              l10n.cartDiscount,
-              l10n.cartMinusRupees(_fmt(discount)),
-              valueColor: AppColors.success,
+          if (discount > 0)
+            SummaryRow(
+              label: l10n.cartDiscount,
+              value: l10n.cartMinusRupees(_fmt(discount)),
+              valueColor: AppColors.primary,
             ),
-          ],
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: AppColors.border),
+            padding: EdgeInsets.symmetric(vertical: 6),
+            child: Divider(height: 1),
           ),
-          _detailRow(
-            l10n.cartGrandTotal,
-            _rupees(order['total'] as num?),
-            bold: true,
+          SummaryRow(
+            label: awaitingAcceptance
+                ? l10n.dealEstimatedTotal
+                : l10n.cartGrandTotal,
+            value: _rupees(order['total'] as num?),
+            emphasize: true,
           ),
         ],
       ),
-    );
-  }
-
-  Widget _detailRow(
-    String label,
-    String value, {
-    bool bold = false,
-    Color? valueColor,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppFonts.jakarta(
-            fontSize: 13,
-            fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        Text(
-          value,
-          style: AppFonts.jakarta(
-            fontSize: bold ? 16 : 13,
-            fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-            color: valueColor ?? AppColors.textPrimary,
-          ),
-        ),
-      ],
     );
   }
 
@@ -540,17 +486,21 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
     final rawAddress = order['shippingAddress'];
     if (rawAddress is! Map) return const SizedBox.shrink();
     final address = Map<String, dynamic>.from(rawAddress);
+    final state = address['state']?.toString() ?? '';
     final addressLines = [
       address['addressLine1'],
       address['addressLine2'],
-      [address['city'], address['state']]
+      [
+            address['city'],
+            state.isEmpty ? null : localizedStateName(context, state),
+          ]
           .where((value) => value != null && value.toString().isNotEmpty)
           .join(', '),
       address['pincode'],
     ].where((value) => value != null && value.toString().trim().isNotEmpty);
 
     return _infoSection(
-      icon: Icons.location_on_outlined,
+      icon: HugeIcons.strokeRoundedLocation01,
       title: context.l10n.checkoutShippingAddress,
       children: [
         Text(
@@ -572,13 +522,7 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
         ),
         if (address['phone']?.toString().isNotEmpty == true) ...[
           const SizedBox(height: 3),
-          Text(
-            address['phone'].toString(),
-            style: AppFonts.jakarta(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-            ),
-          ),
+          Text(address['phone'].toString(), style: _infoTextStyle()),
         ],
       ],
     );
@@ -593,7 +537,7 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
     }
 
     return _infoSection(
-      icon: Icons.local_shipping_outlined,
+      icon: HugeIcons.strokeRoundedDeliveryTruck01,
       title: context.l10n.ordersDeliveryDetails,
       children: [
         if (courier != null && courier.isNotEmpty)
@@ -615,17 +559,16 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
       return const SizedBox.shrink();
     }
     final reason = order['rejectionReason']?.toString().trim();
-    return _infoSection(
-      icon: Icons.block_rounded,
-      title: context.l10n.ordersRejectedTitle,
-      children: [
-        Text(
-          reason == null || reason.isEmpty
-              ? context.l10n.ordersRejectedNoReason
-              : reason,
-          style: _infoTextStyle(),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: OrderInfoPanel(
+        title: context.l10n.ordersRejectedTitle,
+        message: reason == null || reason.isEmpty
+            ? context.l10n.ordersRejectedNoReason
+            : reason,
+        tone: ChipTone.error,
+        icon: HugeIcons.strokeRoundedCancelCircle,
+      ),
     );
   }
 
@@ -634,7 +577,7 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
     if (history.isEmpty) return const SizedBox.shrink();
 
     return _infoSection(
-      icon: Icons.history_rounded,
+      icon: HugeIcons.strokeRoundedWorkHistory,
       title: context.l10n.ordersStatusHistory,
       children: history.reversed.map<Widget>((raw) {
         final entry = raw as Map;
@@ -648,9 +591,9 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
               Container(
                 width: 8,
                 height: 8,
-                margin: const EdgeInsets.only(top: 5, right: 8),
+                margin: const EdgeInsets.only(top: 5, right: 10),
                 decoration: BoxDecoration(
-                  color: _statusColor(status),
+                  color: CustomerOrderPresentation.toneColor(status),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -661,7 +604,7 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
                     Text(
                       _statusLabel(status),
                       style: AppFonts.jakarta(
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
@@ -697,35 +640,53 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.gray50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.gray100),
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 17, color: AppColors.primary),
-              const SizedBox(width: 7),
-              Text(
-                title,
-                style: AppFonts.jakarta(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+              HugeIcon(icon: icon, size: 17, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppFonts.jakarta(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 9),
+          const SizedBox(height: 8),
           ...children,
         ],
       ),
     );
   }
 
-  Widget _buildActions(Map<String, dynamic> order, String status) {
+  Future<void> _sendReceipt(Map<String, dynamic> order, String key) async {
+    if (_sendingReceiptFor != null) return;
+    setState(() => _sendingReceiptFor = key);
+    final api = ref.read(apiClientProvider);
+    try {
+      // The order has `id`, not the checkout's `orderId`; wrap it the way the
+      // checkout response looks so the same PDF / share flow works.
+      await OrderCheckoutActionsSheet.handleSuccessfulCheckout(
+        context: context,
+        apiClient: api,
+        responseData: OrderExportService.receiptResponseFromOrder(order),
+      );
+    } finally {
+      if (mounted) setState(() => _sendingReceiptFor = null);
+    }
+  }
+
+  Widget _buildActions(Map<String, dynamic> order, String status, String key) {
     final orderId = order['id']?.toString() ?? '';
     final trackingNumber = order['trackingNumber']?.toString();
     final canShareReceipt =
@@ -736,83 +697,189 @@ class _PreviousOrdersScreenState extends ConsumerState<PreviousOrdersScreen> {
     ).isNotEmpty;
     final l10n = context.l10n;
 
+    final actions = <Widget>[
+      if (canShareReceipt)
+        AppButton(
+          label: l10n.ordersSendReceipt,
+          icon: HugeIcons.strokeRoundedInvoice01,
+          variant: AppButtonVariant.secondary,
+          size: AppButtonSize.medium,
+          expand: false,
+          loading: _sendingReceiptFor == key,
+          onPressed: () => _sendReceipt(order, key),
+        ),
+      if (trackingNumber != null && trackingNumber.isNotEmpty)
+        AppButton(
+          label: l10n.ordersTrackOrder,
+          icon: HugeIcons.strokeRoundedDeliveryTruck01,
+          size: AppButtonSize.medium,
+          expand: false,
+          onPressed: () => context.push('/tracking/$orderId'),
+        )
+      else if (hasAcceptance ||
+          status == 'payment_verified' ||
+          status == 'processing')
+        AppButton(
+          label: l10n.ordersViewStatus,
+          icon: HugeIcons.strokeRoundedWorkHistory,
+          variant: AppButtonVariant.secondary,
+          size: AppButtonSize.medium,
+          expand: false,
+          onPressed: () => context.push('/tracking/$orderId'),
+        ),
+      if (status == 'delivered')
+        StatusChip(
+          label: l10n.statusDelivered,
+          tone: ChipTone.success,
+          icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+        ),
+      if (status == 'cancelled')
+        StatusChip(
+          label: l10n.statusCancelled,
+          tone: ChipTone.error,
+          icon: HugeIcons.strokeRoundedCancel01,
+        ),
+    ];
+    if (actions.isEmpty) return const SizedBox(height: 4);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: Wrap(
-        alignment: WrapAlignment.end,
-        spacing: 10,
-        runSpacing: 10,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Wrap(
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 10,
+          runSpacing: 10,
+          children: actions,
+        ),
+      ),
+    );
+  }
+}
+
+class _Thumb extends StatelessWidget {
+  const _Thumb({required this.image, required this.name, required this.size});
+
+  final String? image;
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: AppColors.gray50,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.xs),
+        child: AppImage(
+          imageUrl: image ?? '',
+          category: '',
+          name: name,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+}
+
+/// Up to three overlapping item thumbnails for the order card header.
+class _ItemThumbs extends StatelessWidget {
+  const _ItemThumbs({required this.items});
+
+  final List<dynamic> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = items.whereType<Map>().take(3).toList();
+    if (shown.isEmpty) return const SizedBox.shrink();
+    const size = 32.0;
+    const step = 22.0;
+    return SizedBox(
+      width: size + (shown.length - 1) * step,
+      height: size,
+      child: Stack(
         children: [
-          if (canShareReceipt)
-            OutlinedButton.icon(
-              onPressed: () async {
-                final api = ref.read(apiClientProvider);
-                await OrderCheckoutActionsSheet.handleSuccessfulCheckout(
-                  context: context,
-                  apiClient: api,
-                  responseData: {'success': true, 'data': order},
-                );
-              },
-              icon: const Icon(Icons.receipt_long_outlined, size: 17),
-              label: Text(l10n.ordersSendReceipt),
-            ),
-          if (trackingNumber != null && trackingNumber.isNotEmpty)
-            FilledButton.icon(
-              onPressed: () => context.push('/tracking/$orderId'),
-              icon: const Icon(Icons.local_shipping_rounded, size: 17),
-              label: Text(l10n.ordersTrackOrder),
-            )
-          else if (hasAcceptance ||
-              status == 'payment_verified' ||
-              status == 'processing')
-            OutlinedButton.icon(
-              onPressed: () => context.push('/tracking/$orderId'),
-              icon: const Icon(Icons.timeline_rounded, size: 17),
-              label: Text(l10n.ordersViewStatus),
-            ),
-          if (status == 'delivered')
-            _terminalChip(
-              label: l10n.statusDelivered,
-              icon: Icons.check_circle_rounded,
-              color: const Color(0xFF22C55E),
-            ),
-          if (status == 'cancelled')
-            _terminalChip(
-              label: l10n.statusCancelled,
-              icon: Icons.cancel_rounded,
-              color: AppColors.error,
+          for (var i = 0; i < shown.length; i++)
+            Positioned(
+              left: i * step,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceLight,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: _Thumb(
+                  image: shown[i]['image']?.toString(),
+                  name: shown[i]['name']?.toString() ?? '',
+                  size: size,
+                ),
+              ),
             ),
         ],
       ),
     );
   }
+}
 
-  Widget _terminalChip({
-    required String label,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: AppFonts.jakarta(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ],
+/// Short fade + upward drift the first time the list appears.
+class _FadeSlideIn extends StatefulWidget {
+  const _FadeSlideIn({required this.child, required this.animate});
+
+  final Widget child;
+  final bool animate;
+
+  @override
+  State<_FadeSlideIn> createState() => _FadeSlideInState();
+}
+
+class _FadeSlideInState extends State<_FadeSlideIn>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 220),
+  );
+  bool _started = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    if (!widget.animate || AppMotion.reduced(context)) {
+      _controller.value = 1;
+      return;
+    }
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final curved = CurvedAnimation(
+      parent: _controller,
+      curve: AppMotion.standard,
+    );
+    return FadeTransition(
+      opacity: curved,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.04),
+          end: Offset.zero,
+        ).animate(curved),
+        child: widget.child,
       ),
     );
   }

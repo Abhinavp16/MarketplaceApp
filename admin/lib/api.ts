@@ -157,11 +157,43 @@ export function getUser() {
   return user ? JSON.parse(user) : null
 }
 
+const SESSION_KEYS = ['accessToken', 'refreshToken', 'user', 'loginAt', 'sessionExpiresAt']
+// Browser-alert token (see lib/hooks/useAdminPush.ts). Signing out stops alerts for this
+// account on this browser; the admin's "alerts on" preference is kept and restored at next sign-in.
+const PUSH_TOKEN_KEY = 'adminFcmToken'
+
+// Signs out: the server ends the session (its refresh token stops working)
+// and the stored session is cleared. The server call is best-effort so
+// signing out never waits on the network.
+export function endSession() {
+  try {
+    const refreshToken = localStorage.getItem('refreshToken')
+    const accessToken = localStorage.getItem('accessToken')
+    const pushToken = localStorage.getItem(PUSH_TOKEN_KEY)
+    if (pushToken && accessToken) {
+      fetch(buildApiUrl('/notifications/unregister-token'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+        body: JSON.stringify({ fcmToken: pushToken }),
+        keepalive: true,
+      }).catch(() => {})
+    }
+    if (refreshToken) {
+      fetch(buildApiUrl('/auth/logout'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({ refreshToken }),
+        keepalive: true,
+      }).catch(() => {})
+    }
+  } catch {}
+  for (const key of [...SESSION_KEYS, PUSH_TOKEN_KEY]) localStorage.removeItem(key)
+}
+
 export function logout() {
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('refreshToken')
-  localStorage.removeItem('user')
-  localStorage.removeItem('loginAt')
-  localStorage.removeItem('sessionExpiresAt')
+  endSession()
   window.location.href = '/login'
 }

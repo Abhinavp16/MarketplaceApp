@@ -40,14 +40,21 @@ export function normalizeFeaturedProduct(product, index = 0) {
         : [];
 
     const mrp = Number(product?.mrp) || 0;
+    const comingSoon = product?.comingSoon === true;
+    const priceHidden = comingSoon && product?.priceHidden === true;
+    const price = priceHidden
+        ? 'Price coming soon'
+        : String(product?.price || (mrp > 0 ? `MRP: Rs. ${mrp}` : 'Request Quote')).trim();
 
     return {
         name: String(product?.name || `Product ${index + 1}`).trim(),
-        price: String(product?.price || (mrp > 0 ? `MRP: Rs. ${mrp}` : 'Request Quote')).trim(),
-        mrp,
+        price,
+        mrp: priceHidden ? 0 : mrp,
+        comingSoon,
+        priceHidden,
         image: String(product?.image || images[0] || featuredProductFallbackImage).trim(),
         images,
-        badge: String(product?.badge || '').trim(),
+        badge: comingSoon ? 'Coming Soon' : String(product?.badge || '').trim(),
         badgeStyle: String(product?.badgeStyle || '').trim(),
         description: String(product?.description || '').trim(),
         shortDescription: String(product?.shortDescription || '').trim(),

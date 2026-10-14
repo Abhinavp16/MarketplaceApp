@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
+
 import '../core/theme/app_fonts.dart';
+import '../core/theme/app_theme.dart';
 import '../l10n/l10n.dart';
 
 class VerifiedSellerBadge extends StatelessWidget {
@@ -16,17 +19,19 @@ class VerifiedSellerBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconSize = compact ? 12.0 : 14.0;
-    final fontSize = compact ? 11.0 : 12.5;
-    final vPad = compact ? 4.0 : 5.5;
-    final hPad = compact ? 9.0 : 11.0;
-    final plainIconSize = compact ? 22.0 : 24.0;
+    final iconSize = compact ? 14.0 : 16.0;
+    final fontSize = compact ? 11.5 : 12.5;
+    final vPad = compact ? 4.0 : 5.0;
+    final hPad = compact ? 8.0 : 10.0;
+    final plainIconSize = compact ? 20.0 : 22.0;
+
+    const tick = HugeIcons.strokeRoundedCheckmarkBadge01;
 
     if (!showLabel && !showTickBackground) {
-      return Icon(
-        Icons.verified_rounded,
+      return HugeIcon(
+        icon: tick,
         size: plainIconSize,
-        color: const Color(0xFF3B82F6),
+        color: AppColors.primary,
       );
     }
 
@@ -35,13 +40,15 @@ class VerifiedSellerBadge extends StatelessWidget {
         width: compact ? 40 : 44,
         height: compact ? 28 : 30,
         decoration: BoxDecoration(
-          color: const Color(0xFFE8F0FF),
-          borderRadius: BorderRadius.circular(14),
+          color: AppColors.primarySoft,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
         ),
-        child: Icon(
-          Icons.verified_rounded,
-          size: plainIconSize,
-          color: const Color(0xFF3B82F6),
+        child: Center(
+          child: HugeIcon(
+            icon: tick,
+            size: plainIconSize,
+            color: AppColors.primary,
+          ),
         ),
       );
     }
@@ -49,33 +56,21 @@ class VerifiedSellerBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F0FF),
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.primarySoft,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: compact ? 18 : 20,
-            height: compact ? 18 : 20,
-            decoration: const BoxDecoration(
-              color: Color(0xFF3B82F6),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.verified_rounded,
-              size: iconSize,
-              color: Colors.white,
-            ),
-          ),
+          HugeIcon(icon: tick, size: iconSize, color: AppColors.primary),
           if (showLabel) ...[
-            SizedBox(width: compact ? 6 : 7),
+            SizedBox(width: compact ? 4 : 6),
             Text(
               context.l10n.productVerifiedSeller,
               style: AppFonts.jakarta(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E3A8A),
+                color: AppColors.primaryDeep,
               ),
             ),
           ],

@@ -3,7 +3,7 @@
 Generates the *synthetic* images shipped in assets/demo-images/:
 
   * brands/*.png        - minimal wordmark logos for the three fictional brands
-  * logo.png            - "TradeHub Demo" wordmark
+  * logo.png            - "DemoMart Distribution" wordmark
   * payments/*.png      - a fake payment receipt
   * ../demo-private/*   - fake wholesaler application proofs
 
@@ -32,7 +32,7 @@ BRANDS = {
     'kestrel': {'color': (232, 89, 12), 'word': ('KESTREL', 'WORKS')},
     'anvilpoint': {'color': (28, 126, 214), 'word': ('ANVILPOINT', 'HAND TOOLS')},
     'brightguard': {'color': (47, 158, 68), 'word': ('BRIGHTGUARD', 'SAFETY')},
-    'tradehub': {'color': (13, 148, 136), 'word': ('TRADEHUB', 'DEMO')},
+    'demomart': {'color': (13, 148, 136), 'word': ('DEMOMART', 'DISTRIBUTION')},
 }
 
 
@@ -91,14 +91,14 @@ def mark_brightguard(d, ox, oy, s, color):
         d.polygon(_pts(ox, oy, s, tri), fill=white)
 
 
-def mark_tradehub(d, ox, oy, s, color):
+def mark_demomart(d, ox, oy, s, color):
     """Stacked crates."""
     d.rounded_rectangle([ox + 4 * s, oy + 52 * s, ox + 48 * s, oy + 96 * s], radius=6 * s, fill=color)
     d.rounded_rectangle([ox + 52 * s, oy + 52 * s, ox + 96 * s, oy + 96 * s], radius=6 * s, fill=color)
     d.rounded_rectangle([ox + 28 * s, oy + 6 * s, ox + 72 * s, oy + 48 * s], radius=6 * s, fill=(94, 234, 212))
 
 
-MARKS = {'kestrel': mark_kestrel, 'anvilpoint': mark_anvilpoint, 'brightguard': mark_brightguard, 'tradehub': mark_tradehub}
+MARKS = {'kestrel': mark_kestrel, 'anvilpoint': mark_anvilpoint, 'brightguard': mark_brightguard, 'demomart': mark_demomart}
 
 
 def lockup(key, w, h, horizontal=False):
@@ -157,11 +157,11 @@ def sysfont(size, bold=False):
 def receipt():
     img = Image.new('RGB', (600, 800), 'white')
     d = ImageDraw.Draw(img)
-    d.rectangle([0, 0, 600, 90], fill=BRANDS['tradehub']['color'])
+    d.rectangle([0, 0, 600, 90], fill=BRANDS['demomart']['color'])
     d.text((30, 28), 'DEMO PAYMENT PROOF', font=sysfont(32, True), fill='white')
     y = 130
     for row in ['Transfer reference: DEMO-TRF-0001', 'Amount: 21,600.00 INR', 'Status: SUCCESS',
-                'Beneficiary: TradeHub Distribution (Demo)', '', 'Sample image - no real transaction.']:
+                'Beneficiary: DemoMart Distribution (Demo)', '', 'Sample image - no real transaction.']:
         d.text((30, y), row, font=sysfont(24), fill='#1B1B1F')
         y += 44
     return img
@@ -185,7 +185,7 @@ def main():
         brands = json.load(fh)
     for b in brands:
         save(lockup(b['key'], 600, 600), b['logo'])
-    save(lockup('tradehub', 1000, 300, horizontal=True), 'logo.png')
+    save(lockup('demomart', 1000, 300, horizontal=True), 'logo.png')
     save(receipt(), 'payments/sample-payment-proof.png')
     private_dir = os.path.join(ROOT, 'assets', 'demo-private')
     os.makedirs(private_dir, exist_ok=True)

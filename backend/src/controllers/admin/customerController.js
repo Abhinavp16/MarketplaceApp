@@ -1,4 +1,5 @@
-const { User, Order, Negotiation, DeviceToken, Notification } = require('../../models');
+const { User, Order, Negotiation, DeviceToken, Notification, Company } = require('../../models');
+const { recordAudit } = require('../../services/auditService');
 const { getSignedReadUrl } = require('../../config/storage');
 const notificationService = require('../../services/notificationService');
 const { NotFoundError, BadRequestError } = require('../../utils/errors');
@@ -215,6 +216,48 @@ exports.updateWholesalerCategoryAccess = async (req, res, next) => {
       success: true,
       message: 'Wholesaler category permissions updated',
       data: customer,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Hide brands from one customer (Customer Profile)
+// @route   PUT /api/v1/admin/customers/:id/brand-access
+// @access  Admin
+exports.updateCustomerBrandAccess = async (req, res, next) => {
+  try {
+    const customer = await User.findById(req.params.id);
+    if (!customer || !['buyer', 'wholesaler'].includes(customer.role)) {
+      throw new NotFoundError('Customer not found', 'CUSTOMER_NOT_FOUND');
+    }
+
+    const requested = req.body.hiddenBrands;
+    const brands = requested.length
+      ? await Company.find({ _id: { $in: requested } }).select('_id name').lean()
+      : [];
+    if (brands.length !== requested.length) {
+      throw new BadRequestError('One or more brands were not found', 'BRAND_NOT_FOUND');
+    }
+
+    const before = (customer.hiddenBrands || []).map(String);
+    customer.hiddenBrands = brands.map((brand) => brand._id);
+    await customer.save();
+
+    await recordAudit({
+      actorId: req.user._id,
+      action: 'customer.hidden_brands_updated',
+      entityType: 'User',
+      entityId: customer._id,
+      metadata: { before, after: customer.hiddenBrands.map(String), brandNames: brands.map((brand) => brand.name) },
+    });
+
+    res.json({
+      success: true,
+      message: brands.length
+        ? `${brands.length} brand${brands.length === 1 ? '' : 's'} hidden from this customer`
+        : 'All brands are visible to this customer',
+      data: { hiddenBrands: customer.hiddenBrands.map(String) },
     });
   } catch (error) {
     next(error);

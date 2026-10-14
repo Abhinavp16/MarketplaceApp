@@ -2,7 +2,14 @@ const { Company, Product, Category } = require('../models');
 const { NotFoundError, ConflictError } = require('../utils/errors');
 const { paginate, formatPaginationResponse } = require('../utils/helpers');
 const { PRODUCT_STATUS } = require('../utils/constants');
+const { escapeRegex } = require('../utils/searchQuery');
 const { recordAudit } = require('../services/auditService');
+const {
+  applyCustomerVisibility,
+  clearHiddenCatalogCache,
+  hiddenCatalogFor,
+  isBrandHidden,
+} = require('../utils/customerVisibility');
 const {
   pickDiscountUpdates,
   discountSnapshot,
@@ -25,6 +32,14 @@ const auditDiscountChange = async (req, company, before) => {
   });
 };
 
+const auditVisibilityChange = (req, company, wasHidden) => recordAudit({
+  actorId: req.user?._id,
+  action: 'brand.customer_visibility_updated',
+  entityType: 'Company',
+  entityId: company._id,
+  metadata: { name: company.name, hideFromCustomers: { before: wasHidden, after: Boolean(company.hideFromCustomers) } },
+});
+
 exports.getAllCompanies = async (req, res, next) => {
   try {
     const { active, search } = req.query;
@@ -36,8 +51,13 @@ exports.getAllCompanies = async (req, res, next) => {
     }
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
+        { name: { $regex: escapeRegex(String(search)), $options: 'i' } },
       ];
+    }
+    // Brands hidden from customers are left out for customers and guests.
+    const hidden = await hiddenCatalogFor(req.user);
+    if (hidden?.brandIds.size) {
+      query._id = { $nin: [...hidden.brandIds] };
     }
 
     const [companies, total] = await Promise.all([
@@ -58,7 +78,7 @@ exports.getCompanyById = async (req, res, next) => {
   try {
     const company = await Company.findById(req.params.id);
     
-    if (!company) {
+    if (!company || isBrandHidden(company, await hiddenCatalogFor(req.user))) {
       throw new NotFoundError('Company not found', 'COMPANY_NOT_FOUND');
     }
 
@@ -73,11 +93,11 @@ exports.getCompanyById = async (req, res, next) => {
 
 exports.createCompany = async (req, res, next) => {
   try {
-    const { name, description, website, logo, order } = req.body;
+    const { name, description, website, logo, order, hideFromCustomers } = req.body;
     const discountUpdates = pickDiscountUpdates(req.body);
 
     const existingCompany = await Company.findOne({ 
-      name: { $regex: new RegExp(`^${name}$`, 'i') } 
+      name: { $regex: new RegExp(`^${escapeRegex(name)}$`, 'i') } 
     });
     
     if (existingCompany) {
@@ -93,9 +113,14 @@ exports.createCompany = async (req, res, next) => {
       website,
       logo,
       order: order ?? ((lastCompany?.order || 0) + 1),
+      hideFromCustomers: hideFromCustomers === true,
       ...discountUpdates,
     });
     await auditDiscountChange(req, company, discountSnapshot({}));
+    if (company.hideFromCustomers) {
+      clearHiddenCatalogCache();
+      await auditVisibilityChange(req, company, false);
+    }
 
     res.status(201).json({
       success: true,
@@ -109,7 +134,7 @@ exports.createCompany = async (req, res, next) => {
 
 exports.updateCompany = async (req, res, next) => {
   try {
-    const { name, description, website, logo, isActive, order } = req.body;
+    const { name, description, website, logo, isActive, order, hideFromCustomers } = req.body;
     const discountUpdates = pickDiscountUpdates(req.body);
 
     const company = await Company.findById(req.params.id);
@@ -120,7 +145,7 @@ exports.updateCompany = async (req, res, next) => {
 
     if (name && name !== company.name) {
       const existingCompany = await Company.findOne({ 
-        name: { $regex: new RegExp(`^${name}$`, 'i') },
+        name: { $regex: new RegExp(`^${escapeRegex(name)}$`, 'i') },
         _id: { $ne: company._id }
       });
       
@@ -135,11 +160,17 @@ exports.updateCompany = async (req, res, next) => {
     if (logo !== undefined) company.logo = logo;
     if (isActive !== undefined) company.isActive = isActive;
     if (order !== undefined) company.order = order;
+    const wasHidden = Boolean(company.hideFromCustomers);
+    if (hideFromCustomers !== undefined) company.hideFromCustomers = hideFromCustomers;
     const discountBefore = discountSnapshot(company);
     Object.assign(company, discountUpdates);
 
     await company.save();
     await auditDiscountChange(req, company, discountBefore);
+    if (wasHidden !== Boolean(company.hideFromCustomers)) {
+      clearHiddenCatalogCache();
+      await auditVisibilityChange(req, company, wasHidden);
+    }
 
     res.json({
       success: true,
@@ -243,11 +274,16 @@ exports.getCompanyProducts = async (req, res, next) => {
   try {
     const company = await Company.findById(req.params.id);
     
-    if (!company) {
+    if (!company || isBrandHidden(company, await hiddenCatalogFor(req.user))) {
       throw new NotFoundError('Company not found', 'COMPANY_NOT_FOUND');
     }
 
-    const products = await Product.find({ company: company._id })
+    // Draft and archived products are only listed for admins.
+    const productQuery = req.user?.role === 'admin'
+      ? { company: company._id }
+      : { company: company._id, status: PRODUCT_STATUS.ACTIVE };
+    await applyCustomerVisibility(productQuery, req.user);
+    const products = await Product.find(productQuery)
       .select('name slug retailPrice images status')
       .sort({ createdAt: -1 });
 

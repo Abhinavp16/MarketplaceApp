@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import ScrollReveal from '@/components/ScrollReveal';
+import Icon from '@/components/Icon';
+import { ArrowRight02Icon } from '@hugeicons/core-free-icons';
 import { getBrandCategories } from '@/lib/catalog-api';
 
 export async function generateMetadata({ params }) {
@@ -57,7 +59,7 @@ export default async function BrandPage({ params }) {
                                         <p className="mt-2 line-clamp-2 text-xs leading-5 text-text-secondary">{cat.description || `View ${cat.name} products from ${brand.name}.`}</p>
                                         <Link href={cat.href} className="mt-auto flex items-center justify-between border-t border-[#312e81]/10 pt-2.5 text-[11px] font-semibold text-brand-primary">
                                             <span>View Products</span>
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-[#1e1b4b] transition-colors group-hover:bg-[#1e1b4b] group-hover:text-white">→</span>
+                                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-[#1e1b4b] transition-colors group-hover:bg-[#1e1b4b] group-hover:text-white"><Icon icon={ArrowRight02Icon} size={14} /></span>
                                         </Link>
                                     </div>
                                 </div>

@@ -2,7 +2,7 @@ import LegalPage from '@/components/LegalPage';
 
 export const metadata = {
     title: "Dealer & Distributor Agreement",
-    description: "Demo placeholder dealer agreement overview for TradeHub Demo.",
+    description: "Demo placeholder dealer agreement overview for DemoMart.",
 };
 
 const sections = [

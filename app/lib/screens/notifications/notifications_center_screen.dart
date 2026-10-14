@@ -1,11 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:intl/intl.dart';
+
 import '../../core/providers/auth_provider.dart';
 import '../../core/services/notification_navigation_service.dart';
 import '../../widgets/notification_countdown_label.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/ui/ui.dart';
+
+/// What a notification is about, for its filter chip and icon colour.
+enum _NotificationKind { order, deal, offer, other }
+
+_NotificationKind _kindOf(String type) {
+  if (type.startsWith('order') ||
+      type.startsWith('payment') ||
+      type == 'shipping') {
+    return _NotificationKind.order;
+  }
+  if (type.startsWith('negotiation')) return _NotificationKind.deal;
+  if (type == 'promotion' ||
+      type.startsWith('price_change') ||
+      type == 'product_launched' ||
+      type == 'new_product') {
+    return _NotificationKind.offer;
+  }
+  return _NotificationKind.other;
+}
+
+/// Day groups for the feed.
+enum _DayGroup { today, yesterday, earlier }
 
 class NotificationsCenterScreen extends ConsumerStatefulWidget {
   const NotificationsCenterScreen({super.key, this.initialTab = 4});
@@ -17,22 +44,18 @@ class NotificationsCenterScreen extends ConsumerStatefulWidget {
       _NotificationsCenterScreenState();
 }
 
+/// The notifications feed: grouped by day (Today, Yesterday, Earlier), with
+/// filter chips, a colour per kind, a thin teal bar on unread rows and, where
+/// it helps, one action button (Track order, Open deal, Shop now). Opening a
+/// notification marks it read; "Mark all read" clears the rest.
 class _NotificationsCenterScreenState
     extends ConsumerState<NotificationsCenterScreen> {
   List<Map<String, dynamic>> _notifications = [];
   bool _isLoading = true;
+  bool _loadFailed = false;
 
-  // Colors from design
-  static const Color primary = Color(0xFF46ec13);
-  static const Color backgroundLight = Color(0xFFf6f8f6);
-  static const Color textDark = Color(0xFF111b0d);
-  static const Color statusGreen = Color(0xFF22c55e);
-  static const Color statusBlue = Color(0xFF3b82f6);
-  static const Color statusOrange = Color(0xFFf97316);
-  static const Color gray200 = Color(0xFFe5e7eb);
-  static const Color gray400 = Color(0xFF9ca3af);
-  static const Color gray500 = Color(0xFF6b7280);
-  static const Color gray600 = Color(0xFF4b5563);
+  /// The selected filter chip; null shows everything.
+  _NotificationKind? _filter;
 
   @override
   void initState() {
@@ -41,7 +64,10 @@ class _NotificationsCenterScreenState
   }
 
   Future<void> _fetchNotifications() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = _notifications.isEmpty;
+      _loadFailed = false;
+    });
 
     try {
       final api = ref.read(apiClientProvider);
@@ -66,193 +92,321 @@ class _NotificationsCenterScreenState
           }).toList();
           _isLoading = false;
         });
+      } else if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _loadFailed = _notifications.isEmpty;
+        });
       }
     } catch (e) {
       debugPrint('Error fetching notifications: $e');
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _loadFailed = _notifications.isEmpty;
+        });
       }
     }
   }
 
-  IconData _getIconForType(String type) {
-    switch (type) {
-      case 'order':
-        return Icons.shopping_bag;
-      case 'payment':
-        return Icons.verified;
-      case 'shipping':
-        return Icons.local_shipping;
-      case 'negotiation':
-        return Icons.handshake;
-      case 'promotion':
-        return Icons.campaign;
-      case 'price_change_campaign_started':
-      case 'price_change_campaign_12h':
-      case 'price_change_campaign_6h':
-      case 'price_change_campaign_20m':
-      case 'price_change_campaign_3h':
-      case 'price_change_campaign_1h':
-      case 'price_change_campaign_5m':
-      case 'price_change_campaign_applied':
-        return Icons.schedule_rounded;
-      case 'system':
-        return Icons.info;
-      default:
-        return Icons.notifications;
-    }
-  }
+  int get _unreadCount =>
+      _notifications.where((n) => n['isRead'] != true).length;
 
-  Color _getIconColor(String type) {
-    switch (type) {
-      case 'order':
-        return statusBlue;
-      case 'payment':
-        return statusGreen;
-      case 'shipping':
-        return gray600;
-      case 'negotiation':
-        return const Color(0xFF7C3AED);
-      case 'promotion':
-        return statusOrange;
-      case 'price_change_campaign_started':
-      case 'price_change_campaign_12h':
-      case 'price_change_campaign_6h':
-      case 'price_change_campaign_20m':
-      case 'price_change_campaign_3h':
-      case 'price_change_campaign_1h':
-      case 'price_change_campaign_5m':
-      case 'price_change_campaign_applied':
-        return const Color(0xFFEA580C);
-      case 'system':
-        return gray500;
-      default:
-        return gray600;
-    }
-  }
+  int _unreadOf(_NotificationKind kind) => _notifications
+      .where(
+        (n) =>
+            n['isRead'] != true && _kindOf(n['type']?.toString() ?? '') == kind,
+      )
+      .length;
 
-  String _formatTime(String? createdAt) {
-    final l10n = context.l10n;
-    if (createdAt == null) return l10n.notificationsJustNow;
-
+  /// Marks [ids] read (all of them when null): locally at once, then on the
+  /// server. A failed request only logs; the next refresh shows the truth.
+  Future<void> _markRead([List<String>? ids]) async {
+    final targets = ids?.where((id) => id.isNotEmpty).toList();
+    if (targets != null && targets.isEmpty) return;
+    setState(() {
+      for (final n in _notifications) {
+        if (targets == null || targets.contains(n['id'])) n['isRead'] = true;
+      }
+    });
     try {
-      final date = DateTime.parse(createdAt);
-      final now = DateTime.now();
-      final diff = now.difference(date);
-
-      if (diff.inMinutes < 1) {
-        return l10n.notificationsJustNow;
-      } else if (diff.inMinutes < 60) {
-        return l10n.notificationsMinutesAgo('${diff.inMinutes}');
-      } else if (diff.inHours < 24) {
-        return l10n.notificationsHoursAgo('${diff.inHours}');
-      } else if (diff.inDays < 7) {
-        return l10n.notificationsDaysAgo('${diff.inDays}');
-      } else {
-        return '${date.day}/${date.month}/${date.year}';
-      }
+      await ref
+          .read(apiClientProvider)
+          .post(
+            '/notifications/mark-read',
+            data: targets == null ? {} : {'ids': targets},
+          );
     } catch (e) {
-      return l10n.notificationsJustNow;
+      debugPrint('Error marking notifications read: $e');
     }
+  }
+
+  Map<String, dynamic> _payloadOf(Map<String, dynamic> notification) {
+    final type = notification['type']?.toString() ?? 'general';
+    final rawData = notification['data'];
+    return rawData is Map
+        ? {
+            ...rawData.map((key, value) => MapEntry(key.toString(), value)),
+            'type': type,
+          }
+        : {'type': type};
+  }
+
+  void _open(Map<String, dynamic> notification) {
+    if (notification['isRead'] != true) {
+      _markRead([notification['id']?.toString() ?? '']);
+    }
+    NotificationNavigationService.instance.openFromContext(
+      context,
+      _payloadOf(notification),
+      isAuthenticated: ref.read(authProvider).isAuthenticated,
+    );
+  }
+
+  /// The action button for important notifications (orders and deals),
+  /// named after where it leads. Price updates, offers and anything else get
+  /// no button; tapping the row still opens wherever they lead, if anywhere.
+  String? _actionLabel(Map<String, dynamic> notification) {
+    final l10n = context.l10n;
+    final kind = _kindOf(notification['type']?.toString() ?? '');
+    if (kind != _NotificationKind.order && kind != _NotificationKind.deal) {
+      return null;
+    }
+    final destination = NotificationNavigationService.instance.destinationFor(
+      _payloadOf(notification),
+    );
+    if (destination == null) return null;
+    final route = destination.route;
+    if (route.startsWith('/tracking/')) {
+      // A cancelled or rejected order has nothing to track.
+      final text = [
+        notification['type'],
+        notification['title'],
+        (notification['data'] is Map)
+            ? (notification['data'] as Map)['status']
+            : null,
+      ].whereType<Object>().join(' ').toLowerCase();
+      final ended = text.contains('cancel') || text.contains('reject');
+      return ended
+          ? l10n.notificationsActionViewOrder
+          : l10n.notificationsActionTrackOrder;
+    }
+    if (route.startsWith('/negotiation-detail/')) {
+      return l10n.notificationsActionOpenDeal;
+    }
+    if (route == '/previous-orders') return l10n.notificationsActionViewOrders;
+    return null;
+  }
+
+  DateTime? _dateOf(Map<String, dynamic> notification) {
+    final raw = notification['createdAt']?.toString();
+    if (raw == null) return null;
+    return DateTime.tryParse(raw)?.toLocal();
+  }
+
+  _DayGroup _groupOf(DateTime? date) {
+    if (date == null) return _DayGroup.today;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(date.year, date.month, date.day);
+    final days = today.difference(day).inDays;
+    if (days <= 0) return _DayGroup.today;
+    if (days == 1) return _DayGroup.yesterday;
+    return _DayGroup.earlier;
+  }
+
+  /// "10m ago" today, the time yesterday, "12 Sep" earlier (with the year
+  /// when it isn't this year).
+  String _timeLabel(DateTime? date) {
+    final l10n = context.l10n;
+    if (date == null) return l10n.notificationsJustNow;
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final diff = DateTime.now().difference(date);
+    switch (_groupOf(date)) {
+      case _DayGroup.today:
+        if (diff.inMinutes < 1) return l10n.notificationsJustNow;
+        if (diff.inMinutes < 60) {
+          return l10n.notificationsMinutesAgo('${diff.inMinutes}');
+        }
+        return l10n.notificationsHoursAgo('${diff.inHours}');
+      case _DayGroup.yesterday:
+        return DateFormat.jm(locale).format(date);
+      case _DayGroup.earlier:
+        return date.year == DateTime.now().year
+            ? DateFormat.MMMd(locale).format(date)
+            : DateFormat.yMMMd(locale).format(date);
+    }
+  }
+
+  String _groupTitle(_DayGroup group) {
+    final l10n = context.l10n;
+    return switch (group) {
+      _DayGroup.today => l10n.notificationsToday,
+      _DayGroup.yesterday => l10n.notificationsYesterday,
+      _DayGroup.earlier => l10n.notificationsEarlier,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundLight,
-      body: Column(
-        children: [
-          // Header
-          Container(
-            color: backgroundLight.withValues(alpha: 0.8),
-            child: SafeArea(
-              bottom: false,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: gray200)),
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios_new,
-                          color: textDark,
-                          size: 18,
-                        ),
-                        onPressed: () {
-                          if (context.canPop()) {
-                            context.pop();
-                          } else {
-                            context.go('/home', extra: {'tab': 4});
-                          }
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        context.l10n.notificationsTitle,
-                        textAlign: TextAlign.center,
-                        style: AppFonts.jakarta(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: textDark,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 40, height: 40),
-                  ],
-                ),
-              ),
-            ),
-          ),
+    final l10n = context.l10n;
+    final Widget content;
+    if (_isLoading) {
+      content = ListView.separated(
+        key: const ValueKey('loading'),
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        itemCount: 6,
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        itemBuilder: (_, _) => const _NotificationSkeleton(),
+      );
+    } else if (_loadFailed) {
+      content = EmptyState(
+        key: const ValueKey('error'),
+        icon: HugeIcons.strokeRoundedWifiError01,
+        tone: ChipTone.error,
+        title: l10n.notificationsLoadFailed,
+        message: l10n.notificationsLoadFailedHint,
+        actionLabel: l10n.commonRetry,
+        onAction: _fetchNotifications,
+      );
+    } else if (_notifications.isEmpty) {
+      content = EmptyState(
+        key: const ValueKey('empty'),
+        icon: HugeIcons.strokeRoundedNotification02,
+        tone: ChipTone.neutral,
+        title: l10n.notificationsEmptyTitle,
+        message: l10n.notificationsEmptySubtitle,
+      );
+    } else {
+      content = KeyedSubtree(key: const ValueKey('list'), child: _buildFeed());
+    }
 
-          // Content
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _notifications.isEmpty
-                ? _buildEmptyState()
-                : RefreshIndicator(
-                    onRefresh: _fetchNotifications,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _notifications.length,
-                      itemBuilder: (context, index) {
-                        final notification = _notifications[index];
-                        return _buildNotificationItem(notification);
-                      },
-                    ),
-                  ),
-          ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppHeader(
+        title: l10n.notificationsTitle,
+        onBack: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/home', extra: {'tab': 4});
+          }
+        },
+        actions: [
+          if (_unreadCount > 0)
+            TextButton(
+              onPressed: () => _markRead(),
+              child: Text(l10n.notificationsMarkAllRead),
+            ),
         ],
+      ),
+      body: AnimatedSwitcher(
+        duration: AppMotion.of(context, AppMotion.base),
+        child: content,
       ),
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildFeed() {
+    final l10n = context.l10n;
+    final visible = _filter == null
+        ? _notifications
+        : _notifications
+              .where((n) => _kindOf(n['type']?.toString() ?? '') == _filter)
+              .toList();
+
+    // Day headings followed by their rows, in the list's (newest-first) order.
+    final entries = <Object>[];
+    _DayGroup? current;
+    for (final n in visible) {
+      final group = _groupOf(_dateOf(n));
+      if (group != current) {
+        entries.add(group);
+        current = group;
+      }
+      entries.add(n);
+    }
+
+    // Only kinds that actually have notifications get a chip.
+    final kinds =
+        [
+          _NotificationKind.order,
+          _NotificationKind.deal,
+          _NotificationKind.offer,
+        ].where(
+          (k) => _notifications.any(
+            (n) => _kindOf(n['type']?.toString() ?? '') == k,
+          ),
+        );
+
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: _fetchNotifications,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         children: [
-          Icon(Icons.notifications_none, size: 64, color: gray400),
-          const SizedBox(height: 16),
-          Text(
-            context.l10n.notificationsEmptyTitle,
-            style: AppFonts.jakarta(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: gray600,
+          if (kinds.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _FilterChip(
+                      label: l10n.notificationsFilterAll,
+                      unread: _unreadCount,
+                      selected: _filter == null,
+                      onTap: () => setState(() => _filter = null),
+                    ),
+                    for (final kind in kinds) ...[
+                      const SizedBox(width: 6),
+                      _FilterChip(
+                        label: switch (kind) {
+                          _NotificationKind.order =>
+                            l10n.notificationsFilterOrders,
+                          _NotificationKind.deal =>
+                            l10n.notificationsFilterDeals,
+                          _ => l10n.notificationsFilterOffers,
+                        },
+                        unread: _unreadOf(kind),
+                        selected: _filter == kind,
+                        onTap: () => setState(() => _filter = kind),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.notificationsEmptySubtitle,
-            style: AppFonts.jakarta(fontSize: 14, color: gray500),
-          ),
+          if (visible.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 48),
+              child: EmptyState(
+                icon: HugeIcons.strokeRoundedNotification02,
+                tone: ChipTone.neutral,
+                title: l10n.notificationsFilterEmpty,
+                compact: true,
+              ),
+            ),
+          for (final entry in entries)
+            if (entry is _DayGroup)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(2, 14, 2, 8),
+                child: Text(
+                  _groupTitle(entry).toUpperCase(),
+                  style: AppFonts.jakarta(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textTertiary,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _buildNotificationItem(entry as Map<String, dynamic>),
+              ),
         ],
       ),
     );
@@ -263,110 +417,287 @@ class _NotificationsCenterScreenState
     final isRead = notification['isRead'] == true;
     final title = notification['title']?.toString() ?? '';
     final body = notification['body']?.toString() ?? '';
-    final createdAt = notification['createdAt']?.toString();
-    final rawData = notification['data'];
-    final data = rawData is Map
-        ? {
-            ...rawData.map((key, value) => MapEntry(key.toString(), value)),
-            'type': type,
-          }
-        : {'type': type};
+    final (tint, ink) = _kindColors(_kindOf(type));
+    final action = _actionLabel(notification);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: isRead
-            ? null
-            : Border.all(color: primary.withValues(alpha: 0.3), width: 1),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            NotificationNavigationService.instance.openFromContext(
-              context,
-              data,
-              isAuthenticated: ref.read(authProvider).isAuthenticated,
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+    return Pressable(
+      onTap: () => _open(notification),
+      color: AppColors.surfaceLight,
+      scale: 0.985,
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      semanticLabel: title,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Icon
                 Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: _getIconColor(type).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                  width: 38,
+                  height: 38,
+                  decoration: ShapeDecoration(
+                    color: tint,
+                    shape: AppShapes.squircle(AppRadius.md),
                   ),
-                  child: Icon(
-                    _getIconForType(type),
-                    color: _getIconColor(type),
-                    size: 22,
+                  child: Center(
+                    child: HugeIcon(
+                      icon: _getIconForType(type),
+                      color: ink,
+                      size: 20,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Content
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Text(
                               title,
                               style: AppFonts.jakarta(
-                                fontSize: 15,
+                                fontSize: 14.5,
                                 fontWeight: isRead
-                                    ? FontWeight.w500
-                                    : FontWeight.w600,
-                                color: textDark,
+                                    ? FontWeight.w600
+                                    : FontWeight.w800,
+                                color: isRead
+                                    ? AppColors.textSecondary
+                                    : AppColors.textPrimary,
+                                height: 1.3,
                               ),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
-                            _formatTime(createdAt),
+                            _timeLabel(_dateOf(notification)),
                             style: AppFonts.jakarta(
-                              fontSize: 12,
-                              color: gray500,
+                              fontSize: 11.5,
+                              fontWeight: isRead
+                                  ? FontWeight.w500
+                                  : FontWeight.w700,
+                              color: isRead
+                                  ? AppColors.textTertiary
+                                  : AppColors.primaryDeep,
                             ),
                           ),
+                          if (!isRead) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              width: 8,
+                              height: 8,
+                              margin: const EdgeInsets.only(top: 4),
+                              decoration: const BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        body,
-                        style: AppFonts.jakarta(fontSize: 13, color: gray600),
-                      ),
+                      if (body.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          body,
+                          style: AppFonts.jakarta(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            height: 1.45,
+                          ),
+                        ),
+                      ],
                       NotificationCountdownLabel(
-                        data: data,
-                        color: const Color(0xFFEA580C),
+                        data: _payloadOf(notification),
+                        color: AppColors.warning,
                         fontSize: 12,
                       ),
+                      if (action != null) ...[
+                        const SizedBox(height: 10),
+                        AppButton(
+                          label: action,
+                          onPressed: () => _open(notification),
+                          size: AppButtonSize.small,
+                          // Light teal, so a list of them stays calm.
+                          variant: AppButtonVariant.tonal,
+                          expand: false,
+                          pill: true,
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                // Unread indicator
-                if (!isRead)
-                  Container(
-                    width: 8,
-                    height: 8,
-                    margin: const EdgeInsets.only(left: 8),
-                    decoration: BoxDecoration(
-                      color: primary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
               ],
             ),
           ),
+          // Unread rows get a thin teal bar down their left edge.
+          if (!isRead)
+            const Positioned(
+              left: 0,
+              top: 14,
+              bottom: 14,
+              child: SizedBox(
+                width: 3,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.horizontal(
+                      right: Radius.circular(3),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Icon tile colours per kind: orders teal, deals blue, offers marigold,
+  /// everything else grey.
+  (Color, Color) _kindColors(_NotificationKind kind) => switch (kind) {
+    _NotificationKind.order => (AppColors.primaryTint, AppColors.primary),
+    _NotificationKind.deal => (
+      const Color(0xFFE8EEFB),
+      const Color(0xFF3557A8),
+    ),
+    _NotificationKind.offer => (AppColors.accentSoft, AppColors.accent),
+    _NotificationKind.other => (AppColors.gray50, AppColors.textSecondary),
+  };
+
+  IconData _getIconForType(String type) {
+    switch (type) {
+      case 'order':
+        return HugeIcons.strokeRoundedShoppingBag01;
+      case 'payment':
+        return HugeIcons.strokeRoundedCheckmarkBadge01;
+      case 'shipping':
+        return HugeIcons.strokeRoundedTruckDelivery;
+      case 'negotiation':
+        return HugeIcons.strokeRoundedAgreement02;
+      case 'promotion':
+        return HugeIcons.strokeRoundedMegaphone01;
+      // A Coming Soon product went on sale.
+      case 'product_launched':
+      case 'new_product':
+        return HugeIcons.strokeRoundedNewReleases;
+      case 'system':
+        return HugeIcons.strokeRoundedInformationCircle;
+    }
+    if (type.startsWith('price_change')) return HugeIcons.strokeRoundedClock01;
+    if (type.startsWith('negotiation')) {
+      return HugeIcons.strokeRoundedAgreement02;
+    }
+    if (type.startsWith('payment')) {
+      return HugeIcons.strokeRoundedCheckmarkBadge01;
+    }
+    if (type.startsWith('order')) return HugeIcons.strokeRoundedShoppingBag01;
+    return HugeIcons.strokeRoundedNotification02;
+  }
+}
+
+/// A filter chip with an optional red unread count.
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.unread,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final int unread;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: onTap,
+      shape: const StadiumBorder(),
+      color: selected ? AppColors.primary : AppColors.surfaceLight,
+      semanticLabel: unread > 0 ? '$label, $unread' : label,
+      child: AnimatedContainer(
+        duration: AppMotion.of(context, AppMotion.base),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: ShapeDecoration(
+          shape: StadiumBorder(
+            side: BorderSide(
+              color: selected ? AppColors.primary : AppColors.border,
+            ),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: AppFonts.jakarta(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: selected ? Colors.white : AppColors.textSecondary,
+              ),
+            ),
+            if (unread > 0) ...[
+              const SizedBox(width: 6),
+              Container(
+                constraints: const BoxConstraints(minWidth: 18),
+                height: 18,
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.error,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  unread > 99 ? '99+' : '$unread',
+                  style: AppFonts.jakarta(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificationSkeleton extends StatelessWidget {
+  const _NotificationSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: const SkeletonShimmer(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Skeleton(width: 38, height: 38, radius: AppRadius.md),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Skeleton(height: 14),
+                  SizedBox(height: 8),
+                  Skeleton(height: 11),
+                  SizedBox(height: 6),
+                  Skeleton(width: 160, height: 11),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

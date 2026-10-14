@@ -208,6 +208,12 @@ const productSchema = new mongoose.Schema({
     default: 10,
     min: [1, 'Minimum wholesale quantity must be at least 1'],
   },
+  // Customers' smallest order in pieces / meters (cut lengths); see packSize.
+  minCustomerQuantity: {
+    type: Number,
+    default: 1,
+    min: [1, 'Minimum customer quantity must be at least 1'],
+  },
   negotiationEnabled: {
     type: Boolean,
     default: true,
@@ -295,6 +301,16 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // Listed but not yet for sale (see utils/productAvailability.js).
+  comingSoon: {
+    enabled: { type: Boolean, default: false },
+    showPrice: { type: Boolean, default: true },
+    expectedDate: { type: Date, default: null },
+    // Goes live by itself on expectedDate.
+    autoLaunch: { type: Boolean, default: false },
+    // Set once "now available" notifications have been sent.
+    launchNotifiedAt: { type: Date, default: null },
+  },
 
   company: {
     type: mongoose.Schema.Types.ObjectId,
@@ -344,6 +360,7 @@ productSchema.index({ category: 1, status: 1 });
 productSchema.index({ company: 1, category: 1, status: 1 });
 productSchema.index({ categoryRef: 1, status: 1 });
 productSchema.index({ status: 1, isFeatured: -1 });
+productSchema.index({ 'comingSoon.enabled': 1 });
 productSchema.index({ showOnWebsite: 1, status: 1 });
 productSchema.index({ retailPrice: 1 });
 productSchema.index({ wholesalePrice: 1 });

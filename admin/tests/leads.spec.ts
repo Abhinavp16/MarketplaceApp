@@ -80,3 +80,29 @@ test("leads page shows repeat views, watch time, cart badge and discounted price
   const options = await page.locator("select option").allTextContents()
   expect(options).toEqual(["Last 24 hours", "Last 3 days", "Last 5 days"])
 })
+
+test("members see the same leads through the member endpoint", async ({ page }) => {
+  let requestedPath: string | null = null
+
+  await page.addInitScript(() => {
+    localStorage.setItem("accessToken", "test-token")
+    localStorage.setItem("user", JSON.stringify({ _id: "staff-1", name: "Member", role: "staff" }))
+    localStorage.setItem("loginAt", String(Date.now()))
+    localStorage.setItem("sessionExpiresAt", new Date(Date.now() + 60 * 60_000).toISOString())
+  })
+  await page.route("**/api/v1/**", async (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname.endsWith("/auth/me")) return route.fulfill({ json: { data: { role: "staff" } } })
+    if (url.pathname.endsWith("/analytics/potential-customers")) {
+      requestedPath = url.pathname.replace(/^.*\/api\/v1/, "")
+      return route.fulfill({ json: leadsResponse })
+    }
+    return route.fulfill({ json: { data: [] } })
+  })
+
+  await page.goto("/member/products")
+  await page.getByRole("link", { name: /Leads/i }).first().click()
+  await expect(page).toHaveURL(/\/member\/leads$/)
+  await expect.poll(() => requestedPath).toBe("/staff/analytics/potential-customers")
+  await expect(page.getByRole("row", { name: /Asha Buyer/ }).getByText("Viewed 3 times")).toBeVisible()
+})

@@ -2,7 +2,7 @@ import LegalPage from '@/components/LegalPage';
 
 export const metadata = {
     title: "Warranty Policy",
-    description: "Demo placeholder warranty policy for TradeHub Demo.",
+    description: "Demo placeholder warranty policy for DemoMart.",
 };
 
 const sections = [

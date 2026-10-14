@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/config/legal_acceptance_config.dart';
-import 'package:tradehub_demo/screens/profile/legal_policy_screen.dart';
+import 'package:demomart_demo/core/config/legal_acceptance_config.dart';
+import 'package:demomart_demo/screens/profile/legal_policy_screen.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 
 type LoginMode = "admin" | "member"
 
-const DEMO_ADMIN_EMAIL = "admin@tradehub.example"
+const DEMO_ADMIN_EMAIL = "admin@demomart.example"
 const DEMO_ADMIN_PASSWORD = "Demo@12345"
 
 export default function LoginPage() {
@@ -87,8 +87,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-transparent p-4">
       <Card className="w-full max-w-md border-[#cacbdf] bg-white/92 shadow-[0_32px_90px_rgba(50,58,110,0.12)]">
         <CardHeader className="space-y-2">
-          <div className="flex justify-center"><Image src="/icon.svg" alt="TradeHub Demo logo" width={56} height={56} className="h-14 w-14 rounded-xl object-cover" /></div>
-          <CardTitle className="text-center text-2xl font-bold text-slate-900">TradeHub Demo</CardTitle>
+          <div className="flex justify-center"><Image src="/icon.svg" alt="DemoMart logo" width={56} height={56} className="h-14 w-14 rounded-xl object-cover" /></div>
+          <CardTitle className="text-center text-2xl font-bold text-slate-900">DemoMart</CardTitle>
           <CardDescription className="text-center text-slate-500">
             {mode === "member" ? "Staff login: use the username and password supplied by your administrator." : "Distribution made simple. Sign in with your admin email and password."}
           </CardDescription>

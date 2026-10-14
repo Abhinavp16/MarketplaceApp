@@ -84,6 +84,7 @@ exports.completeRequest = async (req, res, next) => {
       requestId: req.params.id,
       adminUserId: req.user._id,
       staffNote: req.body.staffNote,
+      identityVerified: req.body.identityVerified === true,
     });
 
     res.json({

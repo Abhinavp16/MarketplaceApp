@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hugeicons/hugeicons.dart';
 import '../../core/theme/app_fonts.dart';
+import '../../core/theme/app_theme.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/ui/ui.dart';
 
 class LegalPolicyItem {
   final String id;
@@ -56,70 +58,73 @@ class LegalPolicyCatalog {
       title: 'Privacy Policy',
       assetPath: 'assets/legal/demo_privacy_policy.txt',
       icon: HugeIcons.strokeRoundedShield01,
-      color: Color(0xFF0891B2),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'terms-conditions',
       title: 'Terms & Conditions',
       assetPath: 'assets/legal/demo_terms_of_service.txt',
       icon: HugeIcons.strokeRoundedFile01,
-      color: Color(0xFF0EA5E9),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'shipping-policy',
       title: 'Shipping Policy',
+      // This file is the "Shipping and COD Policy".
       assetPath: 'assets/legal/demo_cod_delivery_policy.txt',
       icon: HugeIcons.strokeRoundedDeliveryBox01,
-      color: Color(0xFF0F766E),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'refund-return-policy',
       title: 'Refund & Return Policy',
       assetPath: 'assets/legal/demo_return_refund_policy.txt',
       icon: HugeIcons.strokeRoundedRefresh,
-      color: Color(0xFF7C3AED),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'cancellation-policy',
       title: 'Cancellation Policy',
-      assetPath: 'assets/legal/demo_comprehensive_policies.txt',
+      // No separate cancellation text exists; cancellations, returns and
+      // refunds are covered by the refund & return policy.
+      assetPath: 'assets/legal/demo_return_refund_policy.txt',
       icon: HugeIcons.strokeRoundedCancel01,
-      color: Color(0xFFDC2626),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'cod-delivery-policy',
       title: 'COD Delivery Policy',
       assetPath: 'assets/legal/demo_cod_delivery_policy.txt',
       icon: HugeIcons.strokeRoundedDeliveryBox01,
-      color: Color(0xFF0F766E),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'dealer-agreement',
       title: 'Dealer Agreement',
       assetPath: 'assets/legal/demo_dealer_agreement.txt',
       icon: HugeIcons.strokeRoundedUserGroup,
-      color: Color(0xFF059669),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'dealer-pricing-map-policy',
       title: 'Dealer Pricing Policy',
       assetPath: 'assets/legal/demo_dealer_pricing_policy.txt',
       icon: HugeIcons.strokeRoundedChartLineData01,
-      color: Color(0xFFD97706),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'warranty-policy',
       title: 'Warranty Policy',
       assetPath: 'assets/legal/demo_warranty_policy.txt',
       icon: HugeIcons.strokeRoundedShield02,
-      color: Color(0xFF4F46E5),
+      color: AppColors.primary,
     ),
     LegalPolicyItem(
       id: 'comprehensive-legal-policies',
       title: 'Comprehensive Legal Policies',
       assetPath: 'assets/legal/demo_comprehensive_policies.txt',
       icon: HugeIcons.strokeRoundedLegal01,
-      color: Color(0xFF4338CA),
+      color: AppColors.primary,
     ),
   ];
 
@@ -140,63 +145,80 @@ class LegalPolicyScreen extends StatelessWidget {
     final item = LegalPolicyCatalog.byId(policyId);
     if (item == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(context.l10n.legalHubTitle)),
-        body: Center(
-          child: Text(
-            context.l10n.legalNotFound,
-            style: AppFonts.jakarta(fontWeight: FontWeight.w600),
-          ),
+        backgroundColor: AppColors.backgroundLight,
+        appBar: AppHeader(title: context.l10n.legalHubTitle),
+        body: EmptyState(
+          icon: HugeIcons.strokeRoundedLegal01,
+          tone: ChipTone.neutral,
+          title: context.l10n.legalNotFound,
         ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          item.localizedTitle(context),
-          style: AppFonts.jakarta(fontWeight: FontWeight.w700),
-        ),
-      ),
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppHeader(title: item.localizedTitle(context)),
       body: FutureBuilder<String>(
         future: rootBundle.loadString(item.assetPath),
         builder: (context, snapshot) {
+          final Widget child;
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  context.l10n.legalLoadFailed,
-                  style: AppFonts.jakarta(fontWeight: FontWeight.w600),
-                ),
-              ),
+            child = const _PolicySkeleton(key: ValueKey('loading'));
+          } else if (snapshot.hasError) {
+            child = EmptyState(
+              key: const ValueKey('error'),
+              icon: HugeIcons.strokeRoundedAlert02,
+              tone: ChipTone.error,
+              title: context.l10n.legalLoadFailed,
             );
-          }
-          final content = snapshot.data ?? '';
-          final blocks = _parsePolicyBlocks(content);
-          return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeaderCard(context, item),
-                if (context.isHindi) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    context.l10n.legalEnglishOnlyNote,
-                    style: AppFonts.jakarta(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF475569),
+          } else {
+            final content = snapshot.data ?? '';
+            final blocks = _parsePolicyBlocks(content);
+            child = SingleChildScrollView(
+              key: const ValueKey('content'),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeaderCard(context, item),
+                  if (context.isHindi) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const HugeIcon(
+                          icon: HugeIcons.strokeRoundedInformationCircle,
+                          size: 16,
+                          color: AppColors.secondary,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            context.l10n.legalEnglishOnlyNote,
+                            style: AppFonts.jakarta(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  AppCard(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: blocks.map(_buildBlock).toList(),
                     ),
                   ),
                 ],
-                const SizedBox(height: 14),
-                ...blocks.map((block) => _buildBlock(block, item.color)),
-              ],
-            ),
+              ),
+            );
+          }
+          return AnimatedSwitcher(
+            duration: AppMotion.of(context, AppMotion.base),
+            child: child,
           );
         },
       ),
@@ -204,75 +226,60 @@ class LegalPolicyScreen extends StatelessWidget {
   }
 
   Widget _buildHeaderCard(BuildContext context, LegalPolicyItem item) {
-    return Container(
-      width: double.infinity,
+    return AppCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: item.color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: item.color.withValues(alpha: 0.25)),
-      ),
       child: Row(
         children: [
           Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: Colors.white,
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySoft,
               shape: BoxShape.circle,
-              border: Border.all(color: item.color.withValues(alpha: 0.2)),
             ),
-            child: HugeIcon(icon: item.icon, color: item.color, size: 18),
+            child: Center(
+              child: HugeIcon(
+                icon: item.icon,
+                color: AppColors.primaryDeep,
+                size: 20,
+              ),
+            ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               item.localizedTitle(context),
               style: AppFonts.jakarta(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF0F172A),
+                color: AppColors.textPrimary,
               ),
             ),
           ),
-          Text(
-            context.l10n.legalPolicyBadge,
-            style: AppFonts.jakarta(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: item.color,
-            ),
+          const SizedBox(width: 8),
+          StatusChip(
+            label: context.l10n.legalPolicyBadge,
+            tone: ChipTone.neutral,
+            dense: true,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBlock(_PolicyBlock block, Color accent) {
+  Widget _buildBlock(_PolicyBlock block) {
     switch (block.type) {
       case _PolicyBlockType.section:
         return Padding(
-          padding: const EdgeInsets.only(top: 14, bottom: 8),
-          child: Row(
-            children: [
-              HugeIcon(
-                icon: HugeIcons.strokeRoundedSparkles,
-                color: accent,
-                size: 16,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  block.text,
-                  style: AppFonts.jakarta(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F172A),
-                    letterSpacing: -0.3,
-                  ),
-                ),
-              ),
-            ],
+          padding: const EdgeInsets.only(top: 12, bottom: 8),
+          child: Text(
+            block.text,
+            style: AppFonts.jakarta(
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+              letterSpacing: -0.2,
+            ),
           ),
         );
       case _PolicyBlockType.bullet:
@@ -282,21 +289,23 @@ class LegalPolicyScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 3),
-                child: HugeIcon(
-                  icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-                  color: accent,
-                  size: 16,
+                padding: const EdgeInsets.only(top: 9, left: 2, right: 10),
+                child: Container(
+                  width: 5,
+                  height: 5,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   block.text,
                   style: AppFonts.jakarta(
-                    fontSize: 15,
+                    fontSize: 14,
                     height: 1.55,
-                    color: const Color(0xFF1F2937),
+                    color: AppColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -310,9 +319,9 @@ class LegalPolicyScreen extends StatelessWidget {
           child: Text(
             block.text,
             style: AppFonts.jakarta(
-              fontSize: 15,
-              height: 1.65,
-              color: const Color(0xFF1F2937),
+              fontSize: 14,
+              height: 1.6,
+              color: AppColors.textSecondary,
             ),
           ),
         );
@@ -346,13 +355,18 @@ class LegalPolicyScreen extends StatelessWidget {
       prevNormalized = normalized;
 
       if (_isSectionTitle(line)) {
-        blocks.add(_PolicyBlock(_PolicyBlockType.section, _normalizeTitle(line)));
+        blocks.add(
+          _PolicyBlock(_PolicyBlockType.section, _normalizeTitle(line)),
+        );
         continue;
       }
 
       if (_isBullet(line)) {
         blocks.add(
-          _PolicyBlock(_PolicyBlockType.bullet, line.replaceFirst(RegExp(r'^[\u2022\-\*]\s*'), '')),
+          _PolicyBlock(
+            _PolicyBlockType.bullet,
+            line.replaceFirst(RegExp(r'^[\u2022\-\*]\s*'), ''),
+          ),
         );
         continue;
       }
@@ -398,4 +412,37 @@ class _PolicyBlock {
   final _PolicyBlockType type;
   final String text;
   const _PolicyBlock(this.type, this.text);
+}
+
+class _PolicySkeleton extends StatelessWidget {
+  const _PolicySkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: SkeletonShimmer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Skeleton(height: 68, radius: AppRadius.lg),
+            SizedBox(height: 16),
+            Skeleton(width: 180, height: 16),
+            SizedBox(height: 12),
+            Skeleton(height: 12),
+            SizedBox(height: 8),
+            Skeleton(height: 12),
+            SizedBox(height: 8),
+            Skeleton(width: 240, height: 12),
+            SizedBox(height: 20),
+            Skeleton(width: 150, height: 16),
+            SizedBox(height: 12),
+            Skeleton(height: 12),
+            SizedBox(height: 8),
+            Skeleton(width: 200, height: 12),
+          ],
+        ),
+      ),
+    );
+  }
 }

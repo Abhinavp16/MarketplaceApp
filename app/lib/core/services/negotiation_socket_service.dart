@@ -1,6 +1,8 @@
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter/foundation.dart';
 
+import 'storage_service.dart';
+
 typedef MessageCallback = void Function(Map<String, dynamic> data);
 typedef TypingCallback = void Function(String userId, String username);
 typedef ReadReceiptCallback = void Function(String messageId, String userId);
@@ -65,11 +67,17 @@ class NegotiationSocketService {
         onConnect?.call();
       }
 
-      // Join negotiation room
-      _socket!.emit('join-negotiation', {
-        'negotiationId': negotiationId,
-        'userId': userId,
-        'userRole': userRole,
+      // Join the deal's room. The server checks the sign-in token (read
+      // fresh on every reconnect) and that this deal is ours.
+      final socket = _socket;
+      StorageService.getAccessToken().then((token) {
+        if (_socket != socket || socket == null) return;
+        socket.emit('join-negotiation', {
+          'negotiationId': negotiationId,
+          'userId': userId,
+          'userRole': userRole,
+          'token': token,
+        });
       });
 
       debugPrint(

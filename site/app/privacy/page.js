@@ -2,7 +2,7 @@ import LegalPage from '@/components/LegalPage';
 
 export const metadata = {
     title: "Privacy Policy",
-    description: "Demo placeholder privacy policy for TradeHub Demo.",
+    description: "Demo placeholder privacy policy for DemoMart.",
 };
 
 const sections = [
@@ -12,7 +12,7 @@ const sections = [
         { heading: "4. Your Choices", paragraphs: ["Placeholder: explain how users can manage permissions and request access, correction or deletion of their data. See the demo account deletion page for an example of the flow."] },
         { heading: "5. Data Protection", paragraphs: ["Placeholder: summarise the technical and organisational safeguards in place. No system can guarantee absolute security."] },
         { heading: "6. Account Deletion and Retention", paragraphs: ["Placeholder: describe how deletion requests are handled and which records may be retained for legal reasons. The demo deletion form does not submit or store anything."] },
-        { heading: "7. Contact", paragraphs: ["For questions about this demo, use the placeholder contact details: demo@tradehub.example or +91 00000 00000, 100 Demo Street, Sample City, Demo State 000000."] },
+        { heading: "7. Contact", paragraphs: ["For questions about this demo, use the placeholder contact details: demo@demomart.example or +91 00000 00000, 100 Demo Street, Sample City, Demo State 000000."] },
 ];
 
 export default function PrivacyPage() {

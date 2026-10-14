@@ -28,8 +28,8 @@ export function Header() {
   return (
     <header className="absolute left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-[#d0d1e3]/80 bg-[#f8f8fd]/78 p-6 backdrop-blur-[28px]">
       <div className="flex items-center gap-2 pl-4 text-xl font-bold tracking-tight text-slate-900">
-        <Image src="/icon.svg" alt="TradeHub Demo logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
-        TradeHub Demo <span className="text-indigo-600">Admin</span>
+        <Image src="/icon.svg" alt="DemoMart logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
+        DemoMart <span className="text-indigo-600">Admin</span>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

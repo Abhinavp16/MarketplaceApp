@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { verifyAccessToken } = require('../utils/jwtTokens');
 const { UnauthorizedError, ForbiddenError } = require('../utils/errors');
 
 const protect = async (req, res, next) => {
@@ -14,7 +14,8 @@ const protect = async (req, res, next) => {
       throw new UnauthorizedError('Access token required', 'AUTH_TOKEN_REQUIRED');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Refresh tokens are refused here: they only work at /auth/refresh-token.
+    const decoded = verifyAccessToken(token);
 
     if (decoded.sessionExpiresAt && new Date(decoded.sessionExpiresAt) <= new Date()) {
       throw new UnauthorizedError('Session expired', 'SESSION_EXPIRED');
@@ -52,8 +53,12 @@ const optionalAuth = async (req, res, next) => {
     }
 
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.userId).select('-passwordHash');
+      const decoded = verifyAccessToken(token);
+      const sessionOver =
+        decoded.sessionExpiresAt && new Date(decoded.sessionExpiresAt) <= new Date();
+      const user = sessionOver
+        ? null
+        : await User.findById(decoded.userId).select('-passwordHash');
       if (user && user.isActive) {
         req.user = user;
       }

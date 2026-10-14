@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/utils/product_search.dart';
+import 'package:demomart_demo/core/utils/product_search.dart';
 
 void main() {
   test('ID filters are active and serialize without display names', () {

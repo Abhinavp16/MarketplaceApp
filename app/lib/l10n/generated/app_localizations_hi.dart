@@ -9,11 +9,11 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
-  String get aboutBrand => 'ट्रेडहब डेमो';
+  String get aboutBrand => 'डेमोमार्ट';
 
   @override
   String get aboutDescription =>
-      'ट्रेडहब डेमो एक डेमो मार्केटप्लेस है, जो दिखाता है कि रिटेलर, होलसेलर और खरीदार एक ही प्लेटफ़ॉर्म पर कैसे साथ काम कर सकते हैं। आप प्रोडक्ट खोज सकते हैं, ऑर्डर दे सकते हैं, थोक डील पर बातचीत कर सकते हैं और डिलीवरी एक ही ऐप में संभाल सकते हैं। इस एनवायरनमेंट का सारा डेटा नकली (सिंथेटिक) है।';
+      'डेमोमार्ट एक डेमो मार्केटप्लेस है, जो दिखाता है कि रिटेलर, होलसेलर और खरीदार एक ही प्लेटफ़ॉर्म पर कैसे साथ काम कर सकते हैं। आप प्रोडक्ट खोज सकते हैं, ऑर्डर दे सकते हैं, थोक डील पर बातचीत कर सकते हैं और डिलीवरी एक ही ऐप में संभाल सकते हैं। इस एनवायरनमेंट का सारा डेटा नकली (सिंथेटिक) है।';
 
   @override
   String get aboutFeatureCatalogue => 'कई प्रोडक्ट कैटेगरी में नमूना कैटलॉग';
@@ -25,13 +25,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get aboutFeatureDirectContact => 'बिज़नेस सहायता टीम से सीधा संपर्क';
 
   @override
-  String get aboutFeatureDispatch => 'बिक्री और डिस्पैच का तालमेल';
+  String get aboutFeatureDispatch => 'शहर से बिक्री और डिस्पैच का तालमेल';
 
   @override
   String get aboutTagline => 'वितरण को बनाएँ आसान';
 
   @override
-  String get aboutTitle => 'ट्रेडहब डेमो के बारे में';
+  String get aboutTitle => 'डेमोमार्ट के बारे में';
 
   @override
   String get aboutWhatYouCanDo => 'आप क्या कर सकते हैं';
@@ -225,6 +225,21 @@ class AppLocalizationsHi extends AppLocalizations {
   String get apiErrorInvalidQuantity => 'कृपया सही मात्रा डालें।';
 
   @override
+  String get apiErrorPackQuantity =>
+      'यह प्रोडक्ट केवल पूरे पैकेट, कॉइल या बंडल में बिकता है।';
+
+  @override
+  String get apiErrorMinCustomerQuantity =>
+      'कृपया कम से कम न्यूनतम मात्रा का ऑर्डर करें।';
+
+  @override
+  String get apiErrorProductComingSoon =>
+      'यह प्रोडक्ट जल्द आ रहा है, अभी ऑर्डर नहीं हो सकता।';
+
+  @override
+  String get apiErrorProductUnavailable => 'यह प्रोडक्ट अभी उपलब्ध नहीं है।';
+
+  @override
   String get apiErrorMinWholesaleQuantity =>
       'कृपया कम से कम न्यूनतम थोक मात्रा का ऑर्डर करें।';
 
@@ -264,7 +279,7 @@ class AppLocalizationsHi extends AppLocalizations {
       'बहुत ज़्यादा अनुरोध हो गए। कृपया थोड़ी देर बाद फिर से कोशिश करें।';
 
   @override
-  String get appTitle => 'ट्रेडहब डेमो एंटरप्राइजेज';
+  String get appTitle => 'डेमोमार्ट';
 
   @override
   String get authBusinessNameHint => 'आपकी दुकान या कंपनी का नाम';
@@ -330,7 +345,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get authHaveAccount => 'पहले से खाता है? ';
 
   @override
-  String get authJoinSubtitle => 'आज ही ट्रेडहब डेमो से जुड़ें';
+  String get authJoinSubtitle => 'आज ही डेमोमार्ट से जुड़ें';
 
   @override
   String get authNameHint => 'अपना नाम डालें';
@@ -361,8 +376,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get authSignIn => 'लॉग इन करें';
 
   @override
-  String get authSignInSubtitle =>
-      'ट्रेडहब डेमो में आगे बढ़ने के लिए लॉग इन करें';
+  String get authSignInSubtitle => 'डेमोमार्ट में आगे बढ़ने के लिए लॉग इन करें';
 
   @override
   String get authSignUp => 'साइन अप करें';
@@ -482,7 +496,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String cartIssueOutOfStock(String product) {
-    return '$product स्टॉक में नहीं है';
+    return '$product सोल्ड आउट है';
   }
 
   @override
@@ -506,7 +520,7 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get cartItemOutOfStock => 'स्टॉक में नहीं है — कृपया यह आइटम हटाएं';
+  String get cartItemOutOfStock => 'सोल्ड आउट — कृपया यह आइटम हटाएं';
 
   @override
   String get cartItemUnavailable => 'यह उत्पाद अभी उपलब्ध नहीं है';
@@ -575,6 +589,25 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get cartStockIssuesTitle => 'स्टॉक की समस्या';
+
+  @override
+  String get cartSendingRequirement => 'रिक्वायरमेंट भेजी जा रही है...';
+
+  @override
+  String cartRequirementSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count प्रोडक्ट',
+      one: '1 प्रोडक्ट',
+    );
+    return '$_temp0 की रिक्वायरमेंट भेज दी गई। डेमोमार्ट डील डेस्क में जवाब देगा।';
+  }
+
+  @override
+  String cartRequirementBlockedItems(String names) {
+    return 'रिक्वायरमेंट भेजने के लिए ये आइटम हटाएं: $names';
+  }
 
   @override
   String get cartTitle => 'शॉपिंग कार्ट';
@@ -663,7 +696,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get checkoutApprovalNote =>
-      'ट्रेडहब डेमो टीम आपका ऑर्डर देखने के बाद आपको सूचना देगी।';
+      'डेमोमार्ट टीम आपका ऑर्डर देखने के बाद आपको सूचना देगी।';
 
   @override
   String get checkoutAwaitingApproval => 'मंज़ूरी का इंतज़ार';
@@ -772,6 +805,40 @@ class AppLocalizationsHi extends AppLocalizations {
   String get commonDate => 'तारीख';
 
   @override
+  String get comingSoonBadge => 'जल्द आ रहा है';
+
+  @override
+  String comingSoonExpected(String date) {
+    return 'अनुमानित $date';
+  }
+
+  @override
+  String get comingSoonPrice => 'कीमत जल्द';
+
+  @override
+  String get comingSoonNotifyMe => 'उपलब्ध होने पर सूचित करें';
+
+  @override
+  String get comingSoonNotifying => 'हम आपको सूचित करेंगे';
+
+  @override
+  String get comingSoonNotifyOn => 'उपलब्ध होते ही हम आपको बता देंगे।';
+
+  @override
+  String get comingSoonNotifyOff => 'इस प्रोडक्ट के लिए सूचना नहीं मिलेगी।';
+
+  @override
+  String get comingSoonLoginToNotify =>
+      'उपलब्ध होने पर सूचना पाने के लिए लॉगिन करें।';
+
+  @override
+  String get homeComingSoonSection => 'जल्द आ रहे हैं';
+
+  @override
+  String get homeComingSoonSubtitle =>
+      'जल्द लॉन्च होंगे। सबसे पहले जानने के लिए सूचित करें दबाएं।';
+
+  @override
   String get commonDelete => 'हटाएं';
 
   @override
@@ -832,7 +899,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get commonOptional => 'वैकल्पिक';
 
   @override
-  String get commonOutOfStock => 'स्टॉक में नहीं है';
+  String get commonOutOfStock => 'सोल्ड आउट';
 
   @override
   String get commonPerUnit => '/यूनिट';
@@ -1110,11 +1177,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get conversionUploadProof => 'प्रमाण फ़ोटो अपलोड करें';
 
   @override
-  String get dealAcceptedByPlatform => 'ट्रेडहब डेमो ने स्वीकार किया';
+  String get dealAcceptedByPlatform => 'डेमोमार्ट ने स्वीकार किया';
 
   @override
   String dealAcceptedByPlatformName(String name) {
-    return 'ट्रेडहब डेमो ने स्वीकार किया: $name';
+    return 'डेमोमार्ट ने स्वीकार किया: $name';
   }
 
   @override
@@ -1135,7 +1202,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get dealCurrentPricePerUnit => 'मौजूदा कीमत/यूनिट';
 
   @override
-  String get dealDeclinedByPlatform => 'ट्रेडहब डेमो ने अस्वीकार किया';
+  String get dealDeclinedByPlatform => 'डेमोमार्ट ने अस्वीकार किया';
 
   @override
   String get dealEnterMessage => 'कृपया संदेश लिखें';
@@ -1158,11 +1225,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get dealFieldPhone => 'फ़ोन';
 
   @override
-  String get dealPlatform => 'ट्रेडहब डेमो';
+  String get dealPlatform => 'डेमोमार्ट';
 
   @override
   String dealPlatformActor(String name) {
-    return 'ट्रेडहब डेमो: $name';
+    return 'डेमोमार्ट: $name';
   }
 
   @override
@@ -1250,7 +1317,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get dealStatusAccepted => 'स्वीकार';
 
   @override
-  String get dealStatusNewPriceFromPlatform => 'ट्रेडहब डेमो की नई कीमत';
+  String get dealStatusNewPriceFromPlatform => 'डेमोमार्ट की नई कीमत';
 
   @override
   String get dealStatusNewPriceReceived => 'नई कीमत मिली';
@@ -1401,17 +1468,17 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get guideStep3Body =>
-      'ऑर्डर बनने के बाद उसकी रसीद ट्रेडहब डेमो टीम को भेजें, ताकि टीम आगे की प्रक्रिया तय कर सके।';
+      'ऑर्डर बनने के बाद उसकी रसीद डेमोमार्ट टीम को भेजें, ताकि टीम आगे की प्रक्रिया तय कर सके।';
 
   @override
   String get guideStep3Title => 'अपने ऑर्डर की रसीद भेजें';
 
   @override
   String get guideStep4Body =>
-      'दुकान पर भुगतान करें या ट्रेडहब डेमो टीम द्वारा दिए गए QR या बैंक विवरण से भुगतान करें। एडमिन की जांच के बाद आपके ऑर्डर की स्थिति अपडेट हो जाती है।';
+      'दुकान पर भुगतान करें या डेमोमार्ट टीम द्वारा दिए गए QR या बैंक विवरण से भुगतान करें। एडमिन की जांच के बाद आपके ऑर्डर की स्थिति अपडेट हो जाती है।';
 
   @override
-  String get guideStep4Title => 'ट्रेडहब डेमो टीम के ज़रिए भुगतान करें';
+  String get guideStep4Title => 'डेमोमार्ट टीम के ज़रिए भुगतान करें';
 
   @override
   String get guideTip =>
@@ -1427,7 +1494,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get helpAppTagline => 'वितरण को बनाएँ आसान';
 
   @override
-  String get helpBrandName => 'ट्रेडहब डेमो';
+  String get helpBrandName => 'डेमोमार्ट';
 
   @override
   String get helpCallUs => 'हमें कॉल करें';
@@ -1555,13 +1622,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get homeBannerShopNow => 'अभी खरीदें';
 
   @override
-  String get homeBrandFirstWord => 'ट्रेडहब';
+  String get homeBrandFirstWord => 'डेमो';
 
   @override
-  String get homeBrandName => 'ट्रेडहब डेमो';
+  String get homeBrandName => 'डेमोमार्ट';
 
   @override
-  String get homeBrandSecondWord => 'डेमो';
+  String get homeBrandSecondWord => 'मार्ट';
 
   @override
   String get homeBrandTagline => 'साथ बढ़ें  •  बेहतर व्यापार करें';
@@ -1652,6 +1719,28 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeCurrentLabel => 'मौजूदा कीमत:';
+
+  @override
+  String get dealDeliveryNote =>
+      '+ डिलीवरी शुल्क (यदि लागू हो) ऑर्डर कन्फर्म होते समय डेमोमार्ट द्वारा जोड़ा जाएगा।';
+
+  @override
+  String get dealDeliveryOnConfirmation => 'कन्फर्म होने पर जुड़ेगा';
+
+  @override
+  String get dealEstimatedTotal => 'अनुमानित कुल';
+
+  @override
+  String get dealOrderBeingPrepared => 'डेमोमार्ट आपका ऑर्डर तैयार कर रहा है';
+
+  @override
+  String get dealAwaitingOrderConfirmation =>
+      'स्वीकृत। डेमोमार्ट आपका ऑर्डर बनाकर डिलीवरी शुल्क कन्फर्म करेगा।';
+
+  @override
+  String dealDeskRequirementGroup(String number, int count, String total) {
+    return 'रिक्वायरमेंट $number · $count प्रोडक्ट · ₹$total';
+  }
 
   @override
   String get homeDealDeskTitle => 'डील डेस्क';
@@ -1899,7 +1988,7 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get homePartnershipsTitle => 'अधिकृत प्रतिनिधि और साझेदारी';
+  String get homePartnershipsTitle => 'साझेदारी';
 
   @override
   String get homePayableTotal => 'कुल देय राशि';
@@ -2044,7 +2133,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeSampleReview1Text =>
-      'ट्रेडहब डेमो ने मेरा स्टॉक खरीदने का तरीका पूरी तरह बदल दिया है। थोक कीमत और क्वालिटी का कोई मुकाबला नहीं।';
+      'डेमोमार्ट ने मेरा स्टॉक खरीदने का तरीका पूरी तरह बदल दिया है। थोक कीमत और क्वालिटी का कोई मुकाबला नहीं।';
 
   @override
   String get homeSampleReview2Name => 'प्रिया शर्मा';
@@ -2054,7 +2143,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeSampleReview2Text =>
-      'दुकानदार होने के नाते मुझे भरोसेमंद डिलीवरी और असली ब्रांड चाहिए। ट्रेडहब डेमो की सेवा मेरे बिज़नेस के लिए बहुत काम की है।';
+      'दुकानदार होने के नाते मुझे भरोसेमंद डिलीवरी और असली ब्रांड चाहिए। डेमोमार्ट की सेवा मेरे बिज़नेस के लिए बहुत काम की है।';
 
   @override
   String get homeSampleReview3Name => 'अमित पटेल';
@@ -2064,7 +2153,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeSampleReview3Text =>
-      'मैं एक साल से ट्रेडहब डेमो इस्तेमाल कर रहा हूँ। इससे बड़े ऑर्डर संभालना और स्टॉक पर नज़र रखना बहुत आसान हो गया है।';
+      'मैं एक साल से डेमोमार्ट इस्तेमाल कर रहा हूँ। इससे बड़े ऑर्डर संभालना और स्टॉक पर नज़र रखना बहुत आसान हो गया है।';
 
   @override
   String get homeSampleReview4Name => 'अंजलि सिंह';
@@ -2074,7 +2163,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeSampleReview4Text =>
-      'ट्रेडहब डेमो पर प्रोडक्ट्स की वैरायटी शानदार है। थोक खरीदारी के लिए सचमुच एक ही जगह सब कुछ।';
+      'डेमोमार्ट पर प्रोडक्ट्स की वैरायटी शानदार है। थोक खरीदारी के लिए सचमुच एक ही जगह सब कुछ।';
 
   @override
   String get homeSaveAddress => 'पता सेव करें';
@@ -2306,7 +2395,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get legalWarrantyPolicy => 'वारंटी नीति';
 
   @override
-  String get localNotificationBrand => 'ट्रेडहब डेमो';
+  String get localNotificationBrand => 'डेमोमार्ट';
 
   @override
   String get localNotificationCountdownChannel => 'कीमत काउंटडाउन सूचनाएं';
@@ -2320,7 +2409,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get localNotificationGeneralChannelDescription =>
-      'ट्रेडहब डेमो की सामान्य सूचनाएं';
+      'डेमोमार्ट की सामान्य सूचनाएं';
 
   @override
   String get localNotificationPriceUpdateActive =>
@@ -2357,8 +2446,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get negotiationsLoadFailed => 'मोलभाव लोड नहीं हो सके';
 
   @override
-  String get negotiationsNewPriceFromPlatformLabel =>
-      'ट्रेडहब डेमो की नई कीमत:';
+  String get negotiationsNewPriceFromPlatformLabel => 'डेमोमार्ट की नई कीमत:';
 
   @override
   String get negotiationsNoDate => 'तारीख उपलब्ध नहीं';
@@ -2445,7 +2533,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get orderSuccessDeliveryNote =>
-      'डिलीवरी तय करने के लिए ट्रेडहब डेमो से संपर्क करें';
+      'डिलीवरी तय करने के लिए डेमोमार्ट से संपर्क करें';
 
   @override
   String get orderSuccessMessage =>
@@ -2616,6 +2704,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get privacyKeepAccount => 'खाता रखें';
 
   @override
+  String get privacyRejectedNoReason =>
+      'कोई सवाल हो तो हमसे संपर्क करें। आप नीचे नया अनुरोध भेज सकते हैं।';
+
+  @override
+  String privacyRejectedReason(String reason) {
+    return 'डेमोमार्ट की ओर से कारण: $reason';
+  }
+
+  @override
+  String get privacyRejectedTitle =>
+      'आपका पिछला खाता हटाने का अनुरोध अस्वीकार कर दिया गया';
+
+  @override
   String get privacyRequestBody =>
       'टीम के सदस्य द्वारा सत्यापन के बाद, हम 30 दिनों के अंदर खाता हटा देते हैं। सीमित वित्तीय रिकॉर्ड सिर्फ़ कानूनी, टैक्स, भुगतान, धोखाधड़ी रोकने, विवाद या वारंटी की ज़िम्मेदारियों के लिए रखे जा सकते हैं।';
 
@@ -2650,6 +2751,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get productAddToCart => 'कार्ट में डालें';
 
   @override
+  String get productCartShort => 'कार्ट';
+
+  @override
+  String get productViewCart => 'कार्ट देखें';
+
+  @override
   String get productAddToCartDisabledPreview =>
       'प्रीव्यू मोड में कार्ट में डालना बंद है';
 
@@ -2666,7 +2773,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get productBadgeSale => 'सेल';
 
   @override
-  String get productBrandFallback => 'ट्रेडहब डेमो';
+  String get productBrandFallback => 'डेमोमार्ट';
 
   @override
   String productBrandValue(String brand) {
@@ -2692,7 +2799,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get productBulkUpiNote =>
-      'थोक ऑर्डर आगे बढ़ाने से पहले UPI भुगतान की जांच की जाती है।';
+      'थोक ऑर्डर आगे बढ़ाने से पहले भुगतान की मैन्युअल जांच की जाती है।';
 
   @override
   String get productBuyNow => 'अभी खरीदें';
@@ -2774,7 +2881,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get productOnlyPlatformCanConfirm =>
-      'डील की पुष्टि सिर्फ़ ट्रेडहब डेमो कर सकता है';
+      'डील की पुष्टि सिर्फ़ डेमोमार्ट कर सकता है';
 
   @override
   String get productPlaceholderControlPanel => 'कंट्रोल पैनल';
@@ -2901,12 +3008,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String productShareText(String name, String url) {
-    return 'ट्रेडहब डेमो पर $name देखें!\n\n$url';
+    return 'डेमोमार्ट पर $name देखें!\n\n$url';
   }
 
   @override
   String productShareTextWithPrice(String name, String price, String url) {
-    return 'ट्रेडहब डेमो पर $name देखें - ₹$price!\n\n$url';
+    return 'डेमोमार्ट पर $name देखें - ₹$price!\n\n$url';
   }
 
   @override
@@ -2914,7 +3021,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get productShippingTermsDefault =>
-      'डिलीवरी, भुगतान और वापसी की व्यवस्था उत्पाद, ऑर्डर और जगह पर निर्भर करती है। भुगतान या डिस्पैच से पहले लागू शर्तें जानने के लिए ट्रेडहब डेमो से संपर्क करें।';
+      'डिलीवरी, भुगतान और वापसी की व्यवस्था उत्पाद, ऑर्डर और जगह पर निर्भर करती है। भुगतान या डिस्पैच से पहले लागू शर्तें जानने के लिए डेमोमार्ट से संपर्क करें।';
 
   @override
   String get productShowLess => 'कम दिखाएं';
@@ -3299,16 +3406,493 @@ class AppLocalizationsHi extends AppLocalizations {
   String get wishlistTitle => 'मेरी विशलिस्ट';
 
   @override
-  String get productRequirementMessageLabel =>
-      'संदेश / डिलीवरी की ज़रूरत (वैकल्पिक)';
+  String productPiecesCount(int count) {
+    return '$count पीस';
+  }
 
   @override
-  String get productRequirementMessageHint =>
-      'जैसे पसंदीदा डिलीवरी तारीख़, पैकिंग या साइट की जानकारी';
+  String productMetersCount(String count) {
+    return '$count मी';
+  }
 
   @override
-  String get productRequirementMessageReview => 'संदेश';
+  String productPacketsCount(int count) {
+    return '$count पैकेट';
+  }
 
   @override
-  String get negotiationBuyerMessage => 'संदेश';
+  String productCoilsCount(int count) {
+    return '$count कॉइल';
+  }
+
+  @override
+  String productBundlesCount(int count) {
+    return '$count बंडल';
+  }
+
+  @override
+  String productPackWithContents(String pack, String contents) {
+    return '$pack ($contents)';
+  }
+
+  @override
+  String productPackPrice(String pack, String price) {
+    return '$pack = ₹$price';
+  }
+
+  @override
+  String productCardPack(String unit, String contents) {
+    return '$unit $contents';
+  }
+
+  @override
+  String productPcsCount(int count) {
+    return '$count पीस';
+  }
+
+  @override
+  String get productUnitCoil => 'कॉइल';
+
+  @override
+  String get productUnitBundle => 'बंडल';
+
+  @override
+  String productMinOrderQuantity(String quantity) {
+    return 'न्यूनतम ऑर्डर: $quantity';
+  }
+
+  @override
+  String productPacketContainsPieces(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पीस',
+      one: '1 पीस',
+    );
+    return '1 पैकेट में $_temp0';
+  }
+
+  @override
+  String productPacketContains(String contents) {
+    return '1 पैकेट में: $contents';
+  }
+
+  @override
+  String get uiDecreaseQuantity => 'मात्रा घटाएं';
+
+  @override
+  String get uiIncreaseQuantity => 'मात्रा बढ़ाएं';
+
+  @override
+  String get uiUndo => 'वापस लें';
+
+  @override
+  String uiItemRemoved(String name) {
+    return '$name हटाया गया';
+  }
+
+  @override
+  String get uiAddToWishlist => 'विशलिस्ट में जोड़ें';
+
+  @override
+  String get uiRemoveFromWishlist => 'विशलिस्ट से हटाएं';
+
+  @override
+  String get uiPerMeter => '/मी';
+
+  @override
+  String get uiPerPiece => '/पीस';
+
+  @override
+  String get cartPlaceOrderRequest => 'ऑर्डर रिक्वेस्ट भेजें';
+
+  @override
+  String get cartClearTitle => 'कार्ट खाली करें?';
+
+  @override
+  String get cartClearMessage => 'कार्ट में रखे सारे आइटम हट जाएंगे।';
+
+  @override
+  String get cartClearConfirm => 'हां, खाली करें';
+
+  @override
+  String get cartItemTotal => 'आइटम का कुल';
+
+  @override
+  String cartYouSave(String amount) {
+    return 'आपकी ₹$amount की बचत';
+  }
+
+  @override
+  String get cartViewBreakup => 'पूरा हिसाब देखें';
+
+  @override
+  String get cartHideBreakup => 'हिसाब छिपाएं';
+
+  @override
+  String get cartBillTitle => 'बिल की जानकारी';
+
+  @override
+  String get cartQtySheetTitle => 'मात्रा डालें';
+
+  @override
+  String cartQtyPackCount(String unit) {
+    return '$unit की संख्या';
+  }
+
+  @override
+  String get cartQtyEnter => 'कृपया मात्रा डालें';
+
+  @override
+  String get cartQtyUpdate => 'मात्रा अपडेट करें';
+
+  @override
+  String get cartQtyTapToEdit => 'मात्रा लिखने के लिए टैप करें';
+
+  @override
+  String get ordActionTitle => 'आपको क्या करना है';
+
+  @override
+  String get ordNeedHelp => 'इस ऑर्डर में मदद चाहिए?';
+
+  @override
+  String get ordNeedHelpSubtitle => 'डेमोमार्ट टीम से सीधे बात करें';
+
+  @override
+  String get ordStepUpcoming => 'आगे होगा';
+
+  @override
+  String get ordDeliveredTitle => 'आपका ऑर्डर डिलीवर हो गया';
+
+  @override
+  String ordPlacedOn(String date) {
+    return 'ऑर्डर की तारीख: $date';
+  }
+
+  @override
+  String get ordTransporterLabel => 'ट्रांसपोर्टर / कूरियर';
+
+  @override
+  String get ordLrNumberLabel => 'LR / ट्रैकिंग नंबर';
+
+  @override
+  String get ordHideDetails => 'विवरण छिपाएं';
+
+  @override
+  String get ordCancelledTitle => 'यह ऑर्डर रद्द हो गया';
+
+  @override
+  String get dealNeedsReply => 'आपका जवाब चाहिए';
+
+  @override
+  String dealNeedsReplyCount(int count) {
+    return '$count डील पर आपका जवाब चाहिए';
+  }
+
+  @override
+  String get dealPriceYours => 'आपका रेट';
+
+  @override
+  String get dealPricePlatform => 'डेमोमार्ट का रेट';
+
+  @override
+  String get dealPriceAgreed => 'तय रेट';
+
+  @override
+  String get dealAwaitingPrice => 'जवाब का इंतज़ार';
+
+  @override
+  String get dealToday => 'आज';
+
+  @override
+  String get dealYesterday => 'कल';
+
+  @override
+  String get dealQuickBetterPrice => 'क्या रेट थोड़ा और कम हो सकता है?';
+
+  @override
+  String get dealQuickDeliveryTime => 'डिलीवरी में कितना समय लगेगा?';
+
+  @override
+  String get dealQuickConfirmStock => 'कृपया स्टॉक कन्फ़र्म करें';
+
+  @override
+  String get dealQuickRepliesLabel => 'झटपट जवाब';
+
+  @override
+  String get dealExplainerTitle => 'डील डेस्क कैसे काम करता है';
+
+  @override
+  String get dealSummaryShowDetails => 'पूरी जानकारी देखें';
+
+  @override
+  String get dealSummaryHideDetails => 'जानकारी छुपाएं';
+
+  @override
+  String get dealStepRequested => 'भेजा';
+
+  @override
+  String get dealStepTalking => 'रेट पर बात';
+
+  @override
+  String get dealStepAgreed => 'तय';
+
+  @override
+  String get dealStepOrder => 'ऑर्डर';
+
+  @override
+  String get dealOfferPerUnit => 'प्रति यूनिट';
+
+  @override
+  String get dealSend => 'भेजें';
+
+  @override
+  String get accLogoutTitle => 'लॉग आउट करें?';
+
+  @override
+  String get accLogoutMessage =>
+      'आप कभी भी अपने फ़ोन नंबर और पासवर्ड से फिर से लॉग इन कर सकते हैं।';
+
+  @override
+  String get accUpgradeBenefitsTitle => 'होलसेलर बनकर आपको क्या मिलेगा';
+
+  @override
+  String get accBenefitDealerPrices => 'होलसेल प्रोडक्ट्स पर डीलर रेट';
+
+  @override
+  String get accBenefitDealDesk => 'डील डेस्क पर बेहतर रेट मांगें';
+
+  @override
+  String get accBenefitBulkPacks => 'पूरे पैकेट, कॉइल और बंडल में खरीदें';
+
+  @override
+  String get accBenefitCartRequirement =>
+      'पूरा कार्ट एक साथ ज़रूरत के रूप में भेजें';
+
+  @override
+  String get accStepBusiness => 'बिज़नेस';
+
+  @override
+  String get accStepLocation => 'दुकान की लोकेशन';
+
+  @override
+  String get accStepProof => 'प्रूफ़ फ़ोटो';
+
+  @override
+  String accStepOf(int current, int total) {
+    return 'स्टेप $current / $total';
+  }
+
+  @override
+  String get accReviewNote =>
+      'हमारी टीम हर आवेदन जांचकर ही मंज़ूरी देती है। स्टेटस आपको यहीं दिखेगा।';
+
+  @override
+  String get accTrackSubmitted => 'जमा हुआ';
+
+  @override
+  String get accTrackUnderReview => 'जांच चल रही है';
+
+  @override
+  String get accTrackApproved => 'मंज़ूर';
+
+  @override
+  String get accTrackNeedsChanges => 'बदलाव ज़रूरी';
+
+  @override
+  String get accGstInvalidFormat =>
+      'सही 15 अक्षर का GSTIN डालें, जैसे 22AAAAA0000A1Z5';
+
+  @override
+  String get authTroubleSignIn => 'लॉग इन में दिक्कत?';
+
+  @override
+  String get authContactSupport => 'सपोर्ट से बात करें';
+
+  @override
+  String get homeTrustTrustedByDealers => 'डीलरों का भरोसा';
+
+  @override
+  String get homeTrustGstInvoice => 'GST बिल';
+
+  @override
+  String get homeTrustGenuineBrands => 'असली ब्रांड';
+
+  @override
+  String get homeTrustCallUs => 'हमें कॉल करें';
+
+  @override
+  String get catBrandsLoadError => 'ब्रांड लोड नहीं हो पाए';
+
+  @override
+  String get catCategoriesLoadError => 'कैटेगरी लोड नहीं हो पाईं';
+
+  @override
+  String get catLoadErrorHint => 'अपना इंटरनेट देखें और फिर से कोशिश करें।';
+
+  @override
+  String get catPerMeterShort => '/मी';
+
+  @override
+  String get catPerPieceShort => '/पीस';
+
+  @override
+  String get pdpKeySpecs => 'मुख्य जानकारी';
+
+  @override
+  String get pdpFeatures => 'खूबियां';
+
+  @override
+  String pdpYouSave(String amount) {
+    return 'आपकी बचत $amount';
+  }
+
+  @override
+  String get pdpViewFullScreen => 'पूरी स्क्रीन पर देखें';
+
+  @override
+  String pdpImageOf(int current, int total) {
+    return '$total में से फोटो $current';
+  }
+
+  @override
+  String get searchRemoveFilter => 'फ़िल्टर हटाएं';
+
+  @override
+  String get homeLogoutConfirmTitle => 'लॉग आउट करें?';
+
+  @override
+  String get homeLogoutConfirmMessage =>
+      'अपने ऑर्डर देखने और नया ऑर्डर देने के लिए आपको फिर से लॉग इन करना होगा।';
+
+  @override
+  String get profileStatOrders => 'ऑर्डर';
+
+  @override
+  String get profileStatDeals => 'चालू डील';
+
+  @override
+  String profileMemberSince(String date) {
+    return '$date से सदस्य';
+  }
+
+  @override
+  String get profileYourOrder => 'आपका ऑर्डर';
+
+  @override
+  String profileMoreOrdersInProgress(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count और चालू',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileUpgradeCta => 'अभी आवेदन करें';
+
+  @override
+  String profileAddressesSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पते सेव हैं',
+      one: '1 पता सेव है',
+      zero: 'अभी कोई पता सेव नहीं',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileNotificationsSubtitle => 'आपके ऑर्डर की अपडेट';
+
+  @override
+  String get profileAccountPrivacySubtitle => 'आपका डेटा और अकाउंट हटाना';
+
+  @override
+  String get profileLegalSubtitle => 'प्राइवेसी, शर्तें, शिपिंग और रिफंड';
+
+  @override
+  String profileUnreadCount(int count) {
+    return '$count अपठित';
+  }
+
+  @override
+  String get profileUpgradeContinue => 'आगे बढ़ें';
+
+  @override
+  String get homeGreeting => 'नमस्ते 🙏';
+
+  @override
+  String homeGreetingName(String name) {
+    return 'नमस्ते, $name 🙏';
+  }
+
+  @override
+  String get homeHeadlineCustomer => 'आज आपके बिज़नेस को क्या चाहिए?';
+
+  @override
+  String get homeHeadlineDealer => 'आज क्या मंगवाना चाहेंगे?';
+
+  @override
+  String get homeShopByCategory => 'श्रेणी से खरीदें';
+
+  @override
+  String get homeAllCategoriesTile => 'सभी';
+
+  @override
+  String get notificationsMarkAllRead => 'सभी पढ़ा हुआ करें';
+
+  @override
+  String get notificationsToday => 'आज';
+
+  @override
+  String get notificationsYesterday => 'कल';
+
+  @override
+  String get notificationsEarlier => 'पहले';
+
+  @override
+  String get notificationsFilterAll => 'सभी';
+
+  @override
+  String get notificationsFilterOrders => 'ऑर्डर';
+
+  @override
+  String get notificationsFilterDeals => 'डील';
+
+  @override
+  String get notificationsFilterOffers => 'ऑफ़र';
+
+  @override
+  String get notificationsFilterEmpty => 'यहाँ अभी कुछ नहीं है';
+
+  @override
+  String get notificationsLoadFailed => 'आपकी सूचनाएँ लोड नहीं हो सकीं';
+
+  @override
+  String get notificationsLoadFailedHint =>
+      'अपना इंटरनेट जाँचें और फिर से कोशिश करें।';
+
+  @override
+  String get notificationsActionTrackOrder => 'ऑर्डर ट्रैक करें';
+
+  @override
+  String get notificationsActionViewOrders => 'ऑर्डर देखें';
+
+  @override
+  String get notificationsActionOpenDeal => 'डील खोलें';
+
+  @override
+  String get notificationsActionViewOrder => 'ऑर्डर देखें';
+
+  @override
+  String get dealYourTurn => 'आपकी बारी';
+
+  @override
+  String get uiMuteVideo => 'वीडियो की आवाज़ बंद करें';
+
+  @override
+  String get uiUnmuteVideo => 'वीडियो की आवाज़ चालू करें';
 }

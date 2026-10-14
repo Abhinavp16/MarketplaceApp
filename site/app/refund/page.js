@@ -2,7 +2,7 @@ import LegalPage from '@/components/LegalPage';
 
 export const metadata = {
     title: "Refund & Return Policy",
-    description: "Demo placeholder refund and return policy for TradeHub Demo.",
+    description: "Demo placeholder refund and return policy for DemoMart.",
 };
 
 const sections = [

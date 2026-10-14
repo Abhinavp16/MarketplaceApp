@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tradehub_demo/core/services/api_client.dart';
-import 'package:tradehub_demo/l10n/l10n.dart';
-import 'package:tradehub_demo/widgets/order_checkout_actions_sheet.dart';
+import 'package:demomart_demo/core/services/api_client.dart';
+import 'package:demomart_demo/l10n/l10n.dart';
+import 'package:demomart_demo/widgets/order_checkout_actions_sheet.dart';
 
 void main() {
   group('checkout response routing', () {
@@ -102,7 +102,7 @@ void main() {
       expect(find.text('ऑर्डर TH-101'), findsOneWidget);
       expect(find.text('ऑर्डर देखें'), findsOneWidget);
       expect(find.text('खरीदारी जारी रखें'), findsOneWidget);
-      expect(find.textContaining('ट्रेडहब डेमो'), findsOneWidget);
+      expect(find.textContaining('डेमोमार्ट'), findsOneWidget);
     });
   });
 }

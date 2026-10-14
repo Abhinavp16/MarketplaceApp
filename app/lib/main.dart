@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -14,21 +15,31 @@ import 'core/providers/auth_provider.dart';
 import 'core/providers/app_update_provider.dart';
 import 'core/providers/locale_provider.dart';
 import 'l10n/l10n.dart';
+import 'core/services/deep_link_service.dart';
+import 'core/services/firebase_push_service.dart';
 import 'core/services/notification_navigation_service.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/app_lifecycle_service.dart';
 import 'widgets/config_required_screen.dart';
+import 'widgets/language_wave.dart';
 
 final GlobalKey<ScaffoldMessengerState> scafoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
 Future<void> main() async {
+  // Logs are for development: in profile/release builds they only cost time
+  // on the UI thread.
+  if (!kDebugMode) debugPrint = (String? message, {int? wrapWidth}) {};
   WidgetsFlutterBinding.ensureInitialized();
   if (!ApiConfig.isConfigured) {
     // No backend URL was provided at build time: refuse to run.
     runApp(const ConfigRequiredApp());
     return;
   }
+  // Firebase push is optional: without a google-services.json (or with
+  // --dart-define=ENABLE_PUSH=false) this returns false, the app keeps the
+  // no-op PushService and in-app notifications still work.
+  final pushReady = await FirebasePushService.bootstrap();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -39,18 +50,21 @@ Future<void> main() async {
   final savedLocale = await LocaleNotifier.loadSaved();
   await initializeDateFormatting('en');
   await initializeDateFormatting('hi');
+  // Shared product links (https://demo.demomart.example/products/…).
+  DeepLinkService.instance.initialize();
   runApp(
     ProviderScope(
       overrides: [
         localeProvider.overrideWith((ref) => LocaleNotifier(savedLocale)),
+        ...pushServiceOverrides(firebaseReady: pushReady),
       ],
-      child: const TradeHubApp(),
+      child: const DemoMartApp(),
     ),
   );
 }
 
-class TradeHubApp extends StatelessWidget {
-  const TradeHubApp({super.key});
+class DemoMartApp extends StatelessWidget {
+  const DemoMartApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +91,9 @@ class _NotificationBootstrapState extends ConsumerState<_NotificationBootstrap>
     // ✓ NEW: Initialize app lifecycle observer for token refresh on resume
     AppLifecycleService().initialize();
     WidgetsBinding.instance.addObserver(this);
+
+    ref.read(authProvider.notifier).onBeforeLogout = () =>
+        ref.read(notificationServiceProvider).unregisterPush();
 
     _authSubscription = ref.listenManual<AuthState>(authProvider, (
       previous,
@@ -143,6 +160,17 @@ class _NotificationBootstrapState extends ConsumerState<_NotificationBootstrap>
         GlobalCupertinoLocalizations.delegate,
       ],
       routerConfig: appRouter,
+      // Dark status-bar icons unless a screen asks otherwise (Home's teal
+      // header asks for light ones). A language switch plays as a wave over
+      // the whole app.
+      builder: (context, child) => LanguageWave(
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.dark.copyWith(
+            statusBarColor: Colors.transparent,
+          ),
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
     );
   }
 }

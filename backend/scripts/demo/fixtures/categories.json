@@ -138,5 +138,36 @@
     "order": 2,
     "description": "Work gloves and steel-toe safety boots for handling and site work.",
     "image": "categories/hand-foot-protection.jpg"
+  },
+  {
+    "key": "cables-rope",
+    "name": "Cables & Rope",
+    "nameHindi": "केबल और रस्सी",
+    "brand": "anvilpoint",
+    "parent": "fasteners-fittings",
+    "order": 4,
+    "description": "Utility rope and hoses sold by the coil or bundle and priced per metre.",
+    "image": "categories/fasteners-fittings.jpg"
+  },
+  {
+    "key": "bulk-range",
+    "name": "Contractor Bulk Range",
+    "nameHindi": "ठेकेदार बल्क रेंज",
+    "brand": "anvilpoint",
+    "parent": null,
+    "order": 5,
+    "hideFromCustomers": true,
+    "description": "Carton-quantity fasteners for contractors and wholesalers. Hidden from retail customers and guests; wholesalers and the team see it.",
+    "image": "categories/bolts-nuts.jpg"
+  },
+  {
+    "key": "bulk-fasteners",
+    "name": "Bulk Fasteners",
+    "nameHindi": "बल्क फास्टनर",
+    "brand": "anvilpoint",
+    "parent": "bulk-range",
+    "order": 1,
+    "description": "Galvanised bolts and anchors in cartons of 250 to 1,000.",
+    "image": "categories/bolts-nuts.jpg"
   }
 ]

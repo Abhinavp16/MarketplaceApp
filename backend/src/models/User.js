@@ -97,6 +97,12 @@ const userSchema = new mongoose.Schema({
     proofImages: [{ type: String }],
   },
 
+  // Brands an admin has hidden from this customer only (Customer Profile).
+  // Never sent to the customer's app. See utils/customerVisibility.
+  hiddenBrands: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Company',
+  }],
   fcmTokens: [{
     type: String,
   }],
