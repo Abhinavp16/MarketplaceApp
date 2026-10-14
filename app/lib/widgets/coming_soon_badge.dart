@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_fonts.dart';
+import '../core/theme/app_theme.dart';
 import '../l10n/l10n.dart';
 
-const comingSoonColor = Color(0xFF0284C7);
+/// Coming Soon uses the app's brand colour, like every other accent.
+const comingSoonColor = AppColors.primary;
 
-/// Blue "Coming Soon" pill for product cards and the product page.
+/// Brand-coloured "Coming Soon" pill for product cards and the product page.
 class ComingSoonBadge extends StatelessWidget {
   const ComingSoonBadge({
     super.key,
