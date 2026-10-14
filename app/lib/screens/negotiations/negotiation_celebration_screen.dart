@@ -5,10 +5,10 @@ class NegotiationCelebrationScreen extends StatelessWidget {
   const NegotiationCelebrationScreen({super.key});
 
   // Colors from design
-  static const Color primary = Color(0xFF2DD4BF);
-  static const Color backgroundLight = Color(0xFFF3F8F7);
-  static const Color textDark = Color(0xFF0F2422);
-  static const Color backgroundDark = Color(0xFF0B1514);
+  static const Color primary = Color(0xFF46ec13);
+  static const Color backgroundLight = Color(0xFFf6f8f6);
+  static const Color textDark = Color(0xFF111b0d);
+  static const Color backgroundDark = Color(0xFF142210);
 
   @override
   Widget build(BuildContext context) {

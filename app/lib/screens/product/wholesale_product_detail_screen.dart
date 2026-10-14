@@ -16,7 +16,7 @@ class _WholesaleProductDetailScreenState
   bool _descriptionExpanded = true;
 
   // Colors from design
-  static const Color primary = Color(0xFF115E59);
+  static const Color primary = Color(0xFF1d4ed8);
   static const Color secondary = Color(0xFF3b82f6);
   static const Color backgroundLight = Color(0xFFf8fafc);
   static const Color textDark = Color(0xFF1e293b);
@@ -31,7 +31,7 @@ class _WholesaleProductDetailScreenState
   static const Color slate50 = Color(0xFFf8fafc);
   static const Color slate100 = Color(0xFFf1f5f9);
   static const Color blue100 = Color(0xFFdbeafe);
-  static const Color blue700 = Color(0xFF115E59);
+  static const Color blue700 = Color(0xFF1d4ed8);
 
   @override
   Widget build(BuildContext context) {

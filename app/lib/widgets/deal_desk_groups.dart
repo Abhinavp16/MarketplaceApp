@@ -19,7 +19,7 @@ List<Widget> dealDeskEntries(
   BuildContext context,
   List<Map<String, dynamic>> negotiations,
   Widget Function(Map<String, dynamic> negotiation) buildCard, {
-  Color color = const Color(0xFF134E4A),
+  Color color = const Color(0xFF1E40AF),
   double gap = 0,
 }) {
   final groups = <String, List<Map<String, dynamic>>>{};

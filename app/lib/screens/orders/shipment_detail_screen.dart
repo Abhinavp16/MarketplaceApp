@@ -6,7 +6,7 @@ class ShipmentDetailScreen extends StatelessWidget {
   const ShipmentDetailScreen({super.key});
 
   // Colors from design
-  static const Color primary = Color(0xFF0F766E);
+  static const Color primary = Color(0xFF135bec);
   static const Color backgroundLight = Color(0xFFf6f6f8);
   static const Color textDark = Color(0xFF0d121b);
   static const Color textSecondary = Color(0xFF4c669a);

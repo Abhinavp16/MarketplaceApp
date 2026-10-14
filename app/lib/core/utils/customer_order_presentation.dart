@@ -60,7 +60,7 @@ class CustomerOrderPresentation {
       case 'payment_uploaded':
         return const Color(0xFF6366F1);
       case 'payment_verified':
-        return const Color(0xFF0F766E);
+        return const Color(0xFF2563EB);
       case 'processing':
         return const Color(0xFF7C3AED);
       case 'shipped':

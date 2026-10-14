@@ -69,7 +69,7 @@ this app.
 - Generic brand constants live in `lib/core/config/brand_config.dart`; legal
   texts are placeholders (`assets/legal/demo_*.txt`).
 - Theme: the design system (`lib/core/theme/app_theme.dart`, `lib/widgets/ui/*`,
-  shaders in `shaders/`) uses a teal palette (primary `#0F766E`).
+  shaders in `shaders/`) uses the platform's leaf-green palette (primary `#1F8A3B`).
 - Launcher icons, `assets/images/logo.png` and `assets/images/wholesale_worker.png`
   are simple generated artwork; replace them with real artwork for a real product.
 - The old customer "demo mode" wording is "preview mode" (guest preview), so it

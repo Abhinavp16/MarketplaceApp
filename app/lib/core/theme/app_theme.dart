@@ -4,36 +4,36 @@ import 'package:flutter/physics.dart' show SpringDescription, SpringSimulation;
 import 'package:google_fonts/google_fonts.dart';
 import 'app_fonts.dart';
 
-/// Brand palette: teal for actions, blue only for information, marigold only
-/// for savings and offers. Neutrals lean slightly teal so white cards sit
-/// calmly on the page ground.
+/// Brand palette: leaf green for actions, water blue
+/// for information, marigold only for savings and offers. Neutrals lean
+/// slightly green so white cards sit calmly on the page ground.
 class AppColors {
   // Brand
-  static const Color primary = Color(0xFF0F766E); // teal
-  static const Color primaryDark = Color(0xFF115E59); // pressed / emphasis
-  static const Color primaryDeep = Color(0xFF134E4A); // text on soft teal
-  static const Color primarySoft = Color(0xFFDDF3EF); // tinted fills
-  static const Color primaryTint = Color(0xFFF0FAF8); // faint washes
-  static const Color primaryGlow = Color(0xFF5EEAD4); // light teal on dark teal
+  static const Color primary = Color(0xFF1F8A3B); // leaf
+  static const Color primaryDark = Color(0xFF16702F); // pressed / emphasis
+  static const Color primaryDeep = Color(0xFF0E4A1F); // text on soft green
+  static const Color primarySoft = Color(0xFFE5F2E7); // tinted fills
+  static const Color primaryTint = Color(0xFFF2F8F3); // faint washes
+  static const Color primaryGlow = Color(0xFF9EE3B0); // light green on dark green
   static const Color secondary = Color(0xFF1560A8); // water: links, info
   static const Color secondarySoft = Color(0xFFE6EEF8);
   static const Color accent = Color(0xFFD9730D); // marigold: savings, offers
   static const Color accentSoft = Color(0xFFFCEFDF);
 
   // Backgrounds
-  static const Color backgroundLight = Color(0xFFF3F8F7); // page ground
-  static const Color backgroundDark = Color(0xFF0B1514);
-  static const Color surfaceMuted = Color(0xFFEBF3F1); // inset panels
+  static const Color backgroundLight = Color(0xFFF5F7F2); // page ground
+  static const Color backgroundDark = Color(0xFF0F1712);
+  static const Color surfaceMuted = Color(0xFFEFF3EB); // inset panels
 
   // Surface colors
   static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color surfaceDark = Color(0xFF12211F);
+  static const Color surfaceDark = Color(0xFF16211A);
 
   // Text colors
-  static const Color textPrimary = Color(0xFF0F2422);
-  static const Color textSecondary = Color(0xFF44595A);
-  static const Color textTertiary = Color(0xFF68797A);
-  static const Color textDisabled = Color(0xFFA0B0AF);
+  static const Color textPrimary = Color(0xFF14261A);
+  static const Color textSecondary = Color(0xFF4B5D50);
+  static const Color textTertiary = Color(0xFF6F7F73);
+  static const Color textDisabled = Color(0xFFA3AFA6);
 
   // Status colors (separate from the brand accent)
   static const Color success = Color(0xFF1F8A3B);
@@ -46,21 +46,21 @@ class AppColors {
   static const Color infoSoft = Color(0xFFE6EEF8);
 
   // Border colors
-  static const Color border = Color(0xFFDAE6E3);
-  static const Color borderStrong = Color(0xFFC0D1CD);
-  static const Color borderDark = Color(0xFF24393A);
+  static const Color border = Color(0xFFDFE6DA);
+  static const Color borderStrong = Color(0xFFC6D1C0);
+  static const Color borderDark = Color(0xFF27362C);
 
-  // Gray scale (teal-biased)
-  static const Color gray50 = Color(0xFFF6FAF9);
-  static const Color gray100 = Color(0xFFEBF3F1);
-  static const Color gray200 = Color(0xFFDAE6E3);
-  static const Color gray300 = Color(0xFFC0D1CD);
-  static const Color gray400 = Color(0xFF97ABAA);
-  static const Color gray500 = Color(0xFF68797A);
-  static const Color gray600 = Color(0xFF44595A);
-  static const Color gray700 = Color(0xFF304445);
-  static const Color gray800 = Color(0xFF1F3132);
-  static const Color gray900 = Color(0xFF0F2422);
+  // Gray scale (green-biased)
+  static const Color gray50 = Color(0xFFF7F9F5);
+  static const Color gray100 = Color(0xFFEFF3EB);
+  static const Color gray200 = Color(0xFFDFE6DA);
+  static const Color gray300 = Color(0xFFC6D1C0);
+  static const Color gray400 = Color(0xFF9DAA9F);
+  static const Color gray500 = Color(0xFF6F7F73);
+  static const Color gray600 = Color(0xFF4B5D50);
+  static const Color gray700 = Color(0xFF34453A);
+  static const Color gray800 = Color(0xFF22322A);
+  static const Color gray900 = Color(0xFF14261A);
 
   // Rating stars.
   static const Color star = Color(0xFFE8A317);
@@ -111,7 +111,7 @@ class AppShapes {
 class AppShadows {
   static List<BoxShadow> get card => [
     BoxShadow(
-      color: const Color(0xFF0F2422).withValues(alpha: 0.05),
+      color: const Color(0xFF14261A).withValues(alpha: 0.05),
       blurRadius: 12,
       offset: const Offset(0, 4),
     ),
@@ -119,7 +119,7 @@ class AppShadows {
 
   static List<BoxShadow> get raised => [
     BoxShadow(
-      color: const Color(0xFF0F2422).withValues(alpha: 0.10),
+      color: const Color(0xFF14261A).withValues(alpha: 0.10),
       blurRadius: 24,
       offset: const Offset(0, 8),
     ),
@@ -128,7 +128,7 @@ class AppShadows {
   /// Shadow for bars that float above content (bottom nav, cart bar).
   static List<BoxShadow> get bar => [
     BoxShadow(
-      color: const Color(0xFF0F2422).withValues(alpha: 0.08),
+      color: const Color(0xFF14261A).withValues(alpha: 0.08),
       blurRadius: 20,
       offset: const Offset(0, -4),
     ),
@@ -282,10 +282,10 @@ class AppTheme {
       surfaceContainerHighest: AppColors.gray200,
       outline: AppColors.borderStrong,
       outlineVariant: AppColors.border,
-      shadow: Color(0xFF0F2422),
+      shadow: Color(0xFF14261A),
       inverseSurface: AppColors.textPrimary,
       onInverseSurface: Colors.white,
-      inversePrimary: Color(0xFF5EEAD4),
+      inversePrimary: Color(0xFF8FD3A0),
       surfaceTint: Colors.transparent,
     );
 
@@ -580,7 +580,7 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
-        actionTextColor: AppColors.primaryGlow,
+        actionTextColor: const Color(0xFF9EE3B0),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.primary,

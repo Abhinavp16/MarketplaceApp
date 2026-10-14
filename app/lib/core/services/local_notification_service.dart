@@ -239,7 +239,7 @@ class LocalNotificationService {
             chronometerCountDown: true,
             timeoutAfter: remaining.inMilliseconds,
             largeIcon: const DrawableResourceAndroidBitmap('ic_launcher'),
-            color: const Color(0xFF0F766E),
+            color: const Color(0xFF1B8E3E),
             category: AndroidNotificationCategory.promo,
             subText: title,
             styleInformation: BigTextStyleInformation(
@@ -293,7 +293,7 @@ class LocalNotificationService {
           importance: Importance.high,
           priority: Priority.high,
           largeIcon: const DrawableResourceAndroidBitmap('ic_launcher'),
-          color: const Color(0xFF0F766E),
+          color: const Color(0xFF1B8E3E),
           styleInformation: BigTextStyleInformation(
             body,
             contentTitle: title,

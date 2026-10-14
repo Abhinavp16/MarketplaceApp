@@ -18,8 +18,8 @@ class AppLandingScreen extends ConsumerStatefulWidget {
 
 class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
   // Theme Colors based on the shared image
-  static const Color primary = Color(0xFF0F766E); // Vibrant Blue
-  // static const Color primaryDark = Color(0xFF115E59); // Removed unused field to fix lint
+  static const Color primary = Color(0xFF2563EB); // Vibrant Blue
+  // static const Color primaryDark = Color(0xFF1D4ED8); // Removed unused field to fix lint
   static const Color background = Color(0xFFF8FAFC);
   static const Color textDark = Color(0xFF0F172A);
   static const Color textMuted = Color(0xFF64748B);
@@ -401,7 +401,7 @@ class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF115E59), Color(0xFF0F766E)],
+                  colors: [Color(0xFF1D4ED8), Color(0xFF2563EB)],
                 ),
               ),
             ),
@@ -412,7 +412,7 @@ class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
               errorWidget: (_, __, ___) => Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF115E59), Color(0xFF0F766E)],
+                    colors: [Color(0xFF1D4ED8), Color(0xFF2563EB)],
                   ),
                 ),
               ),
@@ -533,7 +533,7 @@ class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
         child: Row(
           children: [
             _buildVoucherCard('Power Tools', '20%', [
-              const Color(0xFF134E4A),
+              const Color(0xFF1E40AF),
               const Color(0xFF3B82F6),
             ], HugeIcons.strokeRoundedDroplet),
             _buildVoucherCard('Safety Gear', '15%', [
@@ -541,8 +541,8 @@ class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
               const Color(0xFF10B981),
             ], HugeIcons.strokeRoundedLeaf01),
             _buildVoucherCard('Fasteners', '10%', [
-              const Color(0xFF115E59),
-              const Color(0xFF14B8A6),
+              const Color(0xFF5B21B6),
+              const Color(0xFF8B5CF6),
             ], HugeIcons.strokeRoundedSettings01),
           ],
         ),
@@ -560,9 +560,9 @@ class _AppLandingScreenState extends ConsumerState<AppLandingScreen> {
 
           // Cycle through colors based on index
           final List<List<Color>> colorSets = [
-            [const Color(0xFF134E4A), const Color(0xFF3B82F6)],
+            [const Color(0xFF1E40AF), const Color(0xFF3B82F6)],
             [const Color(0xFF065F46), const Color(0xFF10B981)],
-            [const Color(0xFF115E59), const Color(0xFF14B8A6)],
+            [const Color(0xFF5B21B6), const Color(0xFF8B5CF6)],
             [const Color(0xFFB91C1C), const Color(0xFFEF4444)],
           ];
           final colors = colorSets[index % colorSets.length];
@@ -1433,7 +1433,7 @@ class DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF0F766E).withOpacity(0.35)
+      ..color = const Color(0xFF2563EB).withOpacity(0.35)
       ..style = PaintingStyle.fill;
 
     const double dashWidth = 9.0;
