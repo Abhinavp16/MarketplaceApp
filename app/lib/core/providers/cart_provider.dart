@@ -142,24 +142,39 @@ class CartState {
 
 class CartNotifier extends StateNotifier<CartState> {
   final Dio _dio;
+  final Future<String?> Function() _readToken;
 
   // Debounce timers for quantity updates to prevent race conditions
   final Map<String, Timer> _quantityDebounceTimers = {};
 
-  CartNotifier()
-    : _dio = Dio(
-        BaseOptions(
-          baseUrl: ApiConfig.baseUrl,
-          connectTimeout: ApiConfig.connectTimeout,
-          receiveTimeout: ApiConfig.receiveTimeout,
-        ),
-      ),
+  /// Items added while signed out (the server refused them). They only exist
+  /// on this phone until the next sign-in, when [fetchCart] sends them to the
+  /// account's cart instead of replacing them with the (empty) server cart.
+  final Set<String> _unsyncedKeys = {};
+
+  /// Shared by overlapping [fetchCart] calls (Home and Cart both refresh after
+  /// sign-in) so guest items are sent to the server exactly once.
+  Future<void>? _fetchInFlight;
+
+  CartNotifier({Dio? dio, Future<String?> Function()? readToken})
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              baseUrl: ApiConfig.baseUrl,
+              connectTimeout: ApiConfig.connectTimeout,
+              receiveTimeout: ApiConfig.receiveTimeout,
+            ),
+          ),
+      _readToken = readToken ?? StorageService.getAccessToken,
       super(CartState());
 
   Future<Dio> get _authedDio async {
-    final token = await StorageService.getAccessToken();
+    final token = await _readToken();
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
+    } else {
+      _dio.options.headers.remove('Authorization');
     }
     return _dio;
   }
@@ -171,10 +186,44 @@ class CartNotifier extends StateNotifier<CartState> {
     return parsed != null && parsed > 0 ? parsed : 1;
   }
 
-  Future<void> fetchCart() async {
+  Future<void> fetchCart() {
+    return _fetchInFlight ??= _fetchCart().whenComplete(() {
+      _fetchInFlight = null;
+    });
+  }
+
+  /// Sends the items a guest added to the signed-in account's cart. Items the
+  /// server rejects for another reason (stock, minimum quantity) are dropped.
+  Future<void> _flushUnsyncedItems(Dio dio) async {
+    if (_unsyncedKeys.isEmpty || dio.options.headers['Authorization'] == null) {
+      return;
+    }
+    final pending = state.items
+        .where((i) => _unsyncedKeys.contains(i.cartItemKey))
+        .toList();
+    _unsyncedKeys.clear();
+    for (final item in pending) {
+      try {
+        await dio.post(
+          '/cart/items',
+          data: {'productId': item.productId, 'quantity': item.quantity},
+        );
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 401) {
+          // Not signed in after all: keep them for the next attempt.
+          _unsyncedKeys.add(item.cartItemKey);
+        }
+      } catch (_) {
+        _unsyncedKeys.add(item.cartItemKey);
+      }
+    }
+  }
+
+  Future<void> _fetchCart() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final dio = await _authedDio;
+      await _flushUnsyncedItems(dio);
       final response = await dio.get('/cart');
       if (response.statusCode == 200 && response.data['success'] == true) {
         final items = _parseServerCart(response.data['data']);
@@ -279,6 +328,7 @@ class CartNotifier extends StateNotifier<CartState> {
         final serverItems = _parseServerCart(response.data['data']);
         state = state.copyWith(items: serverItems);
       }
+      _unsyncedKeys.remove(itemKey);
     } on DioException catch (e) {
       final status = e.response?.statusCode ?? 0;
       if (status >= 400 && status < 500 && status != 401) {
@@ -286,9 +336,10 @@ class CartNotifier extends StateNotifier<CartState> {
         state = state.copyWith(items: previousItems);
         return e;
       }
-      // Offline or not authenticated — keep optimistic state
+      // Offline or not signed in: keep the item here and send it on sign-in.
+      _unsyncedKeys.add(itemKey);
     } catch (_) {
-      // Keep optimistic state
+      _unsyncedKeys.add(itemKey);
     }
     return null;
   }
@@ -469,6 +520,7 @@ class CartNotifier extends StateNotifier<CartState> {
   }
 
   Future<void> clearCart() async {
+    _unsyncedKeys.clear();
     state = state.copyWith(items: []);
     try {
       final dio = await _authedDio;
