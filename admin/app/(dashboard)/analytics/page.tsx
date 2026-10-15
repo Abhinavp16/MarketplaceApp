@@ -57,6 +57,7 @@ interface DemandData {
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#ff7f7f'];
+const prettyCategory = (value: unknown) => String(value ?? '').replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase())
 const BAR_COLORS = { views: '#3b82f6', orders: '#2563eb', revenue: '#f59e0b', demand: '#ef4444' };
 
 export default function AnalyticsPage() {
@@ -221,7 +222,7 @@ export default function AnalyticsPage() {
                                                 </linearGradient>
                                             </defs>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                                            <XAxis dataKey="date" stroke="#666" tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} tickLine={false} axisLine={false} />
+                                            <XAxis dataKey="date" stroke="#666" tickMargin={14} padding={{ left: 12, right: 12 }} tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} tickLine={false} axisLine={false} />
                                             <YAxis stroke="#666" tickFormatter={(v) => `₹${v / 1000}k`} tickLine={false} axisLine={false} />
                                             <Tooltip contentStyle={{ backgroundColor: '#1F1F1F', border: '1px solid #333', borderRadius: '8px' }} labelStyle={{ color: '#aaa' }} />
                                             <Area type="monotone" dataKey="revenue" stroke="#2563eb" fillOpacity={1} fill="url(#colorRevenue)" />
@@ -239,13 +240,13 @@ export default function AnalyticsPage() {
                                 <div className="h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
-                                            <Pie data={salesData?.byCategory} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="revenue">
+                                            <Pie data={salesData?.byCategory} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="revenue" nameKey="category">
                                                 {salesData?.byCategory.map((_, index) => (
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
                                             </Pie>
-                                            <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} contentStyle={{ backgroundColor: '#1F1F1F', border: '1px solid #333', borderRadius: '8px' }} itemStyle={{ color: '#fff' }} />
-                                            <Legend iconType="circle" />
+                                            <Tooltip formatter={(value: number, name: string) => [`₹${value.toLocaleString()}`, prettyCategory(name)]} contentStyle={{ backgroundColor: '#1F1F1F', border: '1px solid #333', borderRadius: '8px' }} itemStyle={{ color: '#fff' }} />
+                                            <Legend iconType="circle" formatter={(value) => prettyCategory(value)} />
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -329,7 +330,7 @@ export default function AnalyticsPage() {
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#222" horizontal={false} />
                                                 <XAxis type="number" stroke="#666" tickLine={false} axisLine={false}
                                                     tickFormatter={(v) => productSort === 'revenue' ? `₹${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}` : v.toLocaleString()} />
-                                                <YAxis type="category" dataKey="name" stroke="#999" width={140} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+                                                <YAxis type="category" dataKey="name" stroke="#999" width={220} interval={0} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v) => (typeof v === 'string' && v.length > 26 ? v.slice(0, 25) + '…' : v)} />
                                                 <Tooltip
                                                     contentStyle={{ backgroundColor: '#1F1F1F', border: '1px solid #333', borderRadius: '8px' }}
                                                     labelStyle={{ color: '#fff', fontWeight: 600 }}
@@ -464,7 +465,7 @@ export default function AnalyticsPage() {
                                             <BarChart data={topViewed.slice(0, 8)}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
                                                 <XAxis dataKey="name" stroke="#666" tick={{ fontSize: 11 }} tickLine={false} axisLine={false}
-                                                    tickFormatter={(v) => v.length > 15 ? v.slice(0, 15) + '…' : v} />
+                                                    interval={0} tickFormatter={(v) => v.length > 12 ? v.slice(0, 11) + '…' : v} />
                                                 <YAxis stroke="#666" tickLine={false} axisLine={false} />
                                                 <Tooltip contentStyle={{ backgroundColor: '#1F1F1F', border: '1px solid #333', borderRadius: '8px' }} />
                                                 <Legend iconType="circle" />
